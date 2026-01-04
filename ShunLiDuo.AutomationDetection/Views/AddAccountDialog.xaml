@@ -1,0 +1,251 @@
+<Window x:Class="ShunLiDuo.AutomationDetection.Views.AddAccountDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="新增账户" Height="600" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        mc:Ignorable="d"
+        d:DesignHeight="600" d:DesignWidth="500">
+    <Window.Resources>
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+        <Style x:Key="RequiredLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource LabelStyle}">
+            <Setter Property="Foreground" Value="Red"/>
+        </Style>
+        <Style x:Key="TextBoxStyle" TargetType="TextBox">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="TextAreaStyle" TargetType="TextBox" BasedOn="{StaticResource TextBoxStyle}">
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="AcceptsReturn" Value="True"/>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+            <Setter Property="MinHeight" Value="80"/>
+        </Style>
+        <Style x:Key="CancelButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="30,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="#CCCCCC"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F5F5F5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ConfirmButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="30,10"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#1976D2"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Background" Value="#CCCCCC"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 账户编号 -->
+        <Grid Grid.Row="0" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="账户编号" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
+            </StackPanel>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding AccountNo, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextBoxStyle}"/>
+        </Grid>
+
+        <!-- 登录账户 -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="登录账户" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
+            </StackPanel>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding LoginAccount, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextBoxStyle}"/>
+        </Grid>
+
+        <!-- 账户密码 -->
+        <Grid Grid.Row="2" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="账户密码" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
+            </StackPanel>
+            <PasswordBox x:Name="PasswordBox" Grid.Column="1" 
+                    Style="{StaticResource PasswordBoxStyle}"
+                    PasswordChanged="PasswordBox_PasswordChanged"/>
+        </Grid>
+
+        <!-- 姓名 -->
+        <Grid Grid.Row="3" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="姓名" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
+            </StackPanel>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextBoxStyle}"/>
+        </Grid>
+
+        <!-- 性别 -->
+        <Grid Grid.Row="4" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="性别" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
+            </StackPanel>
+            <ComboBox Grid.Column="1" 
+                     ItemsSource="{Binding Genders}"
+                     SelectedItem="{Binding SelectedGender, Mode=TwoWay}"
+                     Style="{StaticResource ComboBoxStyle}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Grid>
+
+        <!-- 电话 -->
+        <Grid Grid.Row="5" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="电话" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
+            </StackPanel>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding Phone, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextBoxStyle}"/>
+        </Grid>
+
+        <!-- 工号 -->
+        <Grid Grid.Row="6" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="工号" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
+            </StackPanel>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding EmployeeNo, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextBoxStyle}"/>
+        </Grid>
+
+        <!-- 角色 -->
+        <Grid Grid.Row="7" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="角色" Style="{StaticResource LabelStyle}"/>
+                <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
+            </StackPanel>
+            <ComboBox Grid.Column="1" 
+                     ItemsSource="{Binding Roles}"
+                     SelectedItem="{Binding SelectedRole, Mode=TwoWay}"
+                     Style="{StaticResource ComboBoxStyle}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}"/>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+        </Grid>
+
+        <!-- 备注 -->
+        <Grid Grid.Row="8" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="备注" Style="{StaticResource LabelStyle}"/>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextAreaStyle}"/>
+        </Grid>
+
+        <!-- Buttons -->
+        <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,20">
+            <Button Content="取消" Style="{StaticResource CancelButtonStyle}" 
+                   Click="CancelButton_Click" Margin="0,0,10,0"/>
+            <Button Content="确定" Style="{StaticResource ConfirmButtonStyle}" 
+                   Click="ConfirmButton_Click"
+                   IsEnabled="{Binding IsValid}"/>
+        </StackPanel>
+    </Grid>
+</Window>
+

@@ -1,0 +1,83 @@
+<Window x:Class="ShunLiDuo.AutomationDetection.Views.AddDetectionRoomDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="新增检测室" Height="350" Width="480"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        mc:Ignorable="d"
+        d:DesignHeight="350" d:DesignWidth="480"
+        Background="White">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Resources/CommonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <Style x:Key="LabelStyle" TargetType="TextBlock" BasedOn="{StaticResource StandardLabelStyle}">
+                <Setter Property="Margin" Value="0,0,10,0"/>
+            </Style>
+            <Style x:Key="TextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource DialogTextBoxStyle}"/>
+            <Style x:Key="TextAreaStyle" TargetType="TextBox" BasedOn="{StaticResource DialogTextAreaStyle}"/>
+            <Style x:Key="CancelButtonStyle" TargetType="Button" BasedOn="{StaticResource DialogCancelButtonStyle}"/>
+            <Style x:Key="ConfirmButtonStyle" TargetType="Button" BasedOn="{StaticResource DialogConfirmButtonStyle}"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- 检测室编号 -->
+        <Grid Grid.Row="0" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="检测室编号" Style="{StaticResource LabelStyle}"/>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding RoomNo, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextBoxStyle}"/>
+        </Grid>
+
+        <!-- 检测室名称 -->
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="检测室名称" Style="{StaticResource LabelStyle}"/>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding RoomName, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextBoxStyle}"/>
+        </Grid>
+
+        <!-- 备注 -->
+        <Grid Grid.Row="2" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="备注" Style="{StaticResource LabelStyle}"/>
+            <TextBox Grid.Column="1" 
+                    Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
+                    Style="{StaticResource TextAreaStyle}"/>
+        </Grid>
+
+        <!-- 按钮 -->
+        <StackPanel Grid.Row="4" Orientation="Horizontal" 
+                   HorizontalAlignment="Right" Margin="0,20,0,20">
+            <Button Content="取消" Style="{StaticResource CancelButtonStyle}" 
+                   Click="CancelButton_Click" Margin="0,0,10,0"/>
+            <Button Content="确定" Style="{StaticResource ConfirmButtonStyle}" 
+                   Click="ConfirmButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>
+

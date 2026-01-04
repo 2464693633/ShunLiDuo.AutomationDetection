@@ -1,0 +1,171 @@
+<Window x:Class="ShunLiDuo.AutomationDetection.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:prism="http://prismlibrary.com/"
+        xmlns:converters="clr-namespace:ShunLiDuo.AutomationDetection.Converters"
+        Title="顺利多自动化检测系统" Height="900" Width="1600"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized">
+    <Window.Resources>
+        <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        </Style>
+        <Style x:Key="NavButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="20,15"/>
+            <Setter Property="Margin" Value="2"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#F5F5F5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="ActiveNavButtonStyle" TargetType="Button" BasedOn="{StaticResource NavButtonStyle}">
+            <Setter Property="Background" Value="#2196F3"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style x:Key="LeftNavButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="20,15"/>
+            <Setter Property="Margin" Value="0,5"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E0E0E0"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="80"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="60"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="400"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- Title -->
+                <TextBlock Grid.Column="0" Text="顺利多自动化检测" 
+                          Style="{StaticResource HeaderTextStyle}"
+                          HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                
+                <!-- User Info -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0">
+                    <TextBlock Text="姓名: XX" Margin="10,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="工号: 9527" Margin="10,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="CurrentTimeText" Margin="10,0" VerticalAlignment="Center"/>
+                    <Button Content="admin" Background="Transparent" BorderThickness="0" Cursor="Hand" Margin="10,0,0,0">
+                        <Button.Template>
+                            <ControlTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="30" Height="30" Fill="#2196F3" Margin="0,0,5,0"/>
+                                    <TextBlock Text="admin" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition>
+                    <ColumnDefinition.Style>
+                        <Style TargetType="ColumnDefinition">
+                            <Setter Property="Width" Value="200"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsLeftNavVisible}" Value="False">
+                                    <Setter Property="Width" Value="0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ColumnDefinition.Style>
+                </ColumnDefinition>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left Navigation - 调度规则菜单 -->
+            <Border Grid.Column="0" Background="#F5F5F5" BorderBrush="#E0E0E0" BorderThickness="0,0,1,0"
+                    Visibility="{Binding IsLeftNavVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel Margin="10">
+                    <!-- 调度规则菜单 -->
+                    <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=RuleManagementView}">
+                        <Button Content="物流盒管理" Style="{StaticResource LeftNavButtonStyle}" 
+                                Command="{Binding NavigateToLogisticsBoxCommand}" Margin="0,5"/>
+                        <Button Content="检测室管理" Style="{StaticResource LeftNavButtonStyle}" 
+                                Command="{Binding NavigateToDetectionRoomCommand}" Margin="0,5"/>
+                        <Button Content="规则管理" Style="{StaticResource LeftNavButtonStyle}" 
+                                Command="{Binding NavigateToRuleManagementCommand}" Margin="0,5"/>
+                    </StackPanel>
+                    
+                    <!-- 报警与异常菜单 -->
+                    <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=AlarmView}">
+                        <Button Content="设备异常" Style="{StaticResource LeftNavButtonStyle}" 
+                                Command="{Binding NavigateToDeviceExceptionCommand}" Margin="0,5"/>
+                        <Button Content="设备报警" Style="{StaticResource LeftNavButtonStyle}" 
+                                Command="{Binding NavigateToDeviceAlarmCommand}" Margin="0,5"/>
+                    </StackPanel>
+                    
+                    <!-- 系统设置菜单 -->
+                    <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=SystemSettingsView}">
+                        <Button Content="账户管理" Style="{StaticResource LeftNavButtonStyle}" 
+                                Command="{Binding NavigateToAccountManagementCommand}" Margin="0,5"/>
+                        <Button Content="角色管理" Style="{StaticResource LeftNavButtonStyle}" 
+                                Command="{Binding NavigateToRoleManagementCommand}" Margin="0,5"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Main Content Region -->
+            <ContentControl Grid.Column="1" prism:RegionManager.RegionName="MainContentRegion">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="Margin" Value="0"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsLeftNavVisible}" Value="True">
+                                <Setter Property="Margin" Value="10"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+            </ContentControl>
+        </Grid>
+
+        <!-- Footer Navigation -->
+        <Border Grid.Row="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="0,1,0,0" >
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Content="任务管理" Style="{StaticResource ActiveNavButtonStyle}" 
+                        Command="{Binding NavigateToTaskCommand}" Margin="100,0,100,0"/>
+                <Button Content="调度规则" Style="{StaticResource NavButtonStyle}" 
+                        Command="{Binding NavigateToRuleCommand}" Margin="100,0,100,0"/>
+               
+                <Button Content="报警与异常" Style="{StaticResource NavButtonStyle}" 
+                        Command="{Binding NavigateToAlarmCommand}" Margin="100,0,100,0"/>
+                <Button Content="系统设置" Style="{StaticResource NavButtonStyle}" 
+                        Command="{Binding NavigateToSystemSettingsCommand}" Margin="100,0,100,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
