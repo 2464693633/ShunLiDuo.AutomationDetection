@@ -9,6 +9,16 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private string _boxName;
         private string _remark;
 
+        public AddLogisticsBoxDialogViewModel(Models.LogisticsBoxItem box = null)
+        {
+            if (box != null)
+            {
+                BoxNo = box.BoxNo ?? string.Empty;
+                BoxName = box.BoxName ?? string.Empty;
+                Remark = box.Remark ?? string.Empty;
+            }
+        }
+
         public string BoxNo
         {
             get => _boxNo;

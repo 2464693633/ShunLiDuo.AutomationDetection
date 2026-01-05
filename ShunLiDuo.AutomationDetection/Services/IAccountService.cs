@@ -9,6 +9,8 @@ namespace ShunLiDuo.AutomationDetection.Services
         Task<List<UserItem>> GetAllAccountsAsync();
         Task<List<UserItem>> SearchAccountsAsync(string keyword);
         Task<UserItem> GetAccountByIdAsync(int id);
+        Task<UserItem> ValidateLoginAsync(string loginAccount, string password);
+        Task<string> GetAccountPermissionsAsync(int accountId);
         Task<bool> AddAccountAsync(UserItem account);
         Task<bool> UpdateAccountAsync(UserItem account);
         Task<bool> DeleteAccountAsync(int id);

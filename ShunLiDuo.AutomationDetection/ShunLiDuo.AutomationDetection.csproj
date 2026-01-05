@@ -41,8 +41,14 @@
     <Reference Include="DryIoc, Version=4.7.7.0, Culture=neutral, PublicKeyToken=dfbf2bd50fcf7768, processorArchitecture=MSIL">
       <HintPath>..\packages\DryIoc.dll.4.7.7\lib\net45\DryIoc.dll</HintPath>
     </Reference>
+    <Reference Include="MaterialDesignColors, Version=2.1.4.0, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
+      <HintPath>..\packages\MaterialDesignColors.2.1.4\lib\net462\MaterialDesignColors.dll</HintPath>
+    </Reference>
+    <Reference Include="MaterialDesignThemes.Wpf, Version=4.9.0.0, Culture=neutral, PublicKeyToken=df2a72020bd7962a, processorArchitecture=MSIL">
+      <HintPath>..\packages\MaterialDesignThemes.4.9.0\lib\net462\MaterialDesignThemes.Wpf.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.31\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.39\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
     </Reference>
     <Reference Include="Prism, Version=8.1.97.5141, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.Core.8.1.97\lib\net47\Prism.dll</HintPath>
@@ -53,11 +59,27 @@
     <Reference Include="Prism.Wpf, Version=8.1.97.5141, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
       <HintPath>..\packages\Prism.Wpf.8.1.97\lib\net47\Prism.Wpf.dll</HintPath>
     </Reference>
+    <Reference Include="S7.Net, Version=0.20.0.0, Culture=neutral, PublicKeyToken=d5812d469e84c693, processorArchitecture=MSIL">
+      <HintPath>..\packages\S7netplus.0.20.0\lib\net462\S7.Net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Buffers, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Buffers.4.5.1\lib\net461\System.Buffers.dll</HintPath>
+    </Reference>
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.118.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <HintPath>..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\lib\net46\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Numerics.Vectors, Version=4.1.4.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Numerics.Vectors.4.5.0\lib\net46\System.Numerics.Vectors.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.3\lib\net461\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -113,6 +135,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\CommunicationSettingsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AddLogisticsBoxDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -129,7 +155,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ViewDetailDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AddRoleDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LoginWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -173,6 +207,9 @@
     <Compile Include="Views\RoleManagementView.xaml.cs">
       <DependentUpon>RoleManagementView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\CommunicationSettingsView.xaml.cs">
+      <DependentUpon>CommunicationSettingsView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AddLogisticsBoxDialog.xaml.cs">
       <DependentUpon>AddLogisticsBoxDialog.xaml</DependentUpon>
     </Compile>
@@ -185,16 +222,24 @@
     <Compile Include="Views\AddAccountDialog.xaml.cs">
       <DependentUpon>AddAccountDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ViewDetailDialog.xaml.cs">
+      <DependentUpon>ViewDetailDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AddRoleDialog.xaml.cs">
       <DependentUpon>AddRoleDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LoginWindow.xaml.cs">
+      <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModels\AddLogisticsBoxDialogViewModel.cs" />
     <Compile Include="ViewModels\AddDetectionRoomDialogViewModel.cs" />
     <Compile Include="ViewModels\AddRuleDialogViewModel.cs" />
     <Compile Include="ViewModels\AddAccountDialogViewModel.cs" />
     <Compile Include="ViewModels\AddRoleDialogViewModel.cs" />
+    <Compile Include="ViewModels\LoginWindowViewModel.cs" />
     <Compile Include="ViewModels\DetectionRoomManagementViewModel.cs" />
     <Compile Include="ViewModels\RoleManagementViewModel.cs" />
+    <Compile Include="ViewModels\CommunicationSettingsViewModel.cs" />
     <Compile Include="ViewModels\RuleManagementViewModel.cs" />
     <Compile Include="Data\DatabaseContext.cs" />
     <Compile Include="Data\IRuleRepository.cs" />
@@ -207,6 +252,8 @@
     <Compile Include="Data\AccountRepository.cs" />
     <Compile Include="Data\IRoleRepository.cs" />
     <Compile Include="Data\RoleRepository.cs" />
+    <Compile Include="Data\IPermissionRepository.cs" />
+    <Compile Include="Data\PermissionRepository.cs" />
     <Compile Include="Services\IRuleService.cs" />
     <Compile Include="Services\RuleService.cs" />
     <Compile Include="Services\IDetectionRoomService.cs" />
@@ -217,17 +264,35 @@
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\IRoleService.cs" />
     <Compile Include="Services\RoleService.cs" />
+    <Compile Include="Services\IPermissionService.cs" />
+    <Compile Include="Services\PermissionService.cs" />
+    <Compile Include="Services\ICurrentUserService.cs" />
+    <Compile Include="Services\CurrentUserService.cs" />
+    <Compile Include="Services\IS7CommunicationService.cs" />
+    <Compile Include="Services\S7CommunicationService.cs" />
+    <Compile Include="Services\ICommunicationConfigService.cs" />
+    <Compile Include="Services\CommunicationConfigService.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
+    <Compile Include="Converters\StringToVisibilityConverterForError.cs" />
     <Compile Include="Converters\BoolToThreeStateConverter.cs" />
+    <Compile Include="Converters\BoolToNullableBoolConverter.cs" />
     <Compile Include="Converters\IndeterminateToNullableBoolConverter.cs" />
+    <Compile Include="Converters\TagEqualsConverter.cs" />
+    <Compile Include="Converters\InvertBooleanConverter.cs" />
+    <Compile Include="Converters\InvertBooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\BooleanToColorConverter.cs" />
+    <Compile Include="Converters\BooleanToPlcStatusTextConverter.cs" />
+    <Compile Include="Converters\BooleanToConnectButtonTextConverter.cs" />
     <Compile Include="Models\TaskItem.cs" />
     <Compile Include="Models\LogisticsBoxItem.cs" />
     <Compile Include="Models\DetectionRoomItem.cs" />
+    <Compile Include="Models\RoomBoxList.cs" />
     <Compile Include="Models\RuleItem.cs" />
     <Compile Include="Models\DeviceExceptionItem.cs" />
     <Compile Include="Models\UserItem.cs" />
     <Compile Include="Models\RoleItem.cs" />
     <Compile Include="Models\PermissionItem.cs" />
+    <Compile Include="Models\PermissionModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -262,5 +327,7 @@
       <ErrorText>这台计算机上缺少此项目引用的 NuGet 程序包。使用“NuGet 程序包还原”可下载这些程序包。有关更多信息，请参见 http://go.microsoft.com/fwlink/?LinkID=322105。缺少的文件是 {0}。</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Stub.System.Data.SQLite.Core.NetFramework.1.0.118.0\build\net46\Stub.System.Data.SQLite.Core.NetFramework.targets'))" />
+    <Error Condition="!Exists('..\packages\MaterialDesignThemes.4.9.0\build\MaterialDesignThemes.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MaterialDesignThemes.4.9.0\build\MaterialDesignThemes.targets'))" />
   </Target>
+  <Import Project="..\packages\MaterialDesignThemes.4.9.0\build\MaterialDesignThemes.targets" Condition="Exists('..\packages\MaterialDesignThemes.4.9.0\build\MaterialDesignThemes.targets')" />
 </Project>

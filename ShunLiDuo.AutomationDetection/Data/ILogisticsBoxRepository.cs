@@ -7,7 +7,10 @@ namespace ShunLiDuo.AutomationDetection.Data
     public interface ILogisticsBoxRepository
     {
         Task<List<LogisticsBoxItem>> GetAllBoxesAsync();
+        Task<LogisticsBoxItem> GetBoxByIdAsync(int id);
         Task<int> InsertBoxAsync(LogisticsBoxItem box);
+        Task<bool> UpdateBoxAsync(LogisticsBoxItem box);
+        Task<bool> DeleteBoxAsync(int id);
     }
 }
 

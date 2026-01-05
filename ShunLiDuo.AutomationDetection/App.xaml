@@ -1,11 +1,20 @@
 <Prism:PrismApplication x:Class="ShunLiDuo.AutomationDetection.App"
                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                xmlns:Prism="http://prismlibrary.com/">
+                xmlns:Prism="http://prismlibrary.com/"
+                xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
         
         <Prism:PrismApplication.Resources>
             <ResourceDictionary>
                 <ResourceDictionary.MergedDictionaries>
+                    <!-- Material Design 主题 -->
+                    <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
+                    <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                    <!-- Material Design 主色调 - 蓝色 -->
+                    <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.Blue.xaml" />
+                    <!-- Material Design 强调色 - 浅蓝色 -->
+                    <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Accent/MaterialDesignColor.LightBlue.xaml" />
+                    <!-- 自定义样式 -->
                     <ResourceDictionary Source="Resources/CommonStyles.xaml"/>
                 </ResourceDictionary.MergedDictionaries>
             </ResourceDictionary>

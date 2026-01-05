@@ -3,6 +3,7 @@ using Prism.Commands;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.Models;
 
@@ -12,6 +13,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
     {
         private readonly IRuleService _ruleService;
         private readonly IDetectionRoomService _detectionRoomService;
+        private readonly IS7CommunicationService _s7Service;
         private string _logisticsBoxCode;
         private string _logisticsBoxInputInfo;
         private RuleItem _selectedRuleItem;
@@ -19,20 +21,70 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private ObservableCollection<RuleItem> _rules;
         private ObservableCollection<Models.DetectionRoomItem> _detectionRooms;
         private ObservableCollection<string> _logisticsBoxList;
-        private ObservableCollection<string> _room1Boxes;
-        private ObservableCollection<string> _room2Boxes;
-        private ObservableCollection<string> _room3Boxes;
-        private ObservableCollection<string> _room4Boxes;
-        private ObservableCollection<string> _room5Boxes;
+        private ObservableCollection<Models.RoomBoxList> _roomBoxLists;
+        private bool _isPlcConnected;
+        private DispatcherTimer _plcStatusTimer;
 
-        public TaskManagementViewModel(IRuleService ruleService, IDetectionRoomService detectionRoomService)
+        public bool IsPlcConnected
+        {
+            get => _isPlcConnected;
+            set => SetProperty(ref _isPlcConnected, value);
+        }
+
+        public TaskManagementViewModel(IRuleService ruleService, IDetectionRoomService detectionRoomService, IS7CommunicationService s7Service)
         {
             _ruleService = ruleService;
             _detectionRoomService = detectionRoomService;
+            _s7Service = s7Service;
             InitializeData();
             ExecuteCommand = new DelegateCommand(OnExecute);
             LoadRulesAsync();
             LoadDetectionRoomsAsync();
+            
+            // 初始化PLC连接状态
+            UpdatePlcConnectionStatus();
+            
+            // 监听连接状态变化
+            _s7Service.ConnectionStatusChanged += S7Service_ConnectionStatusChanged;
+            
+            // 启动定时器定期检查连接状态（每秒检查一次）
+            _plcStatusTimer = new DispatcherTimer();
+            _plcStatusTimer.Interval = System.TimeSpan.FromSeconds(1);
+            _plcStatusTimer.Tick += (s, e) => UpdatePlcConnectionStatus();
+            _plcStatusTimer.Start();
+        }
+        
+        // 公开刷新方法，供视图调用
+        public async System.Threading.Tasks.Task RefreshDetectionRoomsAsync()
+        {
+            await LoadDetectionRoomsAsync();
+        }
+        
+        // 公开刷新规则方法，供视图调用
+        public async System.Threading.Tasks.Task RefreshRulesAsync()
+        {
+            await LoadRulesAsync();
+        }
+        
+        // 刷新所有数据
+        public async System.Threading.Tasks.Task RefreshAllDataAsync()
+        {
+            await LoadRulesAsync();
+            await LoadDetectionRoomsAsync();
+        }
+
+        private void S7Service_ConnectionStatusChanged(object sender, bool isConnected)
+        {
+            // 直接更新，BindableBase的SetProperty已经处理了线程安全
+            IsPlcConnected = isConnected;
+        }
+
+        private void UpdatePlcConnectionStatus()
+        {
+            // 直接更新，BindableBase的SetProperty已经处理了线程安全
+            var currentStatus = _s7Service.IsConnected;
+            // 强制更新，即使值相同也触发通知（确保UI刷新）
+            IsPlcConnected = currentStatus;
         }
 
         private async void InitializeData()
@@ -45,56 +97,122 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 new Models.TaskItem { Id = 4 }
             };
 
-            Room1Boxes = new ObservableCollection<string>();
-            Room2Boxes = new ObservableCollection<string>();
-            Room3Boxes = new ObservableCollection<string>();
-            Room4Boxes = new ObservableCollection<string>();
-            Room5Boxes = new ObservableCollection<string>();
-
+            RoomBoxLists = new ObservableCollection<Models.RoomBoxList>();
             LogisticsBoxList = new ObservableCollection<string>();
             Rules = new ObservableCollection<RuleItem>();
             DetectionRooms = new ObservableCollection<Models.DetectionRoomItem>();
         }
 
-        private async void LoadRulesAsync()
+        private async System.Threading.Tasks.Task LoadRulesAsync()
         {
             try
             {
                 var rules = await _ruleService.GetAllRulesAsync();
+                var currentSelectedRuleId = SelectedRuleItem?.Id ?? 0;
+                
                 Rules.Clear();
                 foreach (var rule in rules)
                 {
                     Rules.Add(rule);
                 }
                 
-                // 默认选择第一个规则
-                if (Rules.Count > 0)
+                // 尝试恢复之前选中的规则，如果没有则选择第一个
+                if (currentSelectedRuleId > 0)
+                {
+                    var previousRule = Rules.FirstOrDefault(r => r.Id == currentSelectedRuleId);
+                    if (previousRule != null)
+                    {
+                        SelectedRuleItem = previousRule;
+                    }
+                    else if (Rules.Count > 0)
+                    {
+                        SelectedRuleItem = Rules[0];
+                    }
+                }
+                else if (Rules.Count > 0)
                 {
                     SelectedRuleItem = Rules[0];
                 }
             }
             catch (System.Exception ex)
             {
-                System.Windows.MessageBox.Show($"加载规则失败: {ex.Message}", "错误", 
-                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                System.Diagnostics.Debug.WriteLine($"加载规则失败: {ex.Message}");
             }
         }
 
-        private async void LoadDetectionRoomsAsync()
+        private async System.Threading.Tasks.Task LoadDetectionRoomsAsync()
         {
             try
             {
                 var rooms = await _detectionRoomService.GetAllRoomsAsync();
+                
+                // 检查检测室列表是否有变化
+                bool hasChanged = false;
+                if (DetectionRooms.Count != rooms.Count)
+                {
+                    hasChanged = true;
+                }
+                else
+                {
+                    for (int i = 0; i < rooms.Count; i++)
+                    {
+                        if (i >= DetectionRooms.Count || 
+                            DetectionRooms[i].Id != rooms[i].Id ||
+                            DetectionRooms[i].RoomName != rooms[i].RoomName)
+                        {
+                            hasChanged = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!hasChanged)
+                {
+                    return; // 没有变化，不需要更新
+                }
+                
+                // 保存现有的物流盒分配
+                var existingBoxesMap = new System.Collections.Generic.Dictionary<int, ObservableCollection<string>>();
+                foreach (var roomBoxList in RoomBoxLists)
+                {
+                    if (roomBoxList.Room != null)
+                    {
+                        existingBoxesMap[roomBoxList.Room.Id] = new ObservableCollection<string>(roomBoxList.Boxes);
+                    }
+                }
+                
+                // 更新检测室列表
                 DetectionRooms.Clear();
                 foreach (var room in rooms)
                 {
                     DetectionRooms.Add(room);
                 }
+                
+                // 更新RoomBoxLists
+                RoomBoxLists.Clear();
+                foreach (var room in rooms)
+                {
+                    var roomBoxList = new Models.RoomBoxList
+                    {
+                        Room = room
+                    };
+                    
+                    // 恢复之前的物流盒分配（如果存在）
+                    if (existingBoxesMap.ContainsKey(room.Id))
+                    {
+                        roomBoxList.Boxes = existingBoxesMap[room.Id];
+                    }
+                    else
+                    {
+                        roomBoxList.Boxes = new ObservableCollection<string>();
+                    }
+                    
+                    RoomBoxLists.Add(roomBoxList);
+                }
             }
             catch (System.Exception ex)
             {
-                System.Windows.MessageBox.Show($"加载检测室失败: {ex.Message}", "错误", 
-                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                System.Diagnostics.Debug.WriteLine($"加载检测室失败: {ex.Message}");
             }
         }
 
@@ -109,11 +227,10 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             }
 
             // 清空所有检测室的物流盒
-            Room1Boxes.Clear();
-            Room2Boxes.Clear();
-            Room3Boxes.Clear();
-            Room4Boxes.Clear();
-            Room5Boxes.Clear();
+            foreach (var roomBoxList in RoomBoxLists)
+            {
+                roomBoxList.Boxes.Clear();
+            }
 
             // 重新分配所有物流盒
             foreach (var boxCode in LogisticsBoxList.ToList())
@@ -145,13 +262,13 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
         private void AutoAssignToRoom(string boxCode)
         {
-            if (SelectedRuleItem == null || DetectionRooms == null || DetectionRooms.Count == 0) return;
+            if (SelectedRuleItem == null || RoomBoxLists == null || RoomBoxLists.Count == 0) return;
 
             // 提取物流盒编号（去掉"物流盒编码"前缀）
             var boxNo = boxCode.Replace("物流盒编码", "").Trim();
             
-            // 解析规则中的检测室编号和物流盒编号
-            var ruleDetectionRoomNos = SelectedRuleItem.DetectionRooms?.Split(',')
+            // 解析规则中的检测室名称（DetectionRooms存储的是RoomName）和物流盒编号
+            var ruleDetectionRoomNames = SelectedRuleItem.DetectionRooms?.Split(',')
                 .Where(r => !string.IsNullOrWhiteSpace(r))
                 .Select(r => r.Trim())
                 .ToList() ?? new System.Collections.Generic.List<string>();
@@ -164,46 +281,22 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             // 检查该物流盒是否在规则的物流盒列表中
             if (ruleLogisticsBoxNos.Contains(boxNo))
             {
-                // 根据规则中的检测室编号匹配到实际的检测室
-                foreach (var ruleRoomNo in ruleDetectionRoomNos)
+                // 根据规则中的检测室名称匹配到实际的检测室
+                // DetectionRooms存储的是RoomName，所以优先匹配RoomName
+                foreach (var ruleRoomName in ruleDetectionRoomNames)
                 {
-                    // 查找匹配的检测室
-                    var matchedRoom = DetectionRooms.FirstOrDefault(r => 
-                        r.RoomNo == ruleRoomNo || 
-                        r.RoomName == ruleRoomNo ||
-                        r.RoomNo.Contains(ruleRoomNo) ||
-                        ruleRoomNo.Contains(r.RoomNo));
+                    // 查找匹配的检测室（优先精确匹配RoomName，也支持RoomNo匹配）
+                    var matchedRoomBoxList = RoomBoxLists.FirstOrDefault(rbl => 
+                        rbl.Room != null && (
+                            rbl.Room.RoomName == ruleRoomName || 
+                            rbl.Room.RoomNo == ruleRoomName ||
+                            rbl.Room.RoomName.Contains(ruleRoomName) ||
+                            ruleRoomName.Contains(rbl.Room.RoomName)));
                     
-                    if (matchedRoom != null)
+                    if (matchedRoomBoxList != null && !matchedRoomBoxList.Boxes.Contains(boxCode))
                     {
-                        // 根据检测室编号分配到对应的检测室列表
-                        // 假设检测室编号格式为 "1", "2", "3" 等，或包含数字
-                        var roomNo = matchedRoom.RoomNo;
-                        if (roomNo.Contains("1") || matchedRoom.RoomName.Contains("1"))
-                        {
-                            if (!Room1Boxes.Contains(boxCode))
-                                Room1Boxes.Add(boxCode);
-                        }
-                        else if (roomNo.Contains("2") || matchedRoom.RoomName.Contains("2"))
-                        {
-                            if (!Room2Boxes.Contains(boxCode))
-                                Room2Boxes.Add(boxCode);
-                        }
-                        else if (roomNo.Contains("3") || matchedRoom.RoomName.Contains("3"))
-                        {
-                            if (!Room3Boxes.Contains(boxCode))
-                                Room3Boxes.Add(boxCode);
-                        }
-                        else if (roomNo.Contains("4") || matchedRoom.RoomName.Contains("4"))
-                        {
-                            if (!Room4Boxes.Contains(boxCode))
-                                Room4Boxes.Add(boxCode);
-                        }
-                        else if (roomNo.Contains("5") || matchedRoom.RoomName.Contains("5"))
-                        {
-                            if (!Room5Boxes.Contains(boxCode))
-                                Room5Boxes.Add(boxCode);
-                        }
+                        matchedRoomBoxList.Boxes.Add(boxCode);
+                        break; // 找到一个匹配的检测室后就不再继续查找
                     }
                 }
             }
@@ -244,11 +337,10 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     if (value != null && LogisticsBoxList != null && LogisticsBoxList.Count > 0)
                     {
                         // 清空所有检测室
-                        Room1Boxes.Clear();
-                        Room2Boxes.Clear();
-                        Room3Boxes.Clear();
-                        Room4Boxes.Clear();
-                        Room5Boxes.Clear();
+                        foreach (var roomBoxList in RoomBoxLists)
+                        {
+                            roomBoxList.Boxes.Clear();
+                        }
                         
                         // 重新分配所有物流盒
                         foreach (var boxCode in LogisticsBoxList.ToList())
@@ -266,34 +358,10 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             set => SetProperty(ref _tasks, value);
         }
 
-        public ObservableCollection<string> Room1Boxes
+        public ObservableCollection<Models.RoomBoxList> RoomBoxLists
         {
-            get => _room1Boxes;
-            set => SetProperty(ref _room1Boxes, value);
-        }
-
-        public ObservableCollection<string> Room2Boxes
-        {
-            get => _room2Boxes;
-            set => SetProperty(ref _room2Boxes, value);
-        }
-
-        public ObservableCollection<string> Room3Boxes
-        {
-            get => _room3Boxes;
-            set => SetProperty(ref _room3Boxes, value);
-        }
-
-        public ObservableCollection<string> Room4Boxes
-        {
-            get => _room4Boxes;
-            set => SetProperty(ref _room4Boxes, value);
-        }
-
-        public ObservableCollection<string> Room5Boxes
-        {
-            get => _room5Boxes;
-            set => SetProperty(ref _room5Boxes, value);
+            get => _roomBoxLists;
+            set => SetProperty(ref _roomBoxLists, value);
         }
 
         public DelegateCommand ExecuteCommand { get; private set; }

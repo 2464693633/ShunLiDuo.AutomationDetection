@@ -41,6 +41,34 @@ namespace ShunLiDuo.AutomationDetection.Data
             });
         }
 
+        public async Task<DetectionRoomItem> GetRoomByIdAsync(int id)
+        {
+            return await Task.Run(() =>
+            {
+                string sql = "SELECT Id, RoomNo, RoomName, Remark FROM DetectionRooms WHERE Id = @id";
+
+                using (var command = new SQLiteCommand(sql, _context.Connection))
+                {
+                    command.Parameters.AddWithValue("@id", id);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new DetectionRoomItem
+                            {
+                                Id = reader.GetInt32(0),
+                                RoomNo = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                                RoomName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                                Remark = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
+                                IsSelected = false
+                            };
+                        }
+                    }
+                }
+                return null;
+            });
+        }
+
         public async Task<int> InsertRoomAsync(DetectionRoomItem room)
         {
             return await Task.Run(() =>
@@ -59,6 +87,43 @@ namespace ShunLiDuo.AutomationDetection.Data
 
                     var result = command.ExecuteScalar();
                     return Convert.ToInt32(result);
+                }
+            });
+        }
+
+        public async Task<bool> UpdateRoomAsync(DetectionRoomItem room)
+        {
+            return await Task.Run(() =>
+            {
+                string sql = @"UPDATE DetectionRooms 
+                              SET RoomNo = @RoomNo, RoomName = @RoomName, Remark = @Remark, UpdateTime = @UpdateTime
+                              WHERE Id = @Id";
+
+                using (var command = new SQLiteCommand(sql, _context.Connection))
+                {
+                    command.Parameters.AddWithValue("@Id", room.Id);
+                    command.Parameters.AddWithValue("@RoomNo", room.RoomNo ?? string.Empty);
+                    command.Parameters.AddWithValue("@RoomName", room.RoomName ?? string.Empty);
+                    command.Parameters.AddWithValue("@Remark", room.Remark ?? string.Empty);
+                    command.Parameters.AddWithValue("@UpdateTime", DateTime.Now);
+
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            });
+        }
+
+        public async Task<bool> DeleteRoomAsync(int id)
+        {
+            return await Task.Run(() =>
+            {
+                string sql = "DELETE FROM DetectionRooms WHERE Id = @Id";
+
+                using (var command = new SQLiteCommand(sql, _context.Connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    int rowsAffected = command.ExecuteNonQuery();
+                    return rowsAffected > 0;
                 }
             });
         }

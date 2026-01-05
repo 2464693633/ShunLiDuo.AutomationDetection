@@ -40,20 +40,23 @@
         <!-- Data Grid -->
         <DataGrid Grid.Row="2" 
                  Style="{StaticResource StandardDataGridStyle}"
-                 Margin="0">
+                 Margin="0"
+                 RowStyle="{StaticResource DataGridRowStyle}"
+                 CellStyle="{StaticResource DataGridCellStyle}"
+                 ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Header="" Width="50"/>
-                <DataGridTextColumn Header="序号" Width="70"/>
-                <DataGridTextColumn Header="设备名称" Width="140"/>
-                <DataGridTextColumn Header="报警类型" Width="140"/>
-                <DataGridTextColumn Header="报警级别" Width="110"/>
-                <DataGridTextColumn Header="报警时间" Width="170"/>
-                <DataGridTextColumn Header="状态" Width="100"/>
-                <DataGridTextColumn Header="备注" Width="*"/>
+                <DataGridTextColumn Header="序号" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="设备名称" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="报警类型" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="报警级别" Width="110" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="报警时间" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="状态" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="备注" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTemplateColumn Header="操作" Width="180">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="处理" Foreground="{StaticResource SuccessBrush}" 
                                           Style="{StaticResource LinkButtonStyle}"/>
                                 <TextBlock Text="查看" Foreground="{StaticResource InfoBrush}" 

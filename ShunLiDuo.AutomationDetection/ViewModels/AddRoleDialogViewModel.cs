@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using ShunLiDuo.AutomationDetection.Models;
+using ShunLiDuo.AutomationDetection.Services;
 
 namespace ShunLiDuo.AutomationDetection.ViewModels
 {
@@ -14,96 +16,57 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private string _remark;
         private ObservableCollection<PermissionItem> _permissions;
         private bool _isValid;
+        private readonly IPermissionService _permissionService;
 
-        public AddRoleDialogViewModel()
+        public AddRoleDialogViewModel(IPermissionService permissionService)
         {
-            InitializePermissions();
+            _permissionService = permissionService;
+            Permissions = new ObservableCollection<PermissionItem>();
             SelectAllCommand = new DelegateCommand(OnSelectAll);
             DeselectAllCommand = new DelegateCommand(OnDeselectAll);
+            LoadPermissionsAsync();
         }
 
-        public AddRoleDialogViewModel(string existingPermissions) : this()
+        public AddRoleDialogViewModel(IPermissionService permissionService, string existingPermissions) : this(permissionService)
         {
             LoadPermissions(existingPermissions);
         }
 
-        private void InitializePermissions()
+        private string _pendingPermissionsString;
+
+        public AddRoleDialogViewModel(IPermissionService permissionService, Models.RoleItem role) : this(permissionService)
         {
-            Permissions = new ObservableCollection<PermissionItem>
+            if (role != null)
             {
-                new PermissionItem
+                RoleName = role.RoleName ?? string.Empty;
+                Remark = role.Remark ?? string.Empty;
+                _pendingPermissionsString = role.Permissions ?? string.Empty;
+            }
+        }
+
+        private async void LoadPermissionsAsync()
+        {
+            try
+            {
+                var permissionTree = await _permissionService.GetPermissionTreeAsync();
+                Permissions.Clear();
+                foreach (var permission in permissionTree)
                 {
-                    Name = "任务管理",
-                    Code = "TaskManagement",
-                    Children = new ObservableCollection<PermissionItem>
-                    {
-                        new PermissionItem { Name = "新增", Code = "TaskManagement.Add" },
-                        new PermissionItem { Name = "编辑", Code = "TaskManagement.Edit" },
-                        new PermissionItem { Name = "删除", Code = "TaskManagement.Delete" },
-                        new PermissionItem { Name = "查看", Code = "TaskManagement.View" }
-                    }
-                },
-                new PermissionItem
-                {
-                    Name = "调度规则管理",
-                    Code = "RuleManagement",
-                    Children = new ObservableCollection<PermissionItem>
-                    {
-                        new PermissionItem { Name = "新增", Code = "RuleManagement.Add" },
-                        new PermissionItem { Name = "编辑", Code = "RuleManagement.Edit" },
-                        new PermissionItem { Name = "删除", Code = "RuleManagement.Delete" },
-                        new PermissionItem { Name = "查看", Code = "RuleManagement.View" }
-                    }
-                },
-                new PermissionItem
-                {
-                    Name = "物流盒管理",
-                    Code = "LogisticsBoxManagement",
-                    Children = new ObservableCollection<PermissionItem>
-                    {
-                        new PermissionItem { Name = "新增", Code = "LogisticsBoxManagement.Add" },
-                        new PermissionItem { Name = "编辑", Code = "LogisticsBoxManagement.Edit" },
-                        new PermissionItem { Name = "删除", Code = "LogisticsBoxManagement.Delete" },
-                        new PermissionItem { Name = "查看", Code = "LogisticsBoxManagement.View" }
-                    }
-                },
-                new PermissionItem
-                {
-                    Name = "检测室管理",
-                    Code = "DetectionRoomManagement",
-                    Children = new ObservableCollection<PermissionItem>
-                    {
-                        new PermissionItem { Name = "新增", Code = "DetectionRoomManagement.Add" },
-                        new PermissionItem { Name = "编辑", Code = "DetectionRoomManagement.Edit" },
-                        new PermissionItem { Name = "删除", Code = "DetectionRoomManagement.Delete" },
-                        new PermissionItem { Name = "查看", Code = "DetectionRoomManagement.View" }
-                    }
-                },
-                new PermissionItem
-                {
-                    Name = "账户管理",
-                    Code = "AccountManagement",
-                    Children = new ObservableCollection<PermissionItem>
-                    {
-                        new PermissionItem { Name = "新增", Code = "AccountManagement.Add" },
-                        new PermissionItem { Name = "编辑", Code = "AccountManagement.Edit" },
-                        new PermissionItem { Name = "删除", Code = "AccountManagement.Delete" },
-                        new PermissionItem { Name = "查看", Code = "AccountManagement.View" }
-                    }
-                },
-                new PermissionItem
-                {
-                    Name = "角色管理",
-                    Code = "RoleManagement",
-                    Children = new ObservableCollection<PermissionItem>
-                    {
-                        new PermissionItem { Name = "新增", Code = "RoleManagement.Add" },
-                        new PermissionItem { Name = "编辑", Code = "RoleManagement.Edit" },
-                        new PermissionItem { Name = "删除", Code = "RoleManagement.Delete" },
-                        new PermissionItem { Name = "查看", Code = "RoleManagement.View" }
-                    }
+                    Permissions.Add(permission);
                 }
-            };
+                
+                // 如果有待加载的权限字符串，现在加载它
+                if (!string.IsNullOrWhiteSpace(_pendingPermissionsString))
+                {
+                    LoadPermissions(_pendingPermissionsString);
+                    _pendingPermissionsString = null;
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Windows.MessageBox.Show($"加载权限失败: {ex.Message}", "错误", 
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
         }
 
         private void LoadPermissions(string permissionsString)
@@ -111,16 +74,53 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             if (string.IsNullOrWhiteSpace(permissionsString))
                 return;
 
-            var selectedCodes = permissionsString.Split(',').Select(s => s.Trim()).ToHashSet();
+            // 确保 Permissions 集合已经加载
+            if (Permissions == null || Permissions.Count == 0)
+            {
+                _pendingPermissionsString = permissionsString;
+                return;
+            }
+
+            var selectedCodes = permissionsString.Split(',').Select(s => s.Trim()).Where(s => !string.IsNullOrEmpty(s)).ToHashSet();
             
+            // 先设置所有子权限的选择状态，避免触发父权限更新
             foreach (var permission in Permissions)
             {
-                permission.IsSelected = selectedCodes.Contains(permission.Code);
-                foreach (var child in permission.Children)
+                if (permission == null) continue;
+                
+                if (permission.Children != null && permission.Children.Count > 0)
                 {
-                    child.IsSelected = selectedCodes.Contains(child.Code);
+                    foreach (var child in permission.Children)
+                    {
+                        if (child != null)
+                        {
+                            // 直接设置字段值，避免触发属性变更通知
+                            var isSelected = selectedCodes.Contains(child.Code);
+                            if (child.IsSelected != isSelected)
+                            {
+                                child.IsSelected = isSelected;
+                            }
+                        }
+                    }
                 }
-                permission.UpdateSelectionState();
+            }
+            
+            // 然后设置父权限的选择状态
+            foreach (var permission in Permissions)
+            {
+                if (permission == null) continue;
+                
+                var isSelected = selectedCodes.Contains(permission.Code);
+                if (permission.IsSelected != isSelected)
+                {
+                    permission.IsSelected = isSelected;
+                }
+                
+                // 最后更新父权限的选择状态（这会根据子权限的状态更新父权限）
+                if (permission.Children != null && permission.Children.Count > 0)
+                {
+                    permission.UpdateSelectionState();
+                }
             }
         }
 

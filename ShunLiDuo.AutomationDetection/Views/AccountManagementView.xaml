@@ -45,7 +45,7 @@
         </Style>
     </UserControl.Resources>
     
-    <Grid>
+    <Grid Background="White" Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -81,29 +81,36 @@
                HorizontalAlignment="Left" Margin="0,0,0,15"/>
 
         <!-- Data Grid -->
-        <DataGrid Grid.Row="3" 
+        <DataGrid x:Name="AccountsDataGrid"
+                 Grid.Row="3" 
                  ItemsSource="{Binding Users}"
-                 Style="{StaticResource StandardDataGridStyle}">
+                 Style="{StaticResource StandardDataGridStyle}"
+                 Margin="0"
+                 RowStyle="{StaticResource DataGridRowStyle}"
+                 CellStyle="{StaticResource DataGridCellStyle}"
+                 ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="80"/>
-                <DataGridTextColumn Header="账户编号" Binding="{Binding AccountNo}" Width="120"/>
-                <DataGridTextColumn Header="登录账户" Binding="{Binding LoginAccount}" Width="140"/>
-                <DataGridTextColumn Header="账户密码" Binding="{Binding Password}" Width="120"/>
-                <DataGridTextColumn Header="姓名" Binding="{Binding Name}" Width="100"/>
-                <DataGridTextColumn Header="性别" Binding="{Binding Gender}" Width="70"/>
-                <DataGridTextColumn Header="电话" Binding="{Binding Phone}" Width="130"/>
-                <DataGridTextColumn Header="工号" Binding="{Binding EmployeeNo}" Width="110"/>
-                <DataGridTextColumn Header="角色" Binding="{Binding Role}" Width="110"/>
-                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*"/>
+                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="80" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="账户编号" Binding="{Binding AccountNo}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="登录账户" Binding="{Binding LoginAccount}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="账户密码" Binding="{Binding Password}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="姓名" Binding="{Binding Name}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="性别" Binding="{Binding Gender}" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="电话" Binding="{Binding Phone}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="工号" Binding="{Binding EmployeeNo}" Width="110" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="角色" Binding="{Binding Role}" Width="110" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTemplateColumn Header="操作" Width="220">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="编辑" Foreground="{StaticResource SuccessBrush}" 
                                           Style="{StaticResource LinkButtonStyle}"
+                                            Margin="0,0,15,0"
                                           MouseLeftButtonDown="Edit_Click"/>
                                 <TextBlock Text="删除" Foreground="{StaticResource DangerBrush}" 
                                           Style="{StaticResource LinkButtonStyle}"
+                                            Margin="0,0,15,0"
                                           MouseLeftButtonDown="Delete_Click"/>
                                 <TextBlock Text="查看" Foreground="{StaticResource InfoBrush}" 
                                           Style="{StaticResource LinkButtonStyle}"
@@ -116,7 +123,7 @@
         </DataGrid>
 
         <!-- Pagination -->
-        <Grid Grid.Row="4" Margin="10,10,10,10" Height="40">
+        <Grid Grid.Row="4" Margin="0,15,0,0" Height="40">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <TextBlock Text="{Binding TotalCount, StringFormat='共{0}条'}" 
                           VerticalAlignment="Center" 

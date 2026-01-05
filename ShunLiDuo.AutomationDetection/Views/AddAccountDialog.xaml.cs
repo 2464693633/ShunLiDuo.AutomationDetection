@@ -1,18 +1,42 @@
 using System.Windows;
 using System.Windows.Controls;
 using ShunLiDuo.AutomationDetection.ViewModels;
+using ShunLiDuo.AutomationDetection.Models;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
     public partial class AddAccountDialog : Window
     {
         public AddAccountDialogViewModel ViewModel { get; private set; }
+        public bool IsEditMode { get; private set; }
+        public int AccountId { get; private set; }
 
-        public AddAccountDialog()
+        public AddAccountDialog(Services.IRoleService roleService, UserItem account = null)
         {
             InitializeComponent();
-            ViewModel = new AddAccountDialogViewModel();
+            IsEditMode = account != null;
+            ViewModel = new ViewModels.AddAccountDialogViewModel(roleService, account);
             DataContext = ViewModel;
+            
+            if (IsEditMode)
+            {
+                Title = "编辑账户";
+                AccountId = account.Id;
+                // 在Loaded事件中设置PasswordBox的密码
+                Loaded += (s, e) =>
+                {
+                    if (account != null)
+                    {
+                        PasswordBox.Password = account.Password ?? string.Empty;
+                    }
+                    TitleTextBlock.Text = "编辑账户";
+                };
+            }
+            else
+            {
+                Title = "新增账户";
+                Loaded += (s, e) => TitleTextBlock.Text = "新增账户";
+            }
         }
 
         public string AccountNo => ViewModel.AccountNo;
@@ -22,7 +46,7 @@ namespace ShunLiDuo.AutomationDetection.Views
         public string Gender => ViewModel.SelectedGender;
         public string Phone => ViewModel.Phone;
         public string EmployeeNo => ViewModel.EmployeeNo;
-        public string Role => ViewModel.SelectedRole;
+        public int? RoleId => ViewModel.SelectedRoleId;
         public string Remark => ViewModel.Remark;
 
         private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
@@ -31,6 +55,11 @@ namespace ShunLiDuo.AutomationDetection.Views
             {
                 ViewModel.Password = passwordBox.Password;
             }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

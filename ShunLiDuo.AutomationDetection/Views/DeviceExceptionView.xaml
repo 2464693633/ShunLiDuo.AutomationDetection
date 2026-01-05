@@ -68,15 +68,18 @@
         <DataGrid Grid.Row="2" 
                  ItemsSource="{Binding DeviceExceptions}"
                  Style="{StaticResource StandardDataGridStyle}"
-                 Margin="0">
+                 Margin="0"
+                 RowStyle="{StaticResource DataGridRowStyle}"
+                 CellStyle="{StaticResource DataGridCellStyle}"
+                 ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70"/>
-                <DataGridTextColumn Header="异常编号" Binding="{Binding ExceptionNo}" Width="130"/>
-                <DataGridTextColumn Header="异常时间" Binding="{Binding CreateTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="160"/>
-                <DataGridTextColumn Header="异常设备" Binding="{Binding DeviceName}" Width="130"/>
-                <DataGridTextColumn Header="检测室" Binding="{Binding RoomName}" Width="110"/>
-                <DataGridTextColumn Header="异常代码" Binding="{Binding ExceptionType}" Width="110"/>
-                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*"/>
+                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="异常编号" Binding="{Binding ExceptionNo}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="异常时间" Binding="{Binding CreateTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="160" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="异常设备" Binding="{Binding DeviceName}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="检测室" Binding="{Binding RoomName}" Width="110" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="异常代码" Binding="{Binding ExceptionType}" Width="110" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
             </DataGrid.Columns>
         </DataGrid>
 

@@ -33,6 +33,26 @@ namespace ShunLiDuo.AutomationDetection.Services
             return await _repository.GetAccountByIdAsync(id);
         }
 
+        public async Task<UserItem> ValidateLoginAsync(string loginAccount, string password)
+        {
+            if (string.IsNullOrWhiteSpace(loginAccount) || string.IsNullOrWhiteSpace(password))
+            {
+                return null;
+            }
+
+            return await _repository.GetAccountByLoginAsync(loginAccount, password);
+        }
+
+        public async Task<string> GetAccountPermissionsAsync(int accountId)
+        {
+            if (accountId <= 0)
+            {
+                return string.Empty;
+            }
+
+            return await _repository.GetAccountPermissionsAsync(accountId);
+        }
+
         public async Task<bool> AddAccountAsync(UserItem account)
         {
             if (account == null || string.IsNullOrWhiteSpace(account.AccountNo) || 

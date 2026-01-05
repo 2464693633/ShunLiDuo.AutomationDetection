@@ -15,17 +15,19 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private int _totalCount;
         private bool _isLoading;
         private readonly IAccountService _accountService;
+        private readonly IRoleService _roleService;
 
-        public AccountManagementViewModel(IAccountService accountService)
+        public AccountManagementViewModel(IAccountService accountService, IRoleService roleService)
         {
             _accountService = accountService;
+            _roleService = roleService;
             Users = new ObservableCollection<UserItem>();
             SearchCommand = new DelegateCommand(OnSearch, () => !IsLoading);
             AddCommand = new DelegateCommand(OnAdd, () => !IsLoading);
             LoadAccountsAsync();
         }
 
-        private async void LoadAccountsAsync()
+        public async void LoadAccountsAsync()
         {
             IsLoading = true;
             try
@@ -73,7 +75,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
         private async void OnAdd()
         {
-            var dialog = new Views.AddAccountDialog();
+            var dialog = new Views.AddAccountDialog(_roleService);
             dialog.Owner = System.Windows.Application.Current.MainWindow;
             
             if (dialog.ShowDialog() == true)
@@ -90,7 +92,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                         Gender = dialog.Gender ?? string.Empty,
                         Phone = dialog.Phone ?? string.Empty,
                         EmployeeNo = dialog.EmployeeNo ?? string.Empty,
-                        Role = dialog.Role ?? string.Empty,
+                        RoleId = dialog.RoleId,
                         Remark = dialog.Remark ?? string.Empty
                     };
 

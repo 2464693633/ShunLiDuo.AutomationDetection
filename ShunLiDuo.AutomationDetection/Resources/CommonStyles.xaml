@@ -26,14 +26,14 @@
     
     <!-- 主按钮样式 -->
     <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-        <Setter Property="Padding" Value="20,10"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="25,12"/>
+        <Setter Property="FontSize" Value="16"/>
         <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="MinWidth" Value="80"/>
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="MinWidth" Value="100"/>
+        <Setter Property="Height" Value="42"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource PrimaryDarkBrush}"/>
@@ -47,15 +47,15 @@
     
     <!-- 次要按钮样式 -->
     <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-        <Setter Property="Padding" Value="20,10"/>
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="Padding" Value="25,12"/>
+        <Setter Property="FontSize" Value="16"/>
         <Setter Property="Background" Value="White"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Cursor" Value="Hand"/>
-        <Setter Property="MinWidth" Value="80"/>
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="MinWidth" Value="100"/>
+        <Setter Property="Height" Value="42"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="#F5F5F5"/>
@@ -67,8 +67,8 @@
     <Style x:Key="LinkButtonStyle" TargetType="TextBlock">
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="TextDecorations" Value="Underline"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="Margin" Value="8,0"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="Margin" Value="10,0"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Foreground" Value="{StaticResource PrimaryDarkBrush}"/>
@@ -78,12 +78,12 @@
     
     <!-- 标准文本框样式 -->
     <Style x:Key="StandardTextBoxStyle" TargetType="TextBox">
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Padding" Value="12,10"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="Height" Value="42"/>
         <Style.Triggers>
             <Trigger Property="IsFocused" Value="True">
                 <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
@@ -93,40 +93,93 @@
     
     <!-- 标准下拉框样式 -->
     <Style x:Key="StandardComboBoxStyle" TargetType="ComboBox">
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Padding" Value="12,10"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="Height" Value="42"/>
     </Style>
     
     <!-- 标准日期选择器样式 -->
     <Style x:Key="StandardDatePickerStyle" TargetType="DatePicker">
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Padding" Value="12,10"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="Height" Value="42"/>
     </Style>
     
     <!-- 标准数据表格样式 -->
     <Style x:Key="StandardDataGridStyle" TargetType="DataGrid">
         <Setter Property="AutoGenerateColumns" Value="False"/>
         <Setter Property="CanUserAddRows" Value="False"/>
-        <Setter Property="GridLinesVisibility" Value="Horizontal"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
         <Setter Property="HeadersVisibility" Value="Column"/>
         <Setter Property="SelectionMode" Value="Single"/>
         <Setter Property="IsReadOnly" Value="True"/>
-        <Setter Property="Margin" Value="10"/>
+        <Setter Property="Margin" Value="15"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background" Value="White"/>
         <Setter Property="RowBackground" Value="White"/>
         <Setter Property="AlternatingRowBackground" Value="#F9F9F9"/>
-        <Setter Property="FontSize" Value="13"/>
-        <Setter Property="RowHeight" Value="40"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="RowHeight" Value="50"/>
+    </Style>
+    
+    <!-- DataGrid TextColumn 默认样式 -->
+    <Style x:Key="DataGridTextColumnStyle" TargetType="TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+    
+    <!-- DataGrid 行样式 - 选中行背景色 -->
+    <Style x:Key="DataGridRowStyle" TargetType="DataGridRow">
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#64B5F6"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <!-- DataGrid 单元格样式 - 垂直居中 -->
+    <Style x:Key="DataGridCellStyle" TargetType="DataGridCell">
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <!-- DataGrid 列标题样式 - 垂直居中 -->
+    <Style x:Key="DataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="10,12"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Background" Value="#F5F5F5"/>
+        <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+    </Style>
+    
+    <!-- DataGrid TextColumn ElementStyle - 用于单元格内容垂直和水平居中 -->
+    <Style x:Key="DataGridTextColumnElementStyle" TargetType="TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="0"/>
     </Style>
     
     <!-- 标准标签页容器样式 -->
@@ -151,8 +204,8 @@
     
     <!-- 标准标签页样式 -->
     <Style x:Key="StandardTabItemStyle" TargetType="TabItem">
-        <Setter Property="FontSize" Value="14"/>
-        <Setter Property="Padding" Value="20,12"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Padding" Value="25,15"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
         <Setter Property="BorderThickness" Value="0"/>
@@ -179,10 +232,10 @@
     
     <!-- 分页按钮样式 -->
     <Style x:Key="PaginationButtonStyle" TargetType="Button">
-        <Setter Property="Width" Value="32"/>
-        <Setter Property="Height" Value="32"/>
-        <Setter Property="Margin" Value="2"/>
-        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="Width" Value="40"/>
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Margin" Value="3"/>
+        <Setter Property="FontSize" Value="15"/>
         <Setter Property="Background" Value="White"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
@@ -204,10 +257,10 @@
     
     <!-- 标签样式 -->
     <Style x:Key="StandardLabelStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="14"/>
+        <Setter Property="FontSize" Value="16"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="Margin" Value="0,0,10,0"/>
+        <Setter Property="Margin" Value="0,0,12,0"/>
     </Style>
     
     <!-- 必填标签样式 -->
@@ -217,32 +270,32 @@
     
     <!-- 标题样式 -->
     <Style x:Key="PageTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="20"/>
+        <Setter Property="FontSize" Value="24"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-        <Setter Property="Margin" Value="0,0,0,15"/>
+        <Setter Property="Margin" Value="0,0,0,20"/>
     </Style>
     
     <!-- 对话框取消按钮样式 -->
     <Style x:Key="DialogCancelButtonStyle" TargetType="Button" BasedOn="{StaticResource SecondaryButtonStyle}">
-        <Setter Property="Padding" Value="25,10"/>
-        <Setter Property="MinWidth" Value="90"/>
+        <Setter Property="Padding" Value="30,12"/>
+        <Setter Property="MinWidth" Value="110"/>
     </Style>
     
     <!-- 对话框确认按钮样式 -->
     <Style x:Key="DialogConfirmButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
-        <Setter Property="Padding" Value="25,10"/>
-        <Setter Property="MinWidth" Value="90"/>
+        <Setter Property="Padding" Value="30,12"/>
+        <Setter Property="MinWidth" Value="110"/>
     </Style>
     
     <!-- 对话框文本框样式 -->
     <Style x:Key="DialogTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource StandardTextBoxStyle}">
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="Height" Value="42"/>
     </Style>
     
     <!-- 对话框下拉框样式 -->
     <Style x:Key="DialogComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource StandardComboBoxStyle}">
-        <Setter Property="Height" Value="36"/>
+        <Setter Property="Height" Value="42"/>
     </Style>
     
     <!-- 对话框文本区域样式 -->
@@ -250,7 +303,7 @@
         <Setter Property="TextWrapping" Value="Wrap"/>
         <Setter Property="AcceptsReturn" Value="True"/>
         <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-        <Setter Property="MinHeight" Value="80"/>
+        <Setter Property="MinHeight" Value="100"/>
         <Setter Property="Height" Value="Auto"/>
     </Style>
     

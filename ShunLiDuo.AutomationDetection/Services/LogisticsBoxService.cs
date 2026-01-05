@@ -19,6 +19,11 @@ namespace ShunLiDuo.AutomationDetection.Services
             return await _repository.GetAllBoxesAsync();
         }
 
+        public async Task<LogisticsBoxItem> GetBoxByIdAsync(int id)
+        {
+            return await _repository.GetBoxByIdAsync(id);
+        }
+
         public async Task<bool> AddBoxAsync(LogisticsBoxItem box)
         {
             if (box == null || string.IsNullOrWhiteSpace(box.BoxNo) || string.IsNullOrWhiteSpace(box.BoxName))
@@ -33,6 +38,26 @@ namespace ShunLiDuo.AutomationDetection.Services
                 return true;
             }
             return false;
+        }
+
+        public async Task<bool> UpdateBoxAsync(LogisticsBoxItem box)
+        {
+            if (box == null || box.Id <= 0 || string.IsNullOrWhiteSpace(box.BoxNo) || string.IsNullOrWhiteSpace(box.BoxName))
+            {
+                return false;
+            }
+
+            return await _repository.UpdateBoxAsync(box);
+        }
+
+        public async Task<bool> DeleteBoxAsync(int id)
+        {
+            if (id <= 0)
+            {
+                return false;
+            }
+
+            return await _repository.DeleteBoxAsync(id);
         }
     }
 }

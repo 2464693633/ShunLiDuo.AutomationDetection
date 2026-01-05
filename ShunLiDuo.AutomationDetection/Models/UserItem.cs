@@ -10,7 +10,8 @@ namespace ShunLiDuo.AutomationDetection.Models
         public string Gender { get; set; }
         public string Phone { get; set; }
         public string EmployeeNo { get; set; }
-        public string Role { get; set; }
+        public int? RoleId { get; set; }
+        public string Role { get; set; } // 角色名称，用于显示
         public string Remark { get; set; }
     }
 }

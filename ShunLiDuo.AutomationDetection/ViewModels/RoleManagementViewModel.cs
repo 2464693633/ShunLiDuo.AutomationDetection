@@ -15,17 +15,19 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private int _totalCount;
         private bool _isLoading;
         private readonly IRoleService _roleService;
+        private readonly IPermissionService _permissionService;
 
-        public RoleManagementViewModel(IRoleService roleService)
+        public RoleManagementViewModel(IRoleService roleService, IPermissionService permissionService)
         {
             _roleService = roleService;
+            _permissionService = permissionService;
             Roles = new ObservableCollection<RoleItem>();
             SearchCommand = new DelegateCommand(OnSearch, () => !IsLoading);
             AddCommand = new DelegateCommand(OnAdd, () => !IsLoading);
             LoadRolesAsync();
         }
 
-        private async void LoadRolesAsync()
+        public async void LoadRolesAsync()
         {
             IsLoading = true;
             try
@@ -73,7 +75,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
         private async void OnAdd()
         {
-            var dialog = new Views.AddRoleDialog();
+            var dialog = new Views.AddRoleDialog(_permissionService);
             dialog.Owner = System.Windows.Application.Current.MainWindow;
             
             if (dialog.ShowDialog() == true)

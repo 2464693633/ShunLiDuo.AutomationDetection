@@ -3,41 +3,47 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        Title="新增账户" Height="600" Width="500"
+        Title="新增账户" Height="700" Width="600"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
         mc:Ignorable="d"
-        d:DesignHeight="600" d:DesignWidth="500">
+        d:DesignHeight="700" d:DesignWidth="600">
     <Window.Resources>
         <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontSize" Value="16"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
         </Style>
         <Style x:Key="RequiredLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource LabelStyle}">
             <Setter Property="Foreground" Value="Red"/>
         </Style>
         <Style x:Key="TextBoxStyle" TargetType="TextBox">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="12,10"/>
             <Setter Property="BorderBrush" Value="#CCCCCC"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="42"/>
         </Style>
         <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="12,10"/>
             <Setter Property="BorderBrush" Value="#CCCCCC"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="42"/>
         </Style>
         <Style x:Key="PasswordBoxStyle" TargetType="PasswordBox">
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="8"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="Padding" Value="12,10"/>
             <Setter Property="BorderBrush" Value="#CCCCCC"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Height" Value="42"/>
         </Style>
         <Style x:Key="TextAreaStyle" TargetType="TextBox" BasedOn="{StaticResource TextBoxStyle}">
             <Setter Property="TextWrapping" Value="Wrap"/>
@@ -77,20 +83,85 @@
         </Style>
     </Window.Resources>
     
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Border Background="White" 
+            CornerRadius="8" 
+            BorderBrush="{StaticResource BorderBrush}" 
+            BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect Color="#40000000" 
+                             BlurRadius="10" 
+                             ShadowDepth="3" 
+                             Opacity="0.5"/>
+        </Border.Effect>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 标题栏 -->
+            <Border Grid.Row="0" 
+                    Background="{StaticResource PrimaryBrush}" 
+                    CornerRadius="8,8,0,0">
+                <Grid>
+                    <TextBlock x:Name="TitleTextBlock"
+                              FontSize="18" 
+                              FontWeight="Bold" 
+                              Foreground="White" 
+                              VerticalAlignment="Center" 
+                              Margin="20,0"/>
+                    <Button Content="×" 
+                           HorizontalAlignment="Right" 
+                           VerticalAlignment="Center"
+                           Width="40" 
+                           Height="40"
+                           Background="Transparent"
+                           Foreground="White"
+                           FontSize="24"
+                           BorderThickness="0"
+                           Cursor="Hand"
+                           Click="CloseButton_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}" 
+                                                   CornerRadius="0,8,0,0">
+                                                <ContentPresenter HorizontalAlignment="Center" 
+                                                                VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E53935"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- 内容区域 -->
+            <ScrollViewer Grid.Row="1" 
+                         VerticalScrollBarVisibility="Auto" 
+                         Margin="25">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
         <!-- 账户编号 -->
         <Grid Grid.Row="0" Margin="0,0,0,15">
@@ -214,15 +285,12 @@
                 <TextBlock Text="角色" Style="{StaticResource LabelStyle}"/>
                 <TextBlock Text="*" Style="{StaticResource RequiredLabelStyle}"/>
             </StackPanel>
-            <ComboBox Grid.Column="1" 
-                     ItemsSource="{Binding Roles}"
-                     SelectedItem="{Binding SelectedRole, Mode=TwoWay}"
+                <ComboBox Grid.Column="1" 
+                     ItemsSource="{Binding Roles}" 
+                     SelectedValue="{Binding SelectedRoleId, Mode=TwoWay}"
+                     SelectedValuePath="Id"
+                     DisplayMemberPath="RoleName"
                      Style="{StaticResource ComboBoxStyle}">
-                <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding}"/>
-                    </DataTemplate>
-                </ComboBox.ItemTemplate>
             </ComboBox>
         </Grid>
 
@@ -238,14 +306,23 @@
                     Style="{StaticResource TextAreaStyle}"/>
         </Grid>
 
-        <!-- Buttons -->
-        <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,20">
-            <Button Content="取消" Style="{StaticResource CancelButtonStyle}" 
-                   Click="CancelButton_Click" Margin="0,0,10,0"/>
-            <Button Content="确定" Style="{StaticResource ConfirmButtonStyle}" 
-                   Click="ConfirmButton_Click"
-                   IsEnabled="{Binding IsValid}"/>
-        </StackPanel>
-    </Grid>
+                </Grid>
+            </ScrollViewer>
+
+            <!-- 底部按钮 -->
+            <Border Grid.Row="2" 
+                    BorderBrush="{StaticResource BorderBrush}" 
+                    BorderThickness="0,1,0,0"
+                    Padding="20,15">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="取消" Style="{StaticResource CancelButtonStyle}" 
+                           Click="CancelButton_Click" Margin="0,0,10,0"/>
+                    <Button Content="确定" Style="{StaticResource ConfirmButtonStyle}" 
+                           Click="ConfirmButton_Click"
+                           IsEnabled="{Binding IsValid}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
 </Window>
 

@@ -25,7 +25,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             LoadBoxesAsync();
         }
 
-        private async void LoadBoxesAsync()
+        public async void LoadBoxesAsync()
         {
             IsLoading = true;
             try

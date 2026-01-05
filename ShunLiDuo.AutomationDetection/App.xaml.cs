@@ -4,6 +4,7 @@ using Prism.Ioc;
 using ShunLiDuo.AutomationDetection.Views;
 using ShunLiDuo.AutomationDetection.Data;
 using ShunLiDuo.AutomationDetection.Services;
+using ShunLiDuo.AutomationDetection.Models;
 
 namespace ShunLiDuo.AutomationDetection
 {
@@ -14,7 +15,40 @@ namespace ShunLiDuo.AutomationDetection
             // 初始化数据库
             InitializeDatabase();
             
-            return Container.Resolve<MainWindow>();
+            // 创建主窗口但先隐藏
+            var mainWindow = Container.Resolve<MainWindow>();
+            mainWindow.Visibility = Visibility.Hidden;
+            
+            // 显示登录窗口
+            var loginWindow = Container.Resolve<Views.LoginWindow>();
+            var loginResult = loginWindow.ShowDialog();
+            
+            if (loginResult == true && loginWindow.CurrentUser != null)
+            {
+                // 登录成功，保存当前用户信息
+                var currentUserService = Container.Resolve<ICurrentUserService>();
+                currentUserService.CurrentUser = loginWindow.CurrentUser;
+                
+                // 刷新主窗口的用户信息显示和权限
+                if (mainWindow.DataContext is ViewModels.MainWindowViewModel viewModel)
+                {
+                    viewModel.RefreshUserInfo();
+                }
+                
+                // 自动连接PLC（如果启用了自动连接）
+                AutoConnectPlcAsync();
+                
+                // 显示主窗口
+                mainWindow.Visibility = Visibility.Visible;
+                mainWindow.Show();
+                return mainWindow;
+            }
+            else
+            {
+                // 登录取消或失败，关闭应用
+                Current.Shutdown();
+                return null;
+            }
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -28,6 +62,7 @@ namespace ShunLiDuo.AutomationDetection
             containerRegistry.Register<ILogisticsBoxRepository, LogisticsBoxRepository>();
             containerRegistry.Register<IAccountRepository, AccountRepository>();
             containerRegistry.Register<IRoleRepository, RoleRepository>();
+            containerRegistry.Register<IPermissionRepository, PermissionRepository>();
             
             // 注册服务层
             containerRegistry.Register<IRuleService, RuleService>();
@@ -35,6 +70,13 @@ namespace ShunLiDuo.AutomationDetection
             containerRegistry.Register<ILogisticsBoxService, LogisticsBoxService>();
             containerRegistry.Register<IAccountService, AccountService>();
             containerRegistry.Register<IRoleService, RoleService>();
+            containerRegistry.Register<IPermissionService, PermissionService>();
+            containerRegistry.RegisterSingleton<ICurrentUserService, CurrentUserService>();
+            containerRegistry.RegisterSingleton<IS7CommunicationService, S7CommunicationService>();
+            containerRegistry.Register<ICommunicationConfigService, CommunicationConfigService>();
+            
+            // 注册登录窗口
+            containerRegistry.Register<Views.LoginWindow>();
             
             // 注册主窗口
             containerRegistry.Register<MainWindow>();
@@ -56,6 +98,10 @@ namespace ShunLiDuo.AutomationDetection
             // 注册其他视图（需要注入服务的视图）
             containerRegistry.Register<Views.RoleManagementView>();
             containerRegistry.RegisterForNavigation<Views.RoleManagementView>("RoleManagementView");
+            
+            // 注册通讯设置视图
+            containerRegistry.Register<Views.CommunicationSettingsView>();
+            containerRegistry.RegisterForNavigation<Views.CommunicationSettingsView>("CommunicationSettingsView");
             
             // 注册其他视图
             containerRegistry.RegisterForNavigation<TaskManagementView>("TaskManagementView");
@@ -80,6 +126,43 @@ namespace ShunLiDuo.AutomationDetection
             catch (System.Exception ex)
             {
                 MessageBox.Show($"数据库初始化失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private async void AutoConnectPlcAsync()
+        {
+            try
+            {
+                var configService = Container.Resolve<ICommunicationConfigService>();
+                var s7Service = Container.Resolve<IS7CommunicationService>();
+                
+                // 加载保存的配置
+                var config = await configService.GetConfigAsync();
+                
+                // 如果启用了自动连接，则自动连接
+                if (config.AutoConnect && !string.IsNullOrWhiteSpace(config.IpAddress))
+                {
+                    // 延迟一下，确保UI已经加载完成
+                    await System.Threading.Tasks.Task.Delay(1000);
+                    
+                    // 执行自动连接
+                    bool connected = await s7Service.ConnectAsync(
+                        config.IpAddress, 
+                        config.CpuType, 
+                        config.Rack, 
+                        config.Slot);
+                    
+                    if (!connected)
+                    {
+                        // 连接失败，但不显示错误消息（避免启动时弹出太多提示）
+                        System.Diagnostics.Debug.WriteLine($"PLC自动连接失败: {s7Service.ConnectionStatus}");
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                // 自动连接失败，但不影响应用启动
+                System.Diagnostics.Debug.WriteLine($"PLC自动连接异常: {ex.Message}");
             }
         }
     }

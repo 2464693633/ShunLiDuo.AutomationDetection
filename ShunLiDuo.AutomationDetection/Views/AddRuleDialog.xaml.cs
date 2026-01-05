@@ -8,12 +8,27 @@ namespace ShunLiDuo.AutomationDetection.Views
     public partial class AddRuleDialog : Window
     {
         public AddRuleDialogViewModel ViewModel { get; private set; }
+        public bool IsEditMode { get; private set; }
+        public int RuleId { get; private set; }
 
-        public AddRuleDialog()
+        public AddRuleDialog(RuleItem rule = null)
         {
             InitializeComponent();
-            ViewModel = new AddRuleDialogViewModel();
+            IsEditMode = rule != null;
+            ViewModel = new AddRuleDialogViewModel(rule);
             DataContext = ViewModel;
+            
+            if (IsEditMode)
+            {
+                Title = "编辑规则";
+                RuleId = rule.Id;
+                Loaded += (s, e) => TitleTextBlock.Text = "编辑规则";
+            }
+            else
+            {
+                Title = "新增规则";
+                Loaded += (s, e) => TitleTextBlock.Text = "新增规则";
+            }
         }
 
         public string RuleNo => ViewModel.RuleNo;
@@ -21,6 +36,11 @@ namespace ShunLiDuo.AutomationDetection.Views
         public string SelectedDetectionRooms => ViewModel.GetSelectedDetectionRooms();
         public string SelectedLogisticsBoxNos => ViewModel.GetSelectedLogisticsBoxNos();
         public string Remark => ViewModel.Remark;
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
         {

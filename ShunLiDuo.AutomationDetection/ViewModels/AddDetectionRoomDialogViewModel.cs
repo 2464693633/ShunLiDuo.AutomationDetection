@@ -8,6 +8,16 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private string _roomName;
         private string _remark;
 
+        public AddDetectionRoomDialogViewModel(Models.DetectionRoomItem room = null)
+        {
+            if (room != null)
+            {
+                RoomNo = room.RoomNo ?? string.Empty;
+                RoomName = room.RoomName ?? string.Empty;
+                Remark = room.Remark ?? string.Empty;
+            }
+        }
+
         public string RoomNo
         {
             get => _roomNo;

@@ -19,6 +19,11 @@ namespace ShunLiDuo.AutomationDetection.Services
             return await _repository.GetAllRoomsAsync();
         }
 
+        public async Task<DetectionRoomItem> GetRoomByIdAsync(int id)
+        {
+            return await _repository.GetRoomByIdAsync(id);
+        }
+
         public async Task<bool> AddRoomAsync(DetectionRoomItem room)
         {
             if (room == null || string.IsNullOrWhiteSpace(room.RoomNo) || string.IsNullOrWhiteSpace(room.RoomName))
@@ -33,6 +38,26 @@ namespace ShunLiDuo.AutomationDetection.Services
                 return true;
             }
             return false;
+        }
+
+        public async Task<bool> UpdateRoomAsync(DetectionRoomItem room)
+        {
+            if (room == null || room.Id <= 0 || string.IsNullOrWhiteSpace(room.RoomNo) || string.IsNullOrWhiteSpace(room.RoomName))
+            {
+                return false;
+            }
+
+            return await _repository.UpdateRoomAsync(room);
+        }
+
+        public async Task<bool> DeleteRoomAsync(int id)
+        {
+            if (id <= 0)
+            {
+                return false;
+            }
+
+            return await _repository.DeleteRoomAsync(id);
         }
     }
 }

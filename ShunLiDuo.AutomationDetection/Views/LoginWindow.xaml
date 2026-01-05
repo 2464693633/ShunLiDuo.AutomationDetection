@@ -1,0 +1,144 @@
+<Window x:Class="ShunLiDuo.AutomationDetection.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:ShunLiDuo.AutomationDetection.Converters"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="登录" Height="500" Width="550"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Resources/CommonStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:StringToVisibilityConverterForError x:Key="StringToVisibilityConverterForError"/>
+            <converters:InvertBooleanToVisibilityConverter x:Key="InvertBooleanToVisibilityConverter"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        </ResourceDictionary>
+    </Window.Resources>
+    
+    <Border Background="White" CornerRadius="8" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+        <Border.Effect>
+            <DropShadowEffect Color="#40000000" BlurRadius="10" ShadowDepth="3" Opacity="0.5"/>
+        </Border.Effect>
+        <Grid Margin="40">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- 标题 -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,40">
+               
+                <TextBlock Text="顺利多自动化检测系统" 
+                          FontSize="28" FontWeight="SemiBold"
+                          Foreground="{DynamicResource MaterialDesignBody}"
+                          VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- 登录表单 -->
+            <StackPanel Grid.Row="1" VerticalAlignment="Center">
+                <!-- 账号 -->
+                <StackPanel Margin="0,0,0,25">
+                    <TextBox x:Name="LoginAccountTextBox"
+                            Text="{Binding LoginAccount, UpdateSourceTrigger=PropertyChanged}"
+                            Style="{StaticResource MaterialDesignOutlinedTextBox}"
+                            materialDesign:HintAssist.Hint="账号"
+                            materialDesign:HintAssist.IsFloating="True"
+                            FontSize="16"
+                            Padding="16,12"
+                            materialDesign:TextFieldAssist.CharacterCounterVisibility="Collapsed"
+                            KeyDown="LoginAccountTextBox_KeyDown">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
+                        </TextBox.InputBindings>
+                    </TextBox>
+                </StackPanel>
+
+                <!-- 密码 -->
+                <StackPanel Margin="0,0,0,25">
+                    <PasswordBox x:Name="PasswordBox"
+                                PasswordChanged="PasswordBox_PasswordChanged"
+                                Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                                materialDesign:HintAssist.Hint="密码"
+                                materialDesign:HintAssist.IsFloating="True"
+                                FontSize="16"
+                                Padding="16,12"
+                                KeyDown="PasswordBox_KeyDown">
+                        <PasswordBox.InputBindings>
+                            <KeyBinding Key="Enter" Command="{Binding LoginCommand}"/>
+                        </PasswordBox.InputBindings>
+                    </PasswordBox>
+                </StackPanel>
+
+                <!-- 错误信息 -->
+                <materialDesign:Card Background="{DynamicResource MaterialDesignValidationErrorBackground}"
+                                    Padding="16,12"
+                                    Margin="0,0,0,15"
+                                    Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverterForError}}">
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="AlertCircle" 
+                                                Width="20" Height="20"
+                                                Foreground="{DynamicResource MaterialDesignValidationErrorBrush}"
+                                                Margin="0,0,12,0"
+                                                VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding ErrorMessage}" 
+                                  Foreground="{DynamicResource MaterialDesignValidationErrorBrush}"
+                                  FontSize="14"
+                                  TextWrapping="Wrap"
+                                  VerticalAlignment="Center"/>
+                    </StackPanel>
+                </materialDesign:Card>
+            </StackPanel>
+
+            <!-- 按钮 -->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" 
+                       HorizontalAlignment="Right" Margin="0,30,0,0">
+                <Button Content="取消" 
+                       Command="{Binding CancelCommand}"
+                       Style="{StaticResource MaterialDesignOutlinedButton}"
+                       Margin="0,0,15,0" 
+                       MinWidth="120"
+                       Height="42"/>
+                <Button Command="{Binding LoginCommand}"
+                       Style="{StaticResource MaterialDesignRaisedButton}"
+                       MinWidth="120"
+                       Height="42"
+                       IsEnabled="{Binding LoginCommand.CanExecute}">
+                    <Button.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Login" 
+                                                    Width="20" Height="20"
+                                                    Margin="0,0,8,0"
+                                                    VerticalAlignment="Center"
+                                                    Visibility="{Binding IsLoading, Converter={StaticResource InvertBooleanToVisibilityConverter}}"/>
+                            <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                                        Value="0"
+                                        IsIndeterminate="True"
+                                        Width="20" Height="20"
+                                        Margin="0,0,8,0"
+                                        Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <TextBlock VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="登录"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                                                <Setter Property="Text" Value="登录中..."/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button.Content>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>
+

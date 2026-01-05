@@ -30,7 +30,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             LoadRulesAsync();
         }
 
-        private async void LoadRulesAsync()
+        public async void LoadRulesAsync()
         {
             IsLoading = true;
             try

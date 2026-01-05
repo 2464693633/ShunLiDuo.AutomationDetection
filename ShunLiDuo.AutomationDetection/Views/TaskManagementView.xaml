@@ -4,15 +4,16 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:converters="clr-namespace:ShunLiDuo.AutomationDetection.Converters"
              prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="1200">
+             d:DesignHeight="1080" d:DesignWidth="1920">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Resources/CommonStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
-            
+
             <Style x:Key="SectionBorderStyle" TargetType="Border">
                 <Setter Property="Background" Value="#F8F8F8"/>
                 <Setter Property="BorderBrush" Value="#E0E0E0"/>
@@ -64,11 +65,11 @@
             </Style>
         </ResourceDictionary>
     </UserControl.Resources>
-    
+
     <Grid Background="White" Margin="0">
         <Grid.RowDefinitions>
-            <RowDefinition Height="400"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <!-- 扫码录入和检测归属区域 -->
@@ -81,46 +82,81 @@
                 CornerRadius="4">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="350"/>
+                    <ColumnDefinition Width="450"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- 扫码录入 -->
-                <StackPanel Grid.Column="0" Margin="0,0,20,0">
-                    <TextBlock Text="扫码录入" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
-                    
-                    <TextBlock Text="调度规则:" Style="{StaticResource StandardLabelStyle}" Margin="0,0,0,8"/>
-                    <ComboBox Style="{StaticResource StandardComboBoxStyle}" 
-                             ItemsSource="{Binding Rules}"
-                             DisplayMemberPath="RuleName"
-                             SelectedItem="{Binding SelectedRuleItem}"
-                             Margin="0,0,0,15"
-                             Height="36"/>
-                    
-                    <TextBlock Text="物流盒编码:" Style="{StaticResource StandardLabelStyle}" Margin="0,0,0,8"/>
-                    <TextBox Style="{StaticResource StandardTextBoxStyle}" 
-                            Text="{Binding LogisticsBoxCode, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0,0,0,15"
-                            Height="36"
-                            KeyDown="LogisticsBoxCode_KeyDown"/>
-                    
-                    <TextBlock Text="物流盒录入信息:" Style="{StaticResource StandardLabelStyle}" Margin="0,0,0,8"/>
-                    <ListBox ItemsSource="{Binding LogisticsBoxList}"
-                            BorderBrush="{StaticResource BorderBrush}"
-                            BorderThickness="1"
-                            Background="White"
-                            ScrollViewer.VerticalScrollBarVisibility="Auto"
-                            MinHeight="150"
-                            MaxHeight="200">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" 
-                                          FontSize="13"
-                                          Padding="5,3"
-                                          Margin="0,2"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+                <StackPanel Grid.Column="0" Margin="0,0,60,0">
+                    <!-- 标题 -->
+                    <TextBlock Text="扫码录入" 
+                              FontSize="18" 
+                              FontWeight="Bold" 
+                              Margin="0,0,0,20"/>
+
+                    <!-- 调度规则 -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" 
+                                  Text="调度规则:" 
+                                  Style="{StaticResource StandardLabelStyle}" 
+                                  VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1"
+                                 Style="{StaticResource StandardComboBoxStyle}" 
+                                 ItemsSource="{Binding Rules}"
+                                 DisplayMemberPath="RuleName"
+                                 SelectedItem="{Binding SelectedRuleItem}"
+                                 Height="42"/>
+                    </Grid>
+
+                    <!-- 物流盒编码 -->
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" 
+                                  Text="物流盒编码:" 
+                                  Style="{StaticResource StandardLabelStyle}" 
+                                  VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1"
+                                Style="{StaticResource StandardTextBoxStyle}" 
+                                Text="{Binding LogisticsBoxCode, UpdateSourceTrigger=PropertyChanged}"
+                                Height="42"
+                                KeyDown="LogisticsBoxCode_KeyDown"/>
+                    </Grid>
+
+                    <!-- 物流盒录入信息 -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" 
+                                  Text="物流盒录入信息:" 
+                                  Style="{StaticResource StandardLabelStyle}" 
+                                  VerticalAlignment="Top"/>
+                        <ListBox Grid.Column="1"
+                                ItemsSource="{Binding LogisticsBoxList}"
+                                BorderBrush="{StaticResource BorderBrush}"
+                                BorderThickness="1"
+                                Background="White"
+                                ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                MinHeight="150"
+                                MaxHeight="200">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" 
+                                              FontSize="15"
+                                              Padding="5,3"
+                                              Margin="0,2"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
                 </StackPanel>
 
                 <!-- 检测归属 -->
@@ -130,39 +166,66 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="检测归属" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
-                        <Button Grid.Column="1" Content="执行" Style="{StaticResource ExecuteButtonStyle}" 
-                               Command="{Binding ExecuteCommand}" Margin="0,0,0,10"/>
-                    </Grid>
-                    
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel Margin="5">
-                                <Label Content="检测室1" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                <ListBox Style="{StaticResource RoomListBoxStyle}" 
-                                        ItemsSource="{Binding Room1Boxes}"/>
+                        <Label Grid.Column="0" Content="检测归属" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right">
+                            <!-- PLC连接状态指示器 -->
+                            <StackPanel Orientation="Horizontal" 
+                                       HorizontalAlignment="Right"
+                                       Margin="0,0,0,10">
+                                <Ellipse x:Name="PlcStatusIndicator" Width="20" Height="20" 
+                                        Margin="0,0,10,0"
+                                        VerticalAlignment="Center">
+                                    <Ellipse.Style>
+                                        <Style TargetType="Ellipse">
+                                            <Setter Property="Fill" Value="Red"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPlcConnected, Mode=OneWay}" Value="True">
+                                                    <Setter Property="Fill" Value="#4CAF50"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Ellipse.Style>
+                                </Ellipse>
+                                <TextBlock FontSize="18"
+                                          FontWeight="SemiBold"
+                                          VerticalAlignment="Center"
+                                          Foreground="{StaticResource TextPrimaryBrush}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="PLC未连接"/>
+                                            <Setter Property="Foreground" Value="Red"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsPlcConnected, Mode=OneWay}" Value="True">
+                                                    <Setter Property="Text" Value="PLC已连接"/>
+                                                    <Setter Property="Foreground" Value="#4CAF50"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
                             </StackPanel>
-                            <StackPanel Margin="5">
-                                <Label Content="检测室2" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                <ListBox Style="{StaticResource RoomListBoxStyle}" 
-                                        ItemsSource="{Binding Room2Boxes}"/>
-                            </StackPanel>
-                            <StackPanel Margin="5">
-                                <Label Content="检测室3" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                <ListBox Style="{StaticResource RoomListBoxStyle}" 
-                                        ItemsSource="{Binding Room3Boxes}"/>
-                            </StackPanel>
-                            <StackPanel Margin="5">
-                                <Label Content="检测室4" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                <ListBox Style="{StaticResource RoomListBoxStyle}" 
-                                        ItemsSource="{Binding Room4Boxes}"/>
-                            </StackPanel>
-                            <StackPanel Margin="5">
-                                <Label Content="检测室5" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                <ListBox Style="{StaticResource RoomListBoxStyle}" 
-                                        ItemsSource="{Binding Room5Boxes}"/>
-                            </StackPanel>
+                            <Button Content="执行" Style="{StaticResource ExecuteButtonStyle}" 
+                                   Command="{Binding ExecuteCommand}"/>
                         </StackPanel>
+                    </Grid>
+
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" >
+                        <ItemsControl ItemsSource="{Binding RoomBoxLists}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="5">
+                                        <Label Content="{Binding Room.RoomName}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                        <ListBox Style="{StaticResource RoomListBoxStyle}" 
+                                                ItemsSource="{Binding Boxes}" Width="200"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ScrollViewer>
                 </StackPanel>
             </Grid>
@@ -180,34 +243,47 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                
-                <Label Grid.Row="0" Content="任务列表" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
-                
+
+                <Label Grid.Row="0" Content="任务列表" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+
                 <DataGrid Grid.Row="1" 
                          ItemsSource="{Binding Tasks}"
                          AutoGenerateColumns="False"
                          CanUserAddRows="False"
-                         GridLinesVisibility="All"
+                         GridLinesVisibility="None"
                          HeadersVisibility="Column"
                          SelectionMode="Single"
-                         IsReadOnly="True">
+                         IsReadOnly="True"
+                         RowHeight="50"
+                         CellStyle="{StaticResource DataGridCellStyle}"
+                         ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
+                            <Setter Property="Padding" Value="0,10"/>
+                            <Setter Property="Margin" Value="0,3"/>
+                            <Setter Property="MinHeight" Value="50"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="60"/>
-                        <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="120"/>
-                        <DataGridTextColumn Header="检测人信息" Binding="{Binding InspectorName}" Width="120"/>
-                        <DataGridTextColumn Header="检测开始时间" Binding="{Binding StartTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="150"/>
-                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="100"/>
-                        <DataGridTextColumn Header="检测室2状态" Binding="{Binding Room2Status}" Width="100"/>
-                        <DataGridTextColumn Header="检测室3状态" Binding="{Binding Room3Status}" Width="100"/>
-                        <DataGridTextColumn Header="检测室4状态" Binding="{Binding Room4Status}" Width="100"/>
-                        <DataGridTextColumn Header="检测室5状态" Binding="{Binding Room5Status}" Width="100"/>
-                        <DataGridTextColumn Header="检测结束时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="150"/>
-                        <DataGridTemplateColumn Header="操作" Width="100">
+                        <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="60" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测人信息" Binding="{Binding InspectorName}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测开始时间" Binding="{Binding StartTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室2状态" Binding="{Binding Room2Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室3状态" Binding="{Binding Room3Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室4状态" Binding="{Binding Room4Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室5状态" Binding="{Binding Room5Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测结束时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTemplateColumn Header="操作" Width="150">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <TextBlock Text="重新检测" Foreground="{StaticResource InfoBrush}" 
                                               Cursor="Hand" 
-                                              MouseLeftButtonDown="ReInspect_Click"/>
+                                              MouseLeftButtonDown="ReInspect_Click"
+                                              HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

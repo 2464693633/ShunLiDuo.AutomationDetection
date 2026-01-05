@@ -8,12 +8,27 @@ namespace ShunLiDuo.AutomationDetection.Views
     public partial class AddRoleDialog : Window
     {
         public AddRoleDialogViewModel ViewModel { get; private set; }
+        public bool IsEditMode { get; private set; }
+        public int RoleId { get; private set; }
 
-        public AddRoleDialog(string existingPermissions = null)
+        public AddRoleDialog(Services.IPermissionService permissionService, Models.RoleItem role = null)
         {
             InitializeComponent();
-            ViewModel = new AddRoleDialogViewModel(existingPermissions);
+            IsEditMode = role != null;
+            ViewModel = new AddRoleDialogViewModel(permissionService, role);
             DataContext = ViewModel;
+            
+            if (IsEditMode)
+            {
+                Title = "编辑角色";
+                RoleId = role.Id;
+                Loaded += (s, e) => TitleTextBlock.Text = "编辑角色";
+            }
+            else
+            {
+                Title = "新增角色";
+                Loaded += (s, e) => TitleTextBlock.Text = "新增角色";
+            }
         }
 
         public string RoleName => ViewModel.RoleName;
@@ -24,7 +39,11 @@ namespace ShunLiDuo.AutomationDetection.Views
         {
             if (sender is CheckBox checkBox && checkBox.DataContext is PermissionItem item)
             {
-                item.IsSelected = true;
+                // 避免在加载权限时触发不必要的更新
+                if (!item.IsSelected)
+                {
+                    item.IsSelected = true;
+                }
             }
         }
 
@@ -32,7 +51,11 @@ namespace ShunLiDuo.AutomationDetection.Views
         {
             if (sender is CheckBox checkBox && checkBox.DataContext is PermissionItem item)
             {
-                item.IsSelected = false;
+                // 避免在加载权限时触发不必要的更新
+                if (item.IsSelected)
+                {
+                    item.IsSelected = false;
+                }
             }
         }
 
@@ -40,8 +63,18 @@ namespace ShunLiDuo.AutomationDetection.Views
         {
             if (sender is CheckBox checkBox && checkBox.DataContext is PermissionItem item)
             {
-                item.IsIndeterminate = true;
+                // 设置 Indeterminate 状态时，不直接修改 IsSelected
+                // 让 UpdateSelectionState 来处理
+                if (!item.IsIndeterminate)
+                {
+                    item.IsIndeterminate = true;
+                }
             }
+        }
+
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)

@@ -46,22 +46,28 @@
         <DataGrid Grid.Row="3" 
                  ItemsSource="{Binding DetectionRooms}"
                  Style="{StaticResource StandardDataGridStyle}"
-                 Margin="0">
+                 Margin="0"
+                 RowStyle="{StaticResource DataGridRowStyle}"
+                 CellStyle="{StaticResource DataGridCellStyle}"
+                 ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70"/>
-                <DataGridTextColumn Header="检测室编号" Binding="{Binding RoomNo}" Width="140"/>
-                <DataGridTextColumn Header="检测室名称" Binding="{Binding RoomName}" Width="160"/>
-                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*"/>
+                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="检测室编号" Binding="{Binding RoomNo}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="检测室名称" Binding="{Binding RoomName}" Width="160" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTemplateColumn Header="操作" Width="200">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <TextBlock Text="编辑" Foreground="{StaticResource SuccessBrush}" 
-                                          Style="{StaticResource LinkButtonStyle}"/>
+                                          Style="{StaticResource LinkButtonStyle}"
+                                          MouseLeftButtonDown="Edit_Click"/>
                                 <TextBlock Text="删除" Foreground="{StaticResource DangerBrush}" 
-                                          Style="{StaticResource LinkButtonStyle}"/>
+                                          Style="{StaticResource LinkButtonStyle}"
+                                          MouseLeftButtonDown="Delete_Click"/>
                                 <TextBlock Text="查看" Foreground="{StaticResource InfoBrush}" 
-                                          Style="{StaticResource LinkButtonStyle}"/>
+                                          Style="{StaticResource LinkButtonStyle}"
+                                          MouseLeftButtonDown="View_Click"/>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
