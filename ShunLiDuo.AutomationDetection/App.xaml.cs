@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using Prism.DryIoc;
 using Prism.Ioc;
@@ -5,11 +6,68 @@ using ShunLiDuo.AutomationDetection.Views;
 using ShunLiDuo.AutomationDetection.Data;
 using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.Models;
+using S7.Net;
 
 namespace ShunLiDuo.AutomationDetection
 {
     public partial class App : PrismApplication
     {
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+            
+            // 处理未捕获的异常，静默处理PLC连接异常
+            DispatcherUnhandledException += App_DispatcherUnhandledException;
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        }
+
+        private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
+        {
+            // 如果是PLC连接相关的异常，静默处理
+            if (IsPlcConnectionException(e.Exception))
+            {
+                System.Diagnostics.Debug.WriteLine($"PLC连接异常（已静默处理）: {e.Exception.Message}");
+                e.Handled = true; // 标记为已处理，不显示错误对话框
+                return;
+            }
+            
+            // 其他异常可以正常处理或显示
+            e.Handled = false;
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception ex && IsPlcConnectionException(ex))
+            {
+                System.Diagnostics.Debug.WriteLine($"PLC连接异常（已静默处理）: {ex.Message}");
+                return;
+            }
+        }
+
+        private bool IsPlcConnectionException(Exception ex)
+        {
+            if (ex == null) return false;
+            
+            // 检查是否是S7.Net的PLC异常
+            if (ex is S7.Net.PlcException)
+                return true;
+            
+            // 检查异常消息中是否包含连接相关的关键词
+            string message = ex.Message ?? string.Empty;
+            if (message.Contains("127.0.0.1") || 
+                message.Contains("无法连接") || 
+                message.Contains("积极拒绝") ||
+                message.Contains("actively refused") ||
+                message.Contains("Couldn't establish the connection"))
+                return true;
+            
+            // 检查内部异常
+            if (ex.InnerException != null)
+                return IsPlcConnectionException(ex.InnerException);
+            
+            return false;
+        }
+
         protected override Window CreateShell()
         {
             // 初始化数据库

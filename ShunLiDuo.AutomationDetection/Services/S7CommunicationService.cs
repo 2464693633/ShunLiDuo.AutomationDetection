@@ -56,11 +56,63 @@ namespace ShunLiDuo.AutomationDetection.Services
                 _plc.ReadTimeout = 5000;
                 _plc.WriteTimeout = 5000;
 
-                // 异步连接
+                // 异步连接，确保异常被完全捕获，不重新抛出
+                bool connectionSuccess = false;
+                Exception connectionException = null;
+                
                 await Task.Run(() =>
                 {
-                    _plc.Open();
+                    try
+                    {
+                        _plc.Open();
+                        connectionSuccess = true;
+                    }
+                    catch (Exception ex)
+                    {
+                        // 捕获所有异常，不重新抛出，保存起来让外层统一处理
+                        connectionException = ex;
+                        connectionSuccess = false;
+                    }
                 });
+                
+                // 如果连接过程中发生异常，在这里统一处理，不重新抛出
+                if (!connectionSuccess)
+                {
+                    IsConnected = false;
+                    
+                    if (connectionException != null)
+                    {
+                        // 根据异常类型设置错误信息
+                        if (connectionException is S7.Net.PlcException plcEx)
+                        {
+                            string errorMessage = GetFriendlyErrorMessage(plcEx);
+                            ConnectionStatus = $"连接失败: {errorMessage}";
+                        }
+                        else if (connectionException is System.Net.Sockets.SocketException)
+                        {
+                            ConnectionStatus = $"连接失败: 无法连接到 {ipAddress}:102";
+                        }
+                        else
+                        {
+                            ConnectionStatus = $"连接失败: {connectionException.Message}";
+                        }
+                    }
+                    else
+                    {
+                        ConnectionStatus = "连接失败：无法建立连接";
+                    }
+                    
+                    try
+                    {
+                        _plc?.Close();
+                    }
+                    catch
+                    {
+                        // 忽略关闭时的异常
+                    }
+                    _plc = null;
+                    return false;
+                }
 
                 // 检查连接状态
                 if (_plc != null && _plc.IsConnected)
@@ -78,21 +130,19 @@ namespace ShunLiDuo.AutomationDetection.Services
                     return false;
                 }
             }
-            catch (S7.Net.PlcException plcEx)
-            {
-                IsConnected = false;
-                // 处理S7.Net特定的异常，提供更友好的错误信息
-                string errorMessage = GetFriendlyErrorMessage(plcEx);
-                ConnectionStatus = $"连接失败: {errorMessage}";
-                _plc?.Close();
-                _plc = null;
-                return false;
-            }
             catch (Exception ex)
             {
+                // 额外的安全捕获，防止任何未预期的异常（虽然理论上不应该到达这里）
                 IsConnected = false;
                 ConnectionStatus = $"连接失败: {ex.Message}";
-                _plc?.Close();
+                try
+                {
+                    _plc?.Close();
+                }
+                catch
+                {
+                    // 忽略关闭时的异常
+                }
                 _plc = null;
                 return false;
             }

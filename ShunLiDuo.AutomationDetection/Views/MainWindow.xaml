@@ -240,8 +240,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="PackageVariant" Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="物流盒管理" FontSize="15" VerticalAlignment="Center"/>
+                                   
+                                    <TextBlock Text="物流盒管理" FontSize="18" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="DetectionRoom" 
@@ -265,8 +265,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="OfficeBuilding" Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="检测室管理" FontSize="15" VerticalAlignment="Center"/>
+                                  
+                                    <TextBlock Text="检测室管理" FontSize="18" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="RuleManagement" 
@@ -290,8 +290,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="FileDocumentEdit" Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="规则管理" FontSize="15" VerticalAlignment="Center"/>
+                                  
+                                    <TextBlock Text="规则管理" FontSize="18" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -318,8 +318,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="AlertCircle" Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="设备异常" FontSize="15" VerticalAlignment="Center"/>
+                                   
+                                    <TextBlock Text="设备异常" FontSize="18" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="DeviceAlarm" 
@@ -342,8 +342,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="BellAlert" Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="设备报警" FontSize="15" VerticalAlignment="Center"/>
+                                   
+                                    <TextBlock Text="设备报警" FontSize="18" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -371,8 +371,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="AccountGroup" Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="账户管理" FontSize="15" VerticalAlignment="Center"/>
+                                  
+                                    <TextBlock Text="账户管理" FontSize="18" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="RoleManagement" 
@@ -396,8 +396,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="ShieldAccount" Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="角色管理" FontSize="15" VerticalAlignment="Center"/>
+                                   
+                                    <TextBlock Text="角色管理" FontSize="18" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="CommunicationSettings" 
@@ -421,8 +421,8 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Network" Width="20" Height="20" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="通讯设置" FontSize="15" VerticalAlignment="Center"/>
+                                   
+                                    <TextBlock Text="通讯设置" FontSize="18" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -475,7 +475,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="ClipboardList" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                       
                         <TextBlock Text="任务管理" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
@@ -503,7 +503,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="FileDocumentEdit" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                       
                         <TextBlock Text="调度规则" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
@@ -530,7 +530,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Alert" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                        
                         <TextBlock Text="报警与异常" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
@@ -558,7 +558,7 @@
                         </Style>
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
-                        <materialDesign:PackIcon Kind="Cog" Width="32" Height="32" Margin="0,0,12,0" VerticalAlignment="Center"/>
+                       
                         <TextBlock Text="系统设置" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>

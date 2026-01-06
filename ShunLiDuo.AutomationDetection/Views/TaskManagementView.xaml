@@ -204,7 +204,7 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </StackPanel>
-                            <Button Content="执行" Style="{StaticResource ExecuteButtonStyle}" 
+                            <Button Content="执行" Height="70" Width="100" Style="{StaticResource ExecuteButtonStyle}" 
                                    Command="{Binding ExecuteCommand}"/>
                         </StackPanel>
                     </Grid>

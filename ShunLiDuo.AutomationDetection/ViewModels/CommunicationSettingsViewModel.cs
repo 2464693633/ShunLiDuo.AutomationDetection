@@ -247,15 +247,26 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 }
                 else
                 {
-                    // 连接失败，显示详细的错误信息
-                    string errorMessage = _s7Service.ConnectionStatus;
-                    MessageBox.Show($"S7通讯连接失败\n\n{errorMessage}", "连接失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                    // 连接失败，只在手动连接时显示错误信息（自动连接时静默处理）
+                    if (!AutoConnect)
+                    {
+                        string errorMessage = _s7Service.ConnectionStatus;
+                        MessageBox.Show($"S7通讯连接失败\n\n{errorMessage}", "连接失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
                 }
             }
             catch (System.Exception ex)
             {
-                // 捕获其他未预期的异常
-                MessageBox.Show($"连接时发生异常:\n{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                // 捕获其他未预期的异常，只在手动连接时显示（自动连接时静默处理）
+                if (!AutoConnect)
+                {
+                    MessageBox.Show($"连接时发生异常:\n{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                else
+                {
+                    // 自动连接时只记录到调试输出
+                    System.Diagnostics.Debug.WriteLine($"PLC自动连接异常: {ex.Message}");
+                }
             }
             finally
             {
