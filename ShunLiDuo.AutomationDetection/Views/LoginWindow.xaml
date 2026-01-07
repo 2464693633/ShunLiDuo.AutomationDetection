@@ -34,7 +34,7 @@
             <!-- 标题 -->
             <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,40">
                
-                <TextBlock Text="顺利多自动化检测系统" 
+                <TextBlock Text="顺多利自动化检测系统" 
                           FontSize="28" FontWeight="SemiBold"
                           Foreground="{DynamicResource MaterialDesignBody}"
                           VerticalAlignment="Center"/>

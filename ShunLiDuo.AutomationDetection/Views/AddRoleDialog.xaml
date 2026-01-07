@@ -201,13 +201,9 @@
                                      VerticalAlignment="Center"
                                      Checked="CheckBox_Checked"
                                      Unchecked="CheckBox_Unchecked"
-                                     Indeterminate="CheckBox_Indeterminate">
-                                <CheckBox.IsChecked>
-                                    <MultiBinding Converter="{StaticResource BoolToNullableBoolConverter}">
-                                        <Binding Path="IsSelected" Mode="OneWay"/>
-                                        <Binding Path="IsIndeterminate" Mode="OneWay"/>
-                                    </MultiBinding>
-                                </CheckBox.IsChecked>
+                                     Indeterminate="CheckBox_Indeterminate"
+                                     IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                     Loaded="CheckBox_Loaded">
                             </CheckBox>
                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="13"/>
                         </StackPanel>

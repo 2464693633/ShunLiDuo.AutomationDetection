@@ -15,18 +15,26 @@ namespace ShunLiDuo.AutomationDetection.Views
         private readonly IRoleService _roleService;
         private readonly AccountManagementViewModel _viewModel;
 
-        public AccountManagementView(IAccountService accountService, IRoleService roleService)
+        public AccountManagementView(
+            IAccountService accountService, 
+            IRoleService roleService,
+            ICurrentUserService currentUserService)
         {
             InitializeComponent();
             _accountService = accountService;
             _roleService = roleService;
-            _viewModel = new AccountManagementViewModel(accountService, roleService);
+            _viewModel = new AccountManagementViewModel(accountService, roleService, currentUserService);
             DataContext = _viewModel;
+            
+            // 订阅ViewModel的事件
+            _viewModel.EditRequested += (s, e) => Edit_Click(null, null);
+            _viewModel.DeleteRequested += (s, e) => Delete_Click(null, null);
+            _viewModel.ViewRequested += (s, e) => View_Click(null, null);
         }
 
-        private async void Edit_Click(object sender, MouseButtonEventArgs e)
+        private async void Edit_Click(object sender, RoutedEventArgs e)
         {
-            var userItem = GetSelectedUserItem(sender);
+            var userItem = _viewModel.SelectedItem;
             if (userItem == null)
             {
                 MessageBox.Show("请选择要编辑的账户", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -72,9 +80,9 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
         }
 
-        private async void Delete_Click(object sender, MouseButtonEventArgs e)
+        private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var userItem = GetSelectedUserItem(sender);
+            var userItem = _viewModel.SelectedItem;
             if (userItem == null)
             {
                 MessageBox.Show("请选择要删除的账户", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -99,9 +107,9 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
         }
 
-        private async void View_Click(object sender, MouseButtonEventArgs e)
+        private async void View_Click(object sender, RoutedEventArgs e)
         {
-            var userItem = GetSelectedUserItem(sender);
+            var userItem = _viewModel.SelectedItem;
             if (userItem == null)
             {
                 MessageBox.Show("请选择要查看的账户", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -133,27 +141,6 @@ namespace ShunLiDuo.AutomationDetection.Views
             dialog.ShowDialog();
         }
 
-        private UserItem GetSelectedUserItem(object sender)
-        {
-            var textBlock = sender as TextBlock;
-            if (textBlock == null) return null;
-
-            var dataGridRow = FindParent<DataGridRow>(textBlock);
-            if (dataGridRow == null) return null;
-
-            return dataGridRow.Item as UserItem;
-        }
-
-        private T FindParent<T>(DependencyObject child) where T : DependencyObject
-        {
-            var parentObject = System.Windows.Media.VisualTreeHelper.GetParent(child);
-            if (parentObject == null) return null;
-
-            if (parentObject is T parent)
-                return parent;
-            else
-                return FindParent<T>(parentObject);
-        }
     }
 }
 

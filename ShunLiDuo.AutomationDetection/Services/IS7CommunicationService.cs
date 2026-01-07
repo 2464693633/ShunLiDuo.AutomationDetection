@@ -14,9 +14,13 @@ namespace ShunLiDuo.AutomationDetection.Services
         Task<bool> ConnectAsync(string ipAddress, CpuType cpuType, short rack, short slot);
         Task DisconnectAsync();
         
-        // 可以添加读写数据的方法
-        // Task<byte[]> ReadDataAsync(string address, int length);
-        // Task WriteDataAsync(string address, byte[] data);
+        // 读取数据的方法
+        Task<bool> ReadBoolAsync(string address);
+        Task<byte> ReadByteAsync(string address);
+        Task<short> ReadShortAsync(string address);
+        Task<int> ReadIntAsync(string address);
+        Task<float> ReadFloatAsync(string address);
+        Task<byte[]> ReadBytesAsync(string address, int count);
     }
 }
 

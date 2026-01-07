@@ -228,6 +228,319 @@ namespace ShunLiDuo.AutomationDetection.Services
             return message;
         }
 
+        public async Task<bool> ReadBoolAsync(string address)
+        {
+            if (!IsConnected || _plc == null || !_plc.IsConnected)
+            {
+                throw new InvalidOperationException("PLC未连接");
+            }
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var dataType = S7.Net.DataType.DataBlock;
+                    var dbNumber = 0;
+                    var startByte = 0;
+                    var bitNumber = 0;
+
+                    ParseAddress(address, out dataType, out dbNumber, out startByte, out bitNumber);
+
+                    // S7.Net没有直接的ReadBit方法，需要读取字节然后提取位
+                    var bytes = _plc.ReadBytes(dataType, dbNumber, startByte, 1);
+                    var byteValue = bytes[0];
+                    return (byteValue & (1 << bitNumber)) != 0;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"读取布尔值失败 (地址: {address}): {ex.Message}", ex);
+                }
+            });
+        }
+
+        public async Task<byte> ReadByteAsync(string address)
+        {
+            if (!IsConnected || _plc == null || !_plc.IsConnected)
+            {
+                throw new InvalidOperationException("PLC未连接");
+            }
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var dataType = S7.Net.DataType.DataBlock;
+                    var dbNumber = 0;
+                    var startByte = 0;
+
+                    ParseAddress(address, out dataType, out dbNumber, out startByte, out _);
+
+                    var bytes = _plc.ReadBytes(dataType, dbNumber, startByte, 1);
+                    return bytes[0];
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"读取字节失败 (地址: {address}): {ex.Message}", ex);
+                }
+            });
+        }
+
+        public async Task<short> ReadShortAsync(string address)
+        {
+            if (!IsConnected || _plc == null || !_plc.IsConnected)
+            {
+                throw new InvalidOperationException("PLC未连接");
+            }
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var dataType = S7.Net.DataType.DataBlock;
+                    var dbNumber = 0;
+                    var startByte = 0;
+
+                    ParseAddress(address, out dataType, out dbNumber, out startByte, out _);
+
+                    var bytes = _plc.ReadBytes(dataType, dbNumber, startByte, 2);
+                    // S7.Net使用大端字节序，需要手动转换
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(bytes);
+                    return BitConverter.ToInt16(bytes, 0);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"读取短整型失败 (地址: {address}): {ex.Message}", ex);
+                }
+            });
+        }
+
+        public async Task<int> ReadIntAsync(string address)
+        {
+            if (!IsConnected || _plc == null || !_plc.IsConnected)
+            {
+                throw new InvalidOperationException("PLC未连接");
+            }
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var dataType = S7.Net.DataType.DataBlock;
+                    var dbNumber = 0;
+                    var startByte = 0;
+
+                    ParseAddress(address, out dataType, out dbNumber, out startByte, out _);
+
+                    var bytes = _plc.ReadBytes(dataType, dbNumber, startByte, 4);
+                    // S7.Net使用大端字节序，需要手动转换
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(bytes);
+                    return BitConverter.ToInt32(bytes, 0);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"读取整型失败 (地址: {address}): {ex.Message}", ex);
+                }
+            });
+        }
+
+        public async Task<float> ReadFloatAsync(string address)
+        {
+            if (!IsConnected || _plc == null || !_plc.IsConnected)
+            {
+                throw new InvalidOperationException("PLC未连接");
+            }
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var dataType = S7.Net.DataType.DataBlock;
+                    var dbNumber = 0;
+                    var startByte = 0;
+
+                    ParseAddress(address, out dataType, out dbNumber, out startByte, out _);
+
+                    var bytes = _plc.ReadBytes(dataType, dbNumber, startByte, 4);
+                    // S7.Net使用大端字节序，需要手动转换
+                    if (BitConverter.IsLittleEndian)
+                        Array.Reverse(bytes);
+                    return BitConverter.ToSingle(bytes, 0);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"读取浮点数失败 (地址: {address}): {ex.Message}", ex);
+                }
+            });
+        }
+
+        public async Task<byte[]> ReadBytesAsync(string address, int count)
+        {
+            if (!IsConnected || _plc == null || !_plc.IsConnected)
+            {
+                throw new InvalidOperationException("PLC未连接");
+            }
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var dataType = S7.Net.DataType.DataBlock;
+                    var dbNumber = 0;
+                    var startByte = 0;
+
+                    ParseAddress(address, out dataType, out dbNumber, out startByte, out _);
+
+                    return _plc.ReadBytes(dataType, dbNumber, startByte, count);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"读取字节数组失败 (地址: {address}, 长度: {count}): {ex.Message}", ex);
+                }
+            });
+        }
+
+        /// <summary>
+        /// 解析PLC地址，支持格式：
+        /// DB1.DBX0.0 (数据块1，字节0，位0)
+        /// DB1.DBB0 (数据块1，字节0)
+        /// DB1.DBW0 (数据块1，字0，2字节)
+        /// DB1.DBD0 (数据块1，双字0，4字节)
+        /// I0.0 (输入，字节0，位0)
+        /// Q0.0 (输出，字节0，位0)
+        /// M0.0 (标志位，字节0，位0)
+        /// </summary>
+        private void ParseAddress(string address, out S7.Net.DataType dataType, out int dbNumber, out int startByte, out int bitNumber)
+        {
+            dataType = S7.Net.DataType.DataBlock;
+            dbNumber = 0;
+            startByte = 0;
+            bitNumber = 0;
+
+            if (string.IsNullOrWhiteSpace(address))
+            {
+                throw new ArgumentException("地址不能为空");
+            }
+
+            address = address.Trim().ToUpper();
+
+            // 解析数据块地址 DB1.DBX0.0 或 DB1.DBB0
+            if (address.StartsWith("DB"))
+            {
+                dataType = S7.Net.DataType.DataBlock;
+                var parts = address.Split('.');
+                if (parts.Length < 2)
+                {
+                    throw new ArgumentException($"无效的地址格式: {address}");
+                }
+
+                // 提取DB编号
+                var dbPart = parts[0].Substring(2); // 去掉 "DB"
+                if (!int.TryParse(dbPart, out dbNumber))
+                {
+                    throw new ArgumentException($"无效的DB编号: {dbPart}");
+                }
+
+                // 解析地址类型和位置
+                var addrPart = parts[1];
+                if (addrPart.StartsWith("DBX"))
+                {
+                    // 位地址 DB1.DBX0.0
+                    var bytePart = addrPart.Substring(3); // 去掉 "DBX"
+                    if (!int.TryParse(bytePart, out startByte))
+                    {
+                        throw new ArgumentException($"无效的字节地址: {bytePart}");
+                    }
+
+                    if (parts.Length > 2)
+                    {
+                        if (!int.TryParse(parts[2], out bitNumber))
+                        {
+                            throw new ArgumentException($"无效的位地址: {parts[2]}");
+                        }
+                    }
+                }
+                else if (addrPart.StartsWith("DBB"))
+                {
+                    // 字节地址 DB1.DBB0
+                    var bytePart = addrPart.Substring(3); // 去掉 "DBB"
+                    if (!int.TryParse(bytePart, out startByte))
+                    {
+                        throw new ArgumentException($"无效的字节地址: {bytePart}");
+                    }
+                }
+                else if (addrPart.StartsWith("DBW"))
+                {
+                    // 字地址 DB1.DBW0
+                    var bytePart = addrPart.Substring(3); // 去掉 "DBW"
+                    if (!int.TryParse(bytePart, out startByte))
+                    {
+                        throw new ArgumentException($"无效的字地址: {bytePart}");
+                    }
+                }
+                else if (addrPart.StartsWith("DBD"))
+                {
+                    // 双字地址 DB1.DBD0
+                    var bytePart = addrPart.Substring(3); // 去掉 "DBD"
+                    if (!int.TryParse(bytePart, out startByte))
+                    {
+                        throw new ArgumentException($"无效的双字地址: {bytePart}");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException($"不支持的地址类型: {addrPart}");
+                }
+            }
+            // 解析输入地址 I0.0
+            else if (address.StartsWith("I"))
+            {
+                dataType = S7.Net.DataType.Input;
+                var parts = address.Substring(1).Split('.');
+                if (!int.TryParse(parts[0], out startByte))
+                {
+                    throw new ArgumentException($"无效的输入字节地址: {parts[0]}");
+                }
+                if (parts.Length > 1 && !int.TryParse(parts[1], out bitNumber))
+                {
+                    throw new ArgumentException($"无效的输入位地址: {parts[1]}");
+                }
+            }
+            // 解析输出地址 Q0.0
+            else if (address.StartsWith("Q"))
+            {
+                dataType = S7.Net.DataType.Output;
+                var parts = address.Substring(1).Split('.');
+                if (!int.TryParse(parts[0], out startByte))
+                {
+                    throw new ArgumentException($"无效的输出字节地址: {parts[0]}");
+                }
+                if (parts.Length > 1 && !int.TryParse(parts[1], out bitNumber))
+                {
+                    throw new ArgumentException($"无效的输出位地址: {parts[1]}");
+                }
+            }
+            // 解析标志位地址 M0.0
+            else if (address.StartsWith("M"))
+            {
+                dataType = S7.Net.DataType.Memory;
+                var parts = address.Substring(1).Split('.');
+                if (!int.TryParse(parts[0], out startByte))
+                {
+                    throw new ArgumentException($"无效的标志位字节地址: {parts[0]}");
+                }
+                if (parts.Length > 1 && !int.TryParse(parts[1], out bitNumber))
+                {
+                    throw new ArgumentException($"无效的标志位地址: {parts[1]}");
+                }
+            }
+            else
+            {
+                throw new ArgumentException($"不支持的地址格式: {address}");
+            }
+        }
+
         public void Dispose()
         {
             try

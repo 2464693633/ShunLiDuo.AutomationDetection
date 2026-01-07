@@ -13,6 +13,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Resources/CommonStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <converters:ScanStatusToColorConverter x:Key="ScanStatusToColorConverter"/>
 
             <Style x:Key="SectionBorderStyle" TargetType="Border">
                 <Setter Property="Background" Value="#F8F8F8"/>
@@ -204,8 +205,6 @@
                                     </TextBlock.Style>
                                 </TextBlock>
                             </StackPanel>
-                            <Button Content="执行" Height="70" Width="100" Style="{StaticResource ExecuteButtonStyle}" 
-                                   Command="{Binding ExecuteCommand}"/>
                         </StackPanel>
                     </Grid>
 
@@ -220,8 +219,30 @@
                                 <DataTemplate>
                                     <StackPanel Margin="5">
                                         <Label Content="{Binding Room.RoomName}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                        
+                                        <!-- 扫码状态显示 -->
+                                        <Border Background="#F5F5F5" 
+                                                BorderBrush="#CCCCCC" 
+                                                BorderThickness="1" 
+                                                CornerRadius="4" 
+                                                Padding="8" 
+                                                Margin="0,5,0,5">
+                                            <StackPanel>
+                                                <TextBlock Text="扫码编码:" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                                                <TextBlock Text="{Binding LastScannedCode, FallbackValue='等待扫码'}" 
+                                                          FontSize="14" 
+                                                          Foreground="{Binding ScanStatus, Converter={StaticResource ScanStatusToColorConverter}}"
+                                                          Margin="0,0,0,5"/>
+                                                <TextBlock Text="{Binding ScanStatus, FallbackValue='等待扫码'}" 
+                                                          FontSize="11" 
+                                                          Foreground="{Binding ScanStatus, Converter={StaticResource ScanStatusToColorConverter}}"/>
+                                            </StackPanel>
+                                        </Border>
+                                        
                                         <ListBox Style="{StaticResource RoomListBoxStyle}" 
-                                                ItemsSource="{Binding Boxes}" Width="200"/>
+                                                ItemsSource="{Binding Boxes}" 
+                                                Width="200"
+                                                MaxHeight="200"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

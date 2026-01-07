@@ -20,7 +20,9 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 var rooms = new List<DetectionRoomItem>();
-                string sql = "SELECT Id, RoomNo, RoomName, Remark FROM DetectionRooms ORDER BY Id";
+                string sql = @"SELECT Id, RoomNo, RoomName, Remark, ScannerPortName, ScannerBaudRate, 
+                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled 
+                              FROM DetectionRooms ORDER BY Id";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
                 using (var reader = command.ExecuteReader())
@@ -33,6 +35,12 @@ namespace ShunLiDuo.AutomationDetection.Data
                             RoomNo = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
                             RoomName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                             Remark = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
+                            ScannerPortName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                            ScannerBaudRate = reader.IsDBNull(5) ? 9600 : reader.GetInt32(5),
+                            ScannerDataBits = reader.IsDBNull(6) ? 8 : reader.GetInt32(6),
+                            ScannerStopBits = reader.IsDBNull(7) ? 1 : reader.GetInt32(7),
+                            ScannerParity = reader.IsDBNull(8) ? "None" : reader.GetString(8),
+                            ScannerIsEnabled = reader.IsDBNull(9) ? false : reader.GetInt32(9) == 1,
                             IsSelected = false
                         });
                     }
@@ -45,7 +53,9 @@ namespace ShunLiDuo.AutomationDetection.Data
         {
             return await Task.Run(() =>
             {
-                string sql = "SELECT Id, RoomNo, RoomName, Remark FROM DetectionRooms WHERE Id = @id";
+                string sql = @"SELECT Id, RoomNo, RoomName, Remark, ScannerPortName, ScannerBaudRate, 
+                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled 
+                              FROM DetectionRooms WHERE Id = @id";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
                 {
@@ -60,6 +70,12 @@ namespace ShunLiDuo.AutomationDetection.Data
                                 RoomNo = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
                                 RoomName = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                                 Remark = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
+                                ScannerPortName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                                ScannerBaudRate = reader.IsDBNull(5) ? 9600 : reader.GetInt32(5),
+                                ScannerDataBits = reader.IsDBNull(6) ? 8 : reader.GetInt32(6),
+                                ScannerStopBits = reader.IsDBNull(7) ? 1 : reader.GetInt32(7),
+                                ScannerParity = reader.IsDBNull(8) ? "None" : reader.GetString(8),
+                                ScannerIsEnabled = reader.IsDBNull(9) ? false : reader.GetInt32(9) == 1,
                                 IsSelected = false
                             };
                         }
@@ -73,8 +89,10 @@ namespace ShunLiDuo.AutomationDetection.Data
         {
             return await Task.Run(() =>
             {
-                string sql = @"INSERT INTO DetectionRooms (RoomNo, RoomName, Remark, CreateTime, UpdateTime)
-                              VALUES (@RoomNo, @RoomName, @Remark, @CreateTime, @UpdateTime);
+                string sql = @"INSERT INTO DetectionRooms (RoomNo, RoomName, Remark, ScannerPortName, ScannerBaudRate, 
+                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled, CreateTime, UpdateTime)
+                              VALUES (@RoomNo, @RoomName, @Remark, @ScannerPortName, @ScannerBaudRate, 
+                              @ScannerDataBits, @ScannerStopBits, @ScannerParity, @ScannerIsEnabled, @CreateTime, @UpdateTime);
                               SELECT last_insert_rowid();";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -82,6 +100,12 @@ namespace ShunLiDuo.AutomationDetection.Data
                     command.Parameters.AddWithValue("@RoomNo", room.RoomNo ?? string.Empty);
                     command.Parameters.AddWithValue("@RoomName", room.RoomName ?? string.Empty);
                     command.Parameters.AddWithValue("@Remark", room.Remark ?? string.Empty);
+                    command.Parameters.AddWithValue("@ScannerPortName", room.ScannerPortName ?? string.Empty);
+                    command.Parameters.AddWithValue("@ScannerBaudRate", room.ScannerBaudRate);
+                    command.Parameters.AddWithValue("@ScannerDataBits", room.ScannerDataBits);
+                    command.Parameters.AddWithValue("@ScannerStopBits", room.ScannerStopBits);
+                    command.Parameters.AddWithValue("@ScannerParity", room.ScannerParity ?? "None");
+                    command.Parameters.AddWithValue("@ScannerIsEnabled", room.ScannerIsEnabled ? 1 : 0);
                     command.Parameters.AddWithValue("@CreateTime", DateTime.Now);
                     command.Parameters.AddWithValue("@UpdateTime", DateTime.Now);
 
@@ -96,7 +120,11 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 string sql = @"UPDATE DetectionRooms 
-                              SET RoomNo = @RoomNo, RoomName = @RoomName, Remark = @Remark, UpdateTime = @UpdateTime
+                              SET RoomNo = @RoomNo, RoomName = @RoomName, Remark = @Remark, 
+                              ScannerPortName = @ScannerPortName, ScannerBaudRate = @ScannerBaudRate,
+                              ScannerDataBits = @ScannerDataBits, ScannerStopBits = @ScannerStopBits,
+                              ScannerParity = @ScannerParity, ScannerIsEnabled = @ScannerIsEnabled,
+                              UpdateTime = @UpdateTime
                               WHERE Id = @Id";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -105,6 +133,12 @@ namespace ShunLiDuo.AutomationDetection.Data
                     command.Parameters.AddWithValue("@RoomNo", room.RoomNo ?? string.Empty);
                     command.Parameters.AddWithValue("@RoomName", room.RoomName ?? string.Empty);
                     command.Parameters.AddWithValue("@Remark", room.Remark ?? string.Empty);
+                    command.Parameters.AddWithValue("@ScannerPortName", room.ScannerPortName ?? string.Empty);
+                    command.Parameters.AddWithValue("@ScannerBaudRate", room.ScannerBaudRate);
+                    command.Parameters.AddWithValue("@ScannerDataBits", room.ScannerDataBits);
+                    command.Parameters.AddWithValue("@ScannerStopBits", room.ScannerStopBits);
+                    command.Parameters.AddWithValue("@ScannerParity", room.ScannerParity ?? "None");
+                    command.Parameters.AddWithValue("@ScannerIsEnabled", room.ScannerIsEnabled ? 1 : 0);
                     command.Parameters.AddWithValue("@UpdateTime", DateTime.Now);
 
                     int rowsAffected = command.ExecuteNonQuery();

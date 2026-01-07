@@ -14,17 +14,25 @@ namespace ShunLiDuo.AutomationDetection.Views
         private readonly ILogisticsBoxService _logisticsBoxService;
         private readonly LogisticsBoxManagementViewModel _viewModel;
 
-        public LogisticsBoxManagementView(ILogisticsBoxService logisticsBoxService)
+        public LogisticsBoxManagementView(
+            ILogisticsBoxService logisticsBoxService,
+            IAccountService accountService,
+            ICurrentUserService currentUserService)
         {
             InitializeComponent();
             _logisticsBoxService = logisticsBoxService;
-            _viewModel = new LogisticsBoxManagementViewModel(logisticsBoxService);
+            _viewModel = new LogisticsBoxManagementViewModel(logisticsBoxService, accountService, currentUserService);
             DataContext = _viewModel;
+            
+            // 订阅ViewModel的事件
+            _viewModel.EditRequested += (s, e) => Edit_Click(null, null);
+            _viewModel.DeleteRequested += (s, e) => Delete_Click(null, null);
+            _viewModel.ViewRequested += (s, e) => View_Click(null, null);
         }
 
-        private async void Edit_Click(object sender, MouseButtonEventArgs e)
+        private async void Edit_Click(object sender, RoutedEventArgs e)
         {
-            var boxItem = GetSelectedBoxItem(sender);
+            var boxItem = _viewModel.SelectedItem;
             if (boxItem == null)
             {
                 MessageBox.Show("请选择要编辑的物流盒", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -65,9 +73,9 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
         }
 
-        private async void Delete_Click(object sender, MouseButtonEventArgs e)
+        private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var boxItem = GetSelectedBoxItem(sender);
+            var boxItem = _viewModel.SelectedItem;
             if (boxItem == null)
             {
                 MessageBox.Show("请选择要删除的物流盒", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -92,9 +100,9 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
         }
 
-        private async void View_Click(object sender, MouseButtonEventArgs e)
+        private async void View_Click(object sender, RoutedEventArgs e)
         {
-            var boxItem = GetSelectedBoxItem(sender);
+            var boxItem = _viewModel.SelectedItem;
             if (boxItem == null)
             {
                 MessageBox.Show("请选择要查看的物流盒", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -120,27 +128,6 @@ namespace ShunLiDuo.AutomationDetection.Views
             dialog.ShowDialog();
         }
 
-        private LogisticsBoxItem GetSelectedBoxItem(object sender)
-        {
-            var textBlock = sender as TextBlock;
-            if (textBlock == null) return null;
-
-            var dataGridRow = FindParent<DataGridRow>(textBlock);
-            if (dataGridRow == null) return null;
-
-            return dataGridRow.Item as LogisticsBoxItem;
-        }
-
-        private T FindParent<T>(DependencyObject child) where T : DependencyObject
-        {
-            var parentObject = System.Windows.Media.VisualTreeHelper.GetParent(child);
-            if (parentObject == null) return null;
-
-            if (parentObject is T parent)
-                return parent;
-            else
-                return FindParent<T>(parentObject);
-        }
     }
 }
 

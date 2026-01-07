@@ -7,6 +7,7 @@ using ShunLiDuo.AutomationDetection.Data;
 using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.Models;
 using S7.Net;
+using ShunLiDuo.AutomationDetection.ViewModels;
 
 namespace ShunLiDuo.AutomationDetection
 {
@@ -96,6 +97,9 @@ namespace ShunLiDuo.AutomationDetection
                 // 自动连接PLC（如果启用了自动连接）
                 AutoConnectPlcAsync();
                 
+                // 自动连接所有检测室的串口
+                AutoConnectAllScannersAsync();
+                
                 // 显示主窗口
                 mainWindow.Visibility = Visibility.Visible;
                 mainWindow.Show();
@@ -121,6 +125,7 @@ namespace ShunLiDuo.AutomationDetection
             containerRegistry.Register<IAccountRepository, AccountRepository>();
             containerRegistry.Register<IRoleRepository, RoleRepository>();
             containerRegistry.Register<IPermissionRepository, PermissionRepository>();
+            containerRegistry.Register<IPlcMonitorConfigRepository, PlcMonitorConfigRepository>();
             
             // 注册服务层
             containerRegistry.Register<IRuleService, RuleService>();
@@ -131,7 +136,9 @@ namespace ShunLiDuo.AutomationDetection
             containerRegistry.Register<IPermissionService, PermissionService>();
             containerRegistry.RegisterSingleton<ICurrentUserService, CurrentUserService>();
             containerRegistry.RegisterSingleton<IS7CommunicationService, S7CommunicationService>();
+            containerRegistry.RegisterSingleton<IScannerCommunicationService, ScannerCommunicationService>();
             containerRegistry.Register<ICommunicationConfigService, CommunicationConfigService>();
+            containerRegistry.Register<IPlcMonitorConfigService, PlcMonitorConfigService>();
             
             // 注册登录窗口
             containerRegistry.Register<Views.LoginWindow>();
@@ -165,6 +172,10 @@ namespace ShunLiDuo.AutomationDetection
             containerRegistry.RegisterForNavigation<TaskManagementView>("TaskManagementView");
             containerRegistry.RegisterForNavigation<DeviceExceptionView>("DeviceExceptionView");
             containerRegistry.RegisterForNavigation<DeviceAlarmView>("DeviceAlarmView");
+            
+            // 注册PLC监控视图
+            containerRegistry.Register<Views.PlcMonitorView>();
+            containerRegistry.RegisterForNavigation<Views.PlcMonitorView>("PlcMonitorView");
         }
 
         protected override void ConfigureModuleCatalog(Prism.Modularity.IModuleCatalog moduleCatalog)
@@ -221,6 +232,32 @@ namespace ShunLiDuo.AutomationDetection
             {
                 // 自动连接失败，但不影响应用启动
                 System.Diagnostics.Debug.WriteLine($"PLC自动连接异常: {ex.Message}");
+            }
+        }
+
+        private async void AutoConnectAllScannersAsync()
+        {
+            try
+            {
+                var detectionRoomService = Container.Resolve<IDetectionRoomService>();
+                var scannerService = Container.Resolve<IScannerCommunicationService>();
+                
+                // 延迟一下，确保UI已经加载完成
+                await System.Threading.Tasks.Task.Delay(1500);
+                
+                // 加载所有检测室
+                var rooms = await detectionRoomService.GetAllRoomsAsync();
+                
+                if (rooms != null && rooms.Count > 0)
+                {
+                    // 自动连接所有已启用扫码器的检测室
+                    await scannerService.AutoConnectAllScannersAsync(rooms);
+                }
+            }
+            catch (System.Exception ex)
+            {
+                // 自动连接失败，但不影响应用启动
+                System.Diagnostics.Debug.WriteLine($"串口自动连接异常: {ex.Message}");
             }
         }
     }

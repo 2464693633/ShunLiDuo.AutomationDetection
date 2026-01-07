@@ -32,6 +32,14 @@ namespace ShunLiDuo.AutomationDetection.Views
         public string RoomNo => ViewModel.RoomNo;
         public string RoomName => ViewModel.RoomName;
         public string Remark => ViewModel.Remark;
+        
+        // 串口配置属性
+        public string ScannerPortName => ViewModel.ScannerPortName;
+        public int ScannerBaudRate => ViewModel.ScannerBaudRate;
+        public int ScannerDataBits => ViewModel.ScannerDataBits;
+        public int ScannerStopBits => ViewModel.ScannerStopBits;
+        public string ScannerParity => ViewModel.ScannerParity;
+        public bool ScannerIsEnabled => ViewModel.ScannerIsEnabled;
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
         {

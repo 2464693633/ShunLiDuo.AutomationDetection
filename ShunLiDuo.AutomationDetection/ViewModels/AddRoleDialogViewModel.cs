@@ -163,19 +163,35 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             
             foreach (var permission in Permissions)
             {
-                // 如果父权限被选中，添加父权限代码
+                // 如果父权限被选中且不是半选状态，添加所有子权限代码
                 if (permission.IsSelected && !permission.IsIndeterminate)
                 {
-                    selectedPermissions.Add(permission.Code);
-                }
-                // 如果父权限是半选状态，只添加选中的子权限
-                else if (permission.IsIndeterminate || !permission.IsSelected)
-                {
-                    foreach (var child in permission.Children)
+                    // 当父权限被选中时，所有子权限也应该被选中（根据 PermissionItem 的逻辑）
+                    // 所以添加所有子权限的代码
+                    if (permission.Children != null && permission.Children.Count > 0)
                     {
-                        if (child.IsSelected)
+                        foreach (var child in permission.Children)
                         {
                             selectedPermissions.Add(child.Code);
+                        }
+                    }
+                    else
+                    {
+                        // 如果没有子权限，添加父权限代码
+                        selectedPermissions.Add(permission.Code);
+                    }
+                }
+                // 如果父权限是半选状态或未选中，只添加选中的子权限
+                else
+                {
+                    if (permission.Children != null && permission.Children.Count > 0)
+                    {
+                        foreach (var child in permission.Children)
+                        {
+                            if (child.IsSelected)
+                            {
+                                selectedPermissions.Add(child.Code);
+                            }
                         }
                     }
                 }

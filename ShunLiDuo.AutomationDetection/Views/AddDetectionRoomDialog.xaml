@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        Title="新增检测室" Height="450" Width="550"
+        Title="新增检测室" Height="650" Width="550"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
@@ -99,6 +99,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
         <!-- 检测室编号 -->
@@ -136,6 +137,85 @@
                     Text="{Binding Remark, UpdateSourceTrigger=PropertyChanged}"
                     Style="{StaticResource TextAreaStyle}"/>
         </Grid>
+
+        <!-- 扫码器配置（可折叠） -->
+        <Expander Grid.Row="3" 
+                 Header="扫码器配置" 
+                 IsExpanded="False"
+                 Margin="0,0,0,15">
+            <StackPanel Margin="10,10,0,0">
+                <!-- 启用扫码器 -->
+                <Grid Margin="0,0,0,15">
+                    <CheckBox Content="启用扫码器" 
+                             IsChecked="{Binding ScannerIsEnabled}"/>
+                </Grid>
+
+                <!-- 串口号 -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="串口号" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Grid.Column="1" 
+                             ItemsSource="{Binding AvailablePorts}"
+                             SelectedItem="{Binding ScannerPortName}"
+                             Style="{StaticResource StandardComboBoxStyle}"/>
+                </Grid>
+
+                <!-- 波特率 -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="波特率" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Grid.Column="1" 
+                             ItemsSource="{Binding AvailableBaudRates}"
+                             SelectedItem="{Binding ScannerBaudRate}"
+                             Style="{StaticResource StandardComboBoxStyle}"/>
+                </Grid>
+
+                <!-- 数据位 -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="数据位" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Grid.Column="1" 
+                             ItemsSource="{Binding AvailableDataBits}"
+                             SelectedItem="{Binding ScannerDataBits}"
+                             Style="{StaticResource StandardComboBoxStyle}"/>
+                </Grid>
+
+                <!-- 停止位 -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="停止位" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Grid.Column="1" 
+                             ItemsSource="{Binding AvailableStopBits}"
+                             SelectedItem="{Binding ScannerStopBits}"
+                             Style="{StaticResource StandardComboBoxStyle}"/>
+                </Grid>
+
+                <!-- 校验位 -->
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="校验位" Style="{StaticResource LabelStyle}"/>
+                    <ComboBox Grid.Column="1" 
+                             ItemsSource="{Binding AvailableParities}"
+                             SelectedItem="{Binding ScannerParity}"
+                             Style="{StaticResource StandardComboBoxStyle}"/>
+                </Grid>
+            </StackPanel>
+        </Expander>
 
                 </Grid>
             </ScrollViewer>

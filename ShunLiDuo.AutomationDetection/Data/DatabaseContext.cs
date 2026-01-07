@@ -14,19 +14,15 @@ namespace ShunLiDuo.AutomationDetection.Data
 
         public DatabaseContext()
         {
-            // 数据库文件路径
-            string appDataPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "ShunLiDuo",
-                "AutomationDetection"
-            );
+            // 数据库文件路径 - 创建在项目目录（bin\Debug 或 bin\Release）
+            string projectPath = AppDomain.CurrentDomain.BaseDirectory;
             
-            if (!Directory.Exists(appDataPath))
+            if (!Directory.Exists(projectPath))
             {
-                Directory.CreateDirectory(appDataPath);
+                Directory.CreateDirectory(projectPath);
             }
 
-            _databasePath = Path.Combine(appDataPath, "AutomationDetection.db");
+            _databasePath = Path.Combine(projectPath, "AutomationDetection.db");
             _connectionString = $"Data Source={_databasePath};Version=3;";
         }
 
@@ -65,6 +61,12 @@ namespace ShunLiDuo.AutomationDetection.Data
                     RoomNo TEXT NOT NULL,
                     RoomName TEXT NOT NULL,
                     Remark TEXT,
+                    ScannerPortName TEXT,
+                    ScannerBaudRate INTEGER DEFAULT 9600,
+                    ScannerDataBits INTEGER DEFAULT 8,
+                    ScannerStopBits INTEGER DEFAULT 1,
+                    ScannerParity TEXT DEFAULT 'None',
+                    ScannerIsEnabled INTEGER DEFAULT 0,
                     CreateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
                     UpdateTime DATETIME
                 );";
@@ -148,6 +150,190 @@ namespace ShunLiDuo.AutomationDetection.Data
                 // 忽略错误，继续执行
             }
 
+            // 迁移检测室表，添加串口配置字段
+            try
+            {
+                using (var checkCommand = Connection.CreateCommand())
+                {
+                    checkCommand.CommandText = "PRAGMA table_info(DetectionRooms)";
+                    using (var reader = checkCommand.ExecuteReader())
+                    {
+                        var columns = new List<string>();
+                        while (reader.Read())
+                        {
+                            columns.Add(reader.GetString(1));
+                        }
+                        
+                        // 如果表存在但没有串口配置字段，则添加
+                        if (columns.Count > 0)
+                        {
+                            if (!columns.Contains("ScannerPortName"))
+                            {
+                                using (var alterCommand = Connection.CreateCommand())
+                                {
+                                    alterCommand.CommandText = "ALTER TABLE DetectionRooms ADD COLUMN ScannerPortName TEXT";
+                                    alterCommand.ExecuteNonQuery();
+                                }
+                            }
+                            if (!columns.Contains("ScannerBaudRate"))
+                            {
+                                using (var alterCommand = Connection.CreateCommand())
+                                {
+                                    alterCommand.CommandText = "ALTER TABLE DetectionRooms ADD COLUMN ScannerBaudRate INTEGER DEFAULT 9600";
+                                    alterCommand.ExecuteNonQuery();
+                                }
+                            }
+                            if (!columns.Contains("ScannerDataBits"))
+                            {
+                                using (var alterCommand = Connection.CreateCommand())
+                                {
+                                    alterCommand.CommandText = "ALTER TABLE DetectionRooms ADD COLUMN ScannerDataBits INTEGER DEFAULT 8";
+                                    alterCommand.ExecuteNonQuery();
+                                }
+                            }
+                            if (!columns.Contains("ScannerStopBits"))
+                            {
+                                using (var alterCommand = Connection.CreateCommand())
+                                {
+                                    alterCommand.CommandText = "ALTER TABLE DetectionRooms ADD COLUMN ScannerStopBits INTEGER DEFAULT 1";
+                                    alterCommand.ExecuteNonQuery();
+                                }
+                            }
+                            if (!columns.Contains("ScannerParity"))
+                            {
+                                using (var alterCommand = Connection.CreateCommand())
+                                {
+                                    alterCommand.CommandText = "ALTER TABLE DetectionRooms ADD COLUMN ScannerParity TEXT DEFAULT 'None'";
+                                    alterCommand.ExecuteNonQuery();
+                                }
+                            }
+                            if (!columns.Contains("ScannerIsEnabled"))
+                            {
+                                using (var alterCommand = Connection.CreateCommand())
+                                {
+                                    alterCommand.CommandText = "ALTER TABLE DetectionRooms ADD COLUMN ScannerIsEnabled INTEGER DEFAULT 0";
+                                    alterCommand.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // 忽略错误，继续执行
+            }
+
+            // 检查PlcMonitorConfig表是否存在，如果不存在则创建（用于迁移）
+            // 如果表存在，检查是否需要添加新列
+            try
+            {
+                using (var checkCommand = Connection.CreateCommand())
+                {
+                    checkCommand.CommandText = "SELECT name FROM sqlite_master WHERE type='table' AND name='PlcMonitorConfig'";
+                    var result = checkCommand.ExecuteScalar();
+                    if (result == null)
+                    {
+                        // 表不存在，创建它
+                        using (var createCommand = Connection.CreateCommand())
+                        {
+                            createCommand.CommandText = @"
+                                CREATE TABLE PlcMonitorConfig (
+                                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                    RoomId INTEGER NOT NULL,
+                                    Cylinder1Name TEXT,
+                                    Cylinder1ExtendAddress TEXT,
+                                    Cylinder1RetractAddress TEXT,
+                                    Cylinder1ExtendFeedbackAddress TEXT,
+                                    Cylinder1RetractFeedbackAddress TEXT,
+                                    Cylinder1DataType TEXT,
+                                    Cylinder2Name TEXT,
+                                    Cylinder2ExtendAddress TEXT,
+                                    Cylinder2RetractAddress TEXT,
+                                    Cylinder2ExtendFeedbackAddress TEXT,
+                                    Cylinder2RetractFeedbackAddress TEXT,
+                                    Cylinder2DataType TEXT,
+                                    SensorName TEXT,
+                                    SensorAddress TEXT,
+                                    SensorDataType TEXT,
+                                    Remark TEXT,
+                                    CreateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+                                    UpdateTime DATETIME,
+                                    FOREIGN KEY (RoomId) REFERENCES DetectionRooms(Id)
+                                );";
+                            createCommand.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        // 表存在，检查并添加新列（如果不存在）
+                        checkCommand.CommandText = "PRAGMA table_info(PlcMonitorConfig)";
+                        using (var reader = checkCommand.ExecuteReader())
+                        {
+                            var columns = new List<string>();
+                            while (reader.Read())
+                            {
+                                columns.Add(reader.GetString(1));
+                            }
+                            
+                            // 添加新列（如果不存在）
+                            var newColumns = new Dictionary<string, string>
+                            {
+                                { "Cylinder1ExtendAddress", "TEXT" },
+                                { "Cylinder1RetractAddress", "TEXT" },
+                                { "Cylinder1ExtendFeedbackAddress", "TEXT" },
+                                { "Cylinder1RetractFeedbackAddress", "TEXT" },
+                                { "Cylinder2ExtendAddress", "TEXT" },
+                                { "Cylinder2RetractAddress", "TEXT" },
+                                { "Cylinder2ExtendFeedbackAddress", "TEXT" },
+                                { "Cylinder2RetractFeedbackAddress", "TEXT" }
+                            };
+                            
+                            foreach (var column in newColumns)
+                            {
+                                if (!columns.Contains(column.Key))
+                                {
+                                    using (var alterCommand = Connection.CreateCommand())
+                                    {
+                                        alterCommand.CommandText = $"ALTER TABLE PlcMonitorConfig ADD COLUMN {column.Key} {column.Value}";
+                                        alterCommand.ExecuteNonQuery();
+                                    }
+                                }
+                            }
+                            
+                            // 如果存在旧的Cylinder1Address和Cylinder2Address列，迁移数据
+                            if (columns.Contains("Cylinder1Address") && !columns.Contains("Cylinder1ExtendAddress"))
+                            {
+                                // 将旧地址迁移到新字段（这里假设旧地址是伸出地址）
+                                using (var updateCommand = Connection.CreateCommand())
+                                {
+                                    updateCommand.CommandText = @"
+                                        UPDATE PlcMonitorConfig 
+                                        SET Cylinder1ExtendAddress = Cylinder1Address 
+                                        WHERE Cylinder1ExtendAddress IS NULL";
+                                    updateCommand.ExecuteNonQuery();
+                                }
+                            }
+                            if (columns.Contains("Cylinder2Address") && !columns.Contains("Cylinder2ExtendAddress"))
+                            {
+                                using (var updateCommand = Connection.CreateCommand())
+                                {
+                                    updateCommand.CommandText = @"
+                                        UPDATE PlcMonitorConfig 
+                                        SET Cylinder2ExtendAddress = Cylinder2Address 
+                                        WHERE Cylinder2ExtendAddress IS NULL";
+                                    updateCommand.ExecuteNonQuery();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // 忽略错误，继续执行
+            }
+
             // 创建角色表
             string createRolesTable = @"
                 CREATE TABLE IF NOT EXISTS Roles (
@@ -187,6 +373,32 @@ namespace ShunLiDuo.AutomationDetection.Data
                     UpdateTime DATETIME DEFAULT CURRENT_TIMESTAMP
                 );";
 
+            // 创建PLC监控配置表
+            string createPlcMonitorConfigTable = @"
+                CREATE TABLE IF NOT EXISTS PlcMonitorConfig (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    RoomId INTEGER NOT NULL,
+                    Cylinder1Name TEXT,
+                    Cylinder1ExtendAddress TEXT,
+                    Cylinder1RetractAddress TEXT,
+                    Cylinder1ExtendFeedbackAddress TEXT,
+                    Cylinder1RetractFeedbackAddress TEXT,
+                    Cylinder1DataType TEXT,
+                    Cylinder2Name TEXT,
+                    Cylinder2ExtendAddress TEXT,
+                    Cylinder2RetractAddress TEXT,
+                    Cylinder2ExtendFeedbackAddress TEXT,
+                    Cylinder2RetractFeedbackAddress TEXT,
+                    Cylinder2DataType TEXT,
+                    SensorName TEXT,
+                    SensorAddress TEXT,
+                    SensorDataType TEXT,
+                    Remark TEXT,
+                    CreateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    UpdateTime DATETIME,
+                    FOREIGN KEY (RoomId) REFERENCES DetectionRooms(Id)
+                );";
+
             using (var command = Connection.CreateCommand())
             {
                 command.CommandText = createRulesTable;
@@ -209,6 +421,10 @@ namespace ShunLiDuo.AutomationDetection.Data
 
                 // 创建通讯配置表
                 command.CommandText = createCommunicationConfigTable;
+                command.ExecuteNonQuery();
+
+                // 创建PLC监控配置表
+                command.CommandText = createPlcMonitorConfigTable;
                 command.ExecuteNonQuery();
             }
 
@@ -399,6 +615,18 @@ namespace ShunLiDuo.AutomationDetection.Data
                 if (result != null && result != DBNull.Value)
                 {
                     adminRoleId = Convert.ToInt32(result);
+                    // 如果管理员角色已存在，更新其权限为所有权限
+                    using (var updateRoleCommand = Connection.CreateCommand())
+                    {
+                        updateRoleCommand.CommandText = @"
+                            UPDATE Roles 
+                            SET Permissions = @Permissions, UpdateTime = @UpdateTime 
+                            WHERE Id = @Id";
+                        updateRoleCommand.Parameters.AddWithValue("@Permissions", allPermissionsString);
+                        updateRoleCommand.Parameters.AddWithValue("@UpdateTime", now);
+                        updateRoleCommand.Parameters.AddWithValue("@Id", adminRoleId);
+                        updateRoleCommand.ExecuteNonQuery();
+                    }
                 }
                 else
                 {

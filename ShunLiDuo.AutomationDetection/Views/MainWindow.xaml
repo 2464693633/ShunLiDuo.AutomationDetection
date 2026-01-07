@@ -123,7 +123,7 @@
                 <!-- Title -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                     
-                    <TextBlock Text="顺利多自动化检测" 
+                    <TextBlock Text="顺多利自动化检测" 
                               FontSize="28" FontWeight="SemiBold"
                               Foreground="White"
                               VerticalAlignment="Center"/>
@@ -222,8 +222,7 @@
                             <Button Tag="LogisticsBox" 
                                     Command="{Binding NavigateToLogisticsBoxCommand}" 
                                     Margin="0,5"
-                                    HorizontalContentAlignment="Left"
-                                    Visibility="{Binding CanAccessLogisticsBox, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    HorizontalContentAlignment="Left">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
                                         <Style.Triggers>
@@ -247,8 +246,7 @@
                             <Button Tag="DetectionRoom" 
                                     Command="{Binding NavigateToDetectionRoomCommand}" 
                                     Margin="0,5"
-                                    HorizontalContentAlignment="Left"
-                                    Visibility="{Binding CanAccessDetectionRoom, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    HorizontalContentAlignment="Left">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
                                         <Style.Triggers>
@@ -272,8 +270,7 @@
                             <Button Tag="RuleManagement" 
                                     Command="{Binding NavigateToRuleManagementCommand}" 
                                     Margin="0,5"
-                                    HorizontalContentAlignment="Left"
-                                    Visibility="{Binding CanAccessRuleManagementMenu, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    HorizontalContentAlignment="Left">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
                                         <Style.Triggers>
@@ -403,8 +400,7 @@
                             <Button Tag="CommunicationSettings" 
                                     Command="{Binding NavigateToCommunicationSettingsCommand}" 
                                     Margin="0,5"
-                                    HorizontalContentAlignment="Left"
-                                    Visibility="{Binding CanAccessSystemSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    HorizontalContentAlignment="Left">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
                                         <Style.Triggers>
@@ -484,8 +480,7 @@
                         Padding="30,20"
                         Margin="30,0"
                         MinHeight="70"
-                        VerticalAlignment="Center"
-                        Visibility="{Binding CanAccessRuleManagement, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        VerticalAlignment="Center">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
                             <Style.Triggers>
@@ -539,8 +534,7 @@
                         Padding="30,20"
                         Margin="30,0"
                         MinHeight="70"
-                        VerticalAlignment="Center"
-                        Visibility="{Binding CanAccessSystemSettings, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        VerticalAlignment="Center">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
                             <Style.Triggers>
@@ -560,6 +554,33 @@
                     <StackPanel Orientation="Horizontal">
                        
                         <TextBlock Text="系统设置" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+                <Button Tag="PlcMonitor" 
+                        Command="{Binding NavigateToPlcMonitorCommand}" 
+                        Padding="30,20"
+                        Margin="30,0"
+                        MinHeight="70"
+                        VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                            <Style.Triggers>
+                                <DataTrigger Value="True">
+                                    <DataTrigger.Binding>
+                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                            <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                        </MultiBinding>
+                                    </DataTrigger.Binding>
+                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <StackPanel Orientation="Horizontal">
+                       
+                        <TextBlock Text="PLC监控" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </StackPanel>

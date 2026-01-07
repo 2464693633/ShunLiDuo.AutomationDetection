@@ -263,6 +263,16 @@
         <Setter Property="Margin" Value="0,0,12,0"/>
     </Style>
     
+    <!-- 标准文本块样式（用于显示只读内容） -->
+    <Style x:Key="StandardTextBlockStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="Background" Value="#F5F5F5"/>
+        <Setter Property="MinHeight" Value="32"/>
+    </Style>
+    
     <!-- 必填标签样式 -->
     <Style x:Key="RequiredLabelStyle" TargetType="TextBlock" BasedOn="{StaticResource StandardLabelStyle}">
         <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>

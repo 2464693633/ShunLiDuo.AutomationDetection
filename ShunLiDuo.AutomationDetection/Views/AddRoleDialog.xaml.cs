@@ -39,11 +39,8 @@ namespace ShunLiDuo.AutomationDetection.Views
         {
             if (sender is CheckBox checkBox && checkBox.DataContext is PermissionItem item)
             {
-                // 避免在加载权限时触发不必要的更新
-                if (!item.IsSelected)
-                {
-                    item.IsSelected = true;
-                }
+                // 直接设置选中状态，让 PermissionItem 的逻辑处理子项
+                item.IsSelected = true;
             }
         }
 
@@ -51,25 +48,57 @@ namespace ShunLiDuo.AutomationDetection.Views
         {
             if (sender is CheckBox checkBox && checkBox.DataContext is PermissionItem item)
             {
-                // 避免在加载权限时触发不必要的更新
-                if (item.IsSelected)
-                {
-                    item.IsSelected = false;
-                }
+                // 直接设置未选中状态，让 PermissionItem 的逻辑处理子项
+                item.IsSelected = false;
             }
+        }
+
+        private void CheckBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is CheckBox checkBox && checkBox.DataContext is PermissionItem item)
+            {
+                // 同步初始状态
+                UpdateCheckBoxState(checkBox, item);
+                
+                // 订阅 PropertyChanged 事件以同步 IsIndeterminate 状态
+                // 注意：IsSelected 的更新由绑定处理，这里只处理 IsIndeterminate
+                item.PropertyChanged += (s, args) =>
+                {
+                    if (args.PropertyName == nameof(PermissionItem.IsIndeterminate))
+                    {
+                        // 只在 IsIndeterminate 改变时更新复选框状态
+                        UpdateCheckBoxState(checkBox, item);
+                    }
+                };
+            }
+        }
+
+        private void UpdateCheckBoxState(CheckBox checkBox, PermissionItem item)
+        {
+            // 临时解除事件处理，避免触发 Checked/Unchecked 事件
+            checkBox.Checked -= CheckBox_Checked;
+            checkBox.Unchecked -= CheckBox_Unchecked;
+            checkBox.Indeterminate -= CheckBox_Indeterminate;
+            
+            if (item.IsIndeterminate)
+            {
+                checkBox.IsChecked = null;
+            }
+            else
+            {
+                checkBox.IsChecked = item.IsSelected;
+            }
+            
+            // 重新订阅事件
+            checkBox.Checked += CheckBox_Checked;
+            checkBox.Unchecked += CheckBox_Unchecked;
+            checkBox.Indeterminate += CheckBox_Indeterminate;
         }
 
         private void CheckBox_Indeterminate(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox checkBox && checkBox.DataContext is PermissionItem item)
-            {
-                // 设置 Indeterminate 状态时，不直接修改 IsSelected
-                // 让 UpdateSelectionState 来处理
-                if (!item.IsIndeterminate)
-                {
-                    item.IsIndeterminate = true;
-                }
-            }
+            // Indeterminate 状态通常由父权限自动管理，不需要手动处理
+            // 当用户点击进入 Indeterminate 状态时，通常是因为部分子项被选中
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

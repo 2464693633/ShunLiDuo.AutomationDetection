@@ -1,0 +1,111 @@
+<UserControl x:Class="ShunLiDuo.AutomationDetection.Views.PlcMonitorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1200">
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    <Grid Background="White" Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" Text="PLC实时监控" FontSize="24" FontWeight="Bold" Margin="0,0,0,15"/>
+
+        <!-- Monitor Control -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,15">
+            <Button Content="启动监控" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding StartMonitorCommand}"
+                   Margin="0,0,10,0"/>
+            <Button Content="停止监控" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding StopMonitorCommand}"
+                   Margin="0,0,10,0"/>
+            <TextBlock Text="{Binding MonitorStatus}" 
+                      VerticalAlignment="Center" 
+                      FontSize="14" 
+                      Foreground="{StaticResource TextSecondaryBrush}"
+                      Margin="10,0,0,0"/>
+        </StackPanel>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,15">
+            <Button Content="新增配置" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding AddCommand}" 
+                   Margin="0,0,10,0"/>
+            <Button Content="编辑" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding EditCommand}" 
+                   Margin="0,0,10,0"/>
+            <Button Content="删除" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding DeleteCommand}" 
+                   Margin="0,0,10,0"/>
+            <Button Content="查看" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding ViewCommand}"/>
+        </StackPanel>
+
+        <!-- Data Grid -->
+        <DataGrid Grid.Row="3" 
+                 ItemsSource="{Binding Configs}"
+                 SelectedItem="{Binding SelectedConfig}"
+                 Style="{StaticResource StandardDataGridStyle}"
+                 Margin="0"
+                 RowStyle="{StaticResource DataGridRowStyle}"
+                 CellStyle="{StaticResource DataGridCellStyle}"
+                 ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                 AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="60" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="检测室编号" Binding="{Binding RoomNo}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="检测室名称" Binding="{Binding RoomName}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                
+                <!-- 气缸1列 -->
+                <DataGridTextColumn Header="气缸1名称" Binding="{Binding Cylinder1Name}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1-伸出控制地址" Binding="{Binding Cylinder1ExtendAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1-伸出控制值" Binding="{Binding Cylinder1ExtendValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1-缩回控制地址" Binding="{Binding Cylinder1RetractAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1-缩回控制值" Binding="{Binding Cylinder1RetractValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1-伸出到位地址" Binding="{Binding Cylinder1ExtendFeedbackAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1-伸出到位值" Binding="{Binding Cylinder1ExtendFeedbackValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1-缩回到位地址" Binding="{Binding Cylinder1RetractFeedbackAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1-缩回到位值" Binding="{Binding Cylinder1RetractFeedbackValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸1状态" Binding="{Binding Cylinder1Status}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                
+                <!-- 气缸2列 -->
+                <DataGridTextColumn Header="气缸2名称" Binding="{Binding Cylinder2Name}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2-伸出控制地址" Binding="{Binding Cylinder2ExtendAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2-伸出控制值" Binding="{Binding Cylinder2ExtendValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2-缩回控制地址" Binding="{Binding Cylinder2RetractAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2-缩回控制值" Binding="{Binding Cylinder2RetractValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2-伸出到位地址" Binding="{Binding Cylinder2ExtendFeedbackAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2-伸出到位值" Binding="{Binding Cylinder2ExtendFeedbackValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2-缩回到位地址" Binding="{Binding Cylinder2RetractFeedbackAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2-缩回到位值" Binding="{Binding Cylinder2RetractFeedbackValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="气缸2状态" Binding="{Binding Cylinder2Status}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                
+                <!-- 传感器列 -->
+                <DataGridTextColumn Header="传感器名称" Binding="{Binding SensorName}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="传感器地址" Binding="{Binding SensorAddress}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="传感器值" Binding="{Binding SensorValue}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="传感器状态" Binding="{Binding SensorStatus}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="最后更新" Binding="{Binding LastUpdateTime, StringFormat='{}{0:HH:mm:ss}'}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Status Bar -->
+        <TextBlock Grid.Row="4" 
+                  Text="{Binding MonitorStatus}" 
+                  FontSize="12" 
+                  Foreground="{StaticResource TextSecondaryBrush}"
+                  Margin="0,10,0,0"/>
+    </Grid>
+</UserControl>
+

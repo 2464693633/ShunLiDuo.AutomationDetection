@@ -79,14 +79,14 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         {
             if (_currentUserService?.CurrentUser == null)
             {
-                // 没有用户，隐藏所有需要权限的功能
-                CanAccessRuleManagement = false;
-                CanAccessSystemSettings = false;
-                CanAccessLogisticsBox = false;
-                CanAccessDetectionRoom = false;
-                CanAccessRuleManagementMenu = false;
-                CanAccessAccountManagement = false;
-                CanAccessRoleManagement = false;
+                // 没有用户，所有模块仍然显示
+                CanAccessRuleManagement = true;
+                CanAccessSystemSettings = true;
+                CanAccessLogisticsBox = true;
+                CanAccessDetectionRoom = true;
+                CanAccessRuleManagementMenu = true;
+                CanAccessAccountManagement = true;
+                CanAccessRoleManagement = true;
                 return;
             }
             
@@ -109,38 +109,26 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     }
                 }
                 
-                // 更新权限可见性
-                // 调度规则管理：需要 RuleManagement 权限
-                CanAccessRuleManagement = HasPermission("RuleManagement");
-                
-                // 系统设置：需要 AccountManagement 或 RoleManagement 权限
-                CanAccessSystemSettings = HasPermission("AccountManagement") || HasPermission("RoleManagement");
-                
-                // 物流盒管理：需要 LogisticsBoxManagement 权限
-                CanAccessLogisticsBox = HasPermission("LogisticsBoxManagement");
-                
-                // 检测室管理：需要 DetectionRoomManagement 权限
-                CanAccessDetectionRoom = HasPermission("DetectionRoomManagement");
-                
-                // 规则管理菜单：需要 RuleManagement 权限
-                CanAccessRuleManagementMenu = HasPermission("RuleManagement");
-                
-                // 账户管理：需要 AccountManagement 权限
-                CanAccessAccountManagement = HasPermission("AccountManagement");
-                
-                // 角色管理：需要 RoleManagement 权限
-                CanAccessRoleManagement = HasPermission("RoleManagement");
+                // 所有模块都始终显示，不需要权限控制
+                // 权限只控制模块内的增删改查按钮
+                CanAccessRuleManagement = true;
+                CanAccessSystemSettings = true;
+                CanAccessLogisticsBox = true;
+                CanAccessDetectionRoom = true;
+                CanAccessRuleManagementMenu = true;
+                CanAccessAccountManagement = true;
+                CanAccessRoleManagement = true;
             }
             catch
             {
-                // 加载权限失败，默认隐藏所有需要权限的功能
-                CanAccessRuleManagement = false;
-                CanAccessSystemSettings = false;
-                CanAccessLogisticsBox = false;
-                CanAccessDetectionRoom = false;
-                CanAccessRuleManagementMenu = false;
-                CanAccessAccountManagement = false;
-                CanAccessRoleManagement = false;
+                // 加载权限失败，所有模块仍然显示
+                CanAccessRuleManagement = true;
+                CanAccessSystemSettings = true;
+                CanAccessLogisticsBox = true;
+                CanAccessDetectionRoom = true;
+                CanAccessRuleManagementMenu = true;
+                CanAccessAccountManagement = true;
+                CanAccessRoleManagement = true;
             }
         }
         
@@ -236,6 +224,14 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 CurrentLeftNav = "CommunicationSettings";
                 NavigateTo("CommunicationSettingsView");
             });
+            NavigateToPlcMonitorCommand = new DelegateCommand(() => 
+            {
+                CurrentMainView = "PlcMonitorView";
+                IsLeftNavVisible = false;
+                CurrentBottomNav = "PlcMonitor";
+                CurrentLeftNav = "";
+                NavigateTo("PlcMonitorView");
+            });
         }
 
         private void NavigateTo(string viewName)
@@ -298,6 +294,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         public DelegateCommand NavigateToAccountManagementCommand { get; private set; }
         public DelegateCommand NavigateToRoleManagementCommand { get; private set; }
         public DelegateCommand NavigateToCommunicationSettingsCommand { get; private set; }
+        public DelegateCommand NavigateToPlcMonitorCommand { get; private set; }
         
         // 权限可见性属性
         public bool CanAccessRuleManagement

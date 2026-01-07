@@ -167,6 +167,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\PlcMonitorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\AddPlcMonitorConfigDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ViewPlcMonitorConfigDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\CommonStyles.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -210,6 +222,15 @@
     <Compile Include="Views\CommunicationSettingsView.xaml.cs">
       <DependentUpon>CommunicationSettingsView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PlcMonitorView.xaml.cs">
+      <DependentUpon>PlcMonitorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\AddPlcMonitorConfigDialog.xaml.cs">
+      <DependentUpon>AddPlcMonitorConfigDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ViewPlcMonitorConfigDialog.xaml.cs">
+      <DependentUpon>ViewPlcMonitorConfigDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\AddLogisticsBoxDialog.xaml.cs">
       <DependentUpon>AddLogisticsBoxDialog.xaml</DependentUpon>
     </Compile>
@@ -241,6 +262,7 @@
     <Compile Include="ViewModels\RoleManagementViewModel.cs" />
     <Compile Include="ViewModels\CommunicationSettingsViewModel.cs" />
     <Compile Include="ViewModels\RuleManagementViewModel.cs" />
+    <Compile Include="ViewModels\PlcMonitorViewModel.cs" />
     <Compile Include="Data\DatabaseContext.cs" />
     <Compile Include="Data\IRuleRepository.cs" />
     <Compile Include="Data\RuleRepository.cs" />
@@ -254,6 +276,8 @@
     <Compile Include="Data\RoleRepository.cs" />
     <Compile Include="Data\IPermissionRepository.cs" />
     <Compile Include="Data\PermissionRepository.cs" />
+    <Compile Include="Data\IPlcMonitorConfigRepository.cs" />
+    <Compile Include="Data\PlcMonitorConfigRepository.cs" />
     <Compile Include="Services\IRuleService.cs" />
     <Compile Include="Services\RuleService.cs" />
     <Compile Include="Services\IDetectionRoomService.cs" />
@@ -270,8 +294,12 @@
     <Compile Include="Services\CurrentUserService.cs" />
     <Compile Include="Services\IS7CommunicationService.cs" />
     <Compile Include="Services\S7CommunicationService.cs" />
+    <Compile Include="Services\IScannerCommunicationService.cs" />
+    <Compile Include="Services\ScannerCommunicationService.cs" />
     <Compile Include="Services\ICommunicationConfigService.cs" />
     <Compile Include="Services\CommunicationConfigService.cs" />
+    <Compile Include="Services\IPlcMonitorConfigService.cs" />
+    <Compile Include="Services\PlcMonitorConfigService.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverterForError.cs" />
     <Compile Include="Converters\BoolToThreeStateConverter.cs" />
@@ -280,6 +308,7 @@
     <Compile Include="Converters\TagEqualsConverter.cs" />
     <Compile Include="Converters\InvertBooleanConverter.cs" />
     <Compile Include="Converters\InvertBooleanToVisibilityConverter.cs" />
+    <Compile Include="Converters\ScanStatusToColorConverter.cs" />
     <Compile Include="Converters\BooleanToColorConverter.cs" />
     <Compile Include="Converters\BooleanToPlcStatusTextConverter.cs" />
     <Compile Include="Converters\BooleanToConnectButtonTextConverter.cs" />
@@ -293,6 +322,7 @@
     <Compile Include="Models\RoleItem.cs" />
     <Compile Include="Models\PermissionItem.cs" />
     <Compile Include="Models\PermissionModel.cs" />
+    <Compile Include="Models\PlcMonitorConfigItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

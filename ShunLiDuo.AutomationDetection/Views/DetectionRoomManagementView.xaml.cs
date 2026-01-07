@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.ViewModels;
 using ShunLiDuo.AutomationDetection.Models;
+using Prism.Commands;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
@@ -13,17 +14,26 @@ namespace ShunLiDuo.AutomationDetection.Views
         private readonly IDetectionRoomService _detectionRoomService;
         private readonly DetectionRoomManagementViewModel _viewModel;
 
-        public DetectionRoomManagementView(IDetectionRoomService detectionRoomService)
+        public DetectionRoomManagementView(
+            IDetectionRoomService detectionRoomService,
+            IAccountService accountService,
+            ICurrentUserService currentUserService,
+            IScannerCommunicationService scannerService)
         {
             InitializeComponent();
             _detectionRoomService = detectionRoomService;
-            _viewModel = new DetectionRoomManagementViewModel(detectionRoomService);
+            _viewModel = new DetectionRoomManagementViewModel(detectionRoomService, accountService, currentUserService, scannerService);
             DataContext = _viewModel;
+            
+            // 订阅ViewModel的事件
+            _viewModel.EditRequested += (s, e) => Edit_Click(null, null);
+            _viewModel.DeleteRequested += (s, e) => Delete_Click(null, null);
+            _viewModel.ViewRequested += (s, e) => View_Click(null, null);
         }
 
-        private async void Edit_Click(object sender, MouseButtonEventArgs e)
+        private async void Edit_Click(object sender, RoutedEventArgs e)
         {
-            var roomItem = GetSelectedRoomItem(sender);
+            var roomItem = _viewModel.SelectedItem;
             if (roomItem == null)
             {
                 MessageBox.Show("请选择要编辑的检测室", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -48,6 +58,12 @@ namespace ShunLiDuo.AutomationDetection.Views
                     RoomNo = dialog.ViewModel.RoomNo ?? string.Empty,
                     RoomName = dialog.ViewModel.RoomName ?? string.Empty,
                     Remark = dialog.ViewModel.Remark ?? string.Empty,
+                    ScannerPortName = dialog.ViewModel.ScannerPortName ?? string.Empty,
+                    ScannerBaudRate = dialog.ViewModel.ScannerBaudRate,
+                    ScannerDataBits = dialog.ViewModel.ScannerDataBits,
+                    ScannerStopBits = dialog.ViewModel.ScannerStopBits,
+                    ScannerParity = dialog.ViewModel.ScannerParity ?? "None",
+                    ScannerIsEnabled = dialog.ViewModel.ScannerIsEnabled,
                     IsSelected = false
                 };
 
@@ -64,9 +80,9 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
         }
 
-        private async void Delete_Click(object sender, MouseButtonEventArgs e)
+        private async void Delete_Click(object sender, RoutedEventArgs e)
         {
-            var roomItem = GetSelectedRoomItem(sender);
+            var roomItem = _viewModel.SelectedItem;
             if (roomItem == null)
             {
                 MessageBox.Show("请选择要删除的检测室", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -91,9 +107,9 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
         }
 
-        private async void View_Click(object sender, MouseButtonEventArgs e)
+        private async void View_Click(object sender, RoutedEventArgs e)
         {
-            var roomItem = GetSelectedRoomItem(sender);
+            var roomItem = _viewModel.SelectedItem;
             if (roomItem == null)
             {
                 MessageBox.Show("请选择要查看的检测室", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -119,26 +135,5 @@ namespace ShunLiDuo.AutomationDetection.Views
             dialog.ShowDialog();
         }
 
-        private DetectionRoomItem GetSelectedRoomItem(object sender)
-        {
-            var textBlock = sender as TextBlock;
-            if (textBlock == null) return null;
-
-            var dataGridRow = FindParent<DataGridRow>(textBlock);
-            if (dataGridRow == null) return null;
-
-            return dataGridRow.Item as DetectionRoomItem;
-        }
-
-        private T FindParent<T>(DependencyObject child) where T : DependencyObject
-        {
-            var parentObject = System.Windows.Media.VisualTreeHelper.GetParent(child);
-            if (parentObject == null) return null;
-
-            if (parentObject is T parent)
-                return parent;
-            else
-                return FindParent<T>(parentObject);
-        }
     }
 }

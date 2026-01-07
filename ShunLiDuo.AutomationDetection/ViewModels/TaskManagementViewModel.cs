@@ -14,6 +14,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private readonly IRuleService _ruleService;
         private readonly IDetectionRoomService _detectionRoomService;
         private readonly IS7CommunicationService _s7Service;
+        private readonly IScannerCommunicationService _scannerService;
         private string _logisticsBoxCode;
         private string _logisticsBoxInputInfo;
         private RuleItem _selectedRuleItem;
@@ -31,13 +32,17 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             set => SetProperty(ref _isPlcConnected, value);
         }
 
-        public TaskManagementViewModel(IRuleService ruleService, IDetectionRoomService detectionRoomService, IS7CommunicationService s7Service)
+        public TaskManagementViewModel(
+            IRuleService ruleService, 
+            IDetectionRoomService detectionRoomService, 
+            IS7CommunicationService s7Service,
+            IScannerCommunicationService scannerService)
         {
             _ruleService = ruleService;
             _detectionRoomService = detectionRoomService;
             _s7Service = s7Service;
+            _scannerService = scannerService;
             InitializeData();
-            ExecuteCommand = new DelegateCommand(OnExecute);
             LoadRulesAsync();
             LoadDetectionRoomsAsync();
             
@@ -46,6 +51,9 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             
             // 监听连接状态变化
             _s7Service.ConnectionStatusChanged += S7Service_ConnectionStatusChanged;
+            
+            // 监听扫码数据接收事件
+            _scannerService.DataReceived += ScannerService_DataReceived;
             
             // 启动定时器定期检查连接状态（每秒检查一次）
             _plcStatusTimer = new DispatcherTimer();
@@ -85,6 +93,62 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             var currentStatus = _s7Service.IsConnected;
             // 强制更新，即使值相同也触发通知（确保UI刷新）
             IsPlcConnected = currentStatus;
+        }
+
+        private async void ScannerService_DataReceived(object sender, Services.ScannerDataReceivedEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine($"[任务管理] 收到串口数据 - 检测室ID:{e.RoomId}, 检测室名称:{e.RoomName}, 扫码数据:{e.ScanData}");
+            
+            // 在UI线程上处理扫码数据
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                // 找到对应的检测室
+                var roomBoxList = RoomBoxLists?.FirstOrDefault(rbl => rbl.Room?.Id == e.RoomId);
+                if (roomBoxList == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[任务管理] 未找到对应的检测室 - 检测室ID:{e.RoomId}");
+                    return;
+                }
+
+                // 更新扫码编码显示
+                roomBoxList.LastScannedCode = e.ScanData;
+                
+                // 验证扫码编码是否匹配规则
+                if (SelectedRuleItem == null)
+                {
+                    roomBoxList.ScanStatus = "未选择规则";
+                    return;
+                }
+
+                // 解析规则中的物流盒编号
+                var ruleLogisticsBoxNos = SelectedRuleItem.LogisticsBoxNos?.Split(',')
+                    .Where(b => !string.IsNullOrWhiteSpace(b))
+                    .Select(b => b.Trim())
+                    .ToList() ?? new System.Collections.Generic.List<string>();
+
+                // 检查扫码的编码是否在规则的物流盒列表中
+                if (ruleLogisticsBoxNos.Contains(e.ScanData))
+                {
+                    // 匹配成功，添加到对应检测室的物流盒列表（串口扫码的数据才显示在检测室）
+                    var boxCode = $"物流盒编码{e.ScanData}";
+                    
+                    // 添加到对应检测室的物流盒列表（这是串口扫码的数据，显示在检测室中）
+                    if (!roomBoxList.Boxes.Contains(boxCode))
+                    {
+                        roomBoxList.Boxes.Add(boxCode);
+                    }
+                    
+                    // 注意：串口扫码的数据不添加到 LogisticsBoxList（录入信息列表）
+                    // LogisticsBoxList 只用于显示手动输入的数据
+                    
+                    roomBoxList.ScanStatus = "匹配成功";
+                }
+                else
+                {
+                    // 匹配失败
+                    roomBoxList.ScanStatus = "匹配失败";
+                }
+            });
         }
 
         private async void InitializeData()
@@ -208,6 +272,21 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     }
                     
                     RoomBoxLists.Add(roomBoxList);
+                    
+                    // 如果检测室启用了扫码器，尝试打开连接
+                    if (room.ScannerIsEnabled && !string.IsNullOrWhiteSpace(room.ScannerPortName))
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[任务管理] 尝试打开串口连接 - 检测室ID:{room.Id}, 检测室名称:{room.RoomName}, 串口:{room.ScannerPortName}");
+                        _ = Task.Run(async () =>
+                        {
+                            var result = await _scannerService.OpenConnectionAsync(room);
+                            System.Diagnostics.Debug.WriteLine($"[任务管理] 串口连接结果 - 检测室ID:{room.Id}, 结果:{result}");
+                        });
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[任务管理] 检测室未启用扫码器或未配置串口 - 检测室ID:{room.Id}, 启用:{room.ScannerIsEnabled}, 串口:{room.ScannerPortName}");
+                    }
                 }
             }
             catch (System.Exception ex)
@@ -216,28 +295,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             }
         }
 
-        private void OnExecute()
-        {
-            // 执行检测归属逻辑 - 根据选定的规则自动分配
-            if (SelectedRuleItem == null)
-            {
-                System.Windows.MessageBox.Show("请先选择调度规则", "提示", 
-                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
-                return;
-            }
-
-            // 清空所有检测室的物流盒
-            foreach (var roomBoxList in RoomBoxLists)
-            {
-                roomBoxList.Boxes.Clear();
-            }
-
-            // 重新分配所有物流盒
-            foreach (var boxCode in LogisticsBoxList.ToList())
-            {
-                AutoAssignToRoom(boxCode);
-            }
-        }
 
         public string LogisticsBoxCode
         {
@@ -252,9 +309,9 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 var formattedCode = code.StartsWith("物流盒编码") ? code : $"物流盒编码{code}";
                 if (!LogisticsBoxList.Contains(formattedCode))
                 {
+                    // 手动输入只添加到录入信息列表，不自动分配到检测室
+                    // 只有通过串口扫码器接收的数据才会显示在检测室中
                     LogisticsBoxList.Add(formattedCode);
-                    // 自动根据规则分配
-                    AutoAssignToRoom(formattedCode);
                 }
                 LogisticsBoxCode = string.Empty;
             }
@@ -329,27 +386,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         public RuleItem SelectedRuleItem
         {
             get => _selectedRuleItem;
-            set
-            {
-                if (SetProperty(ref _selectedRuleItem, value))
-                {
-                    // 当规则改变时，重新分配所有物流盒
-                    if (value != null && LogisticsBoxList != null && LogisticsBoxList.Count > 0)
-                    {
-                        // 清空所有检测室
-                        foreach (var roomBoxList in RoomBoxLists)
-                        {
-                            roomBoxList.Boxes.Clear();
-                        }
-                        
-                        // 重新分配所有物流盒
-                        foreach (var boxCode in LogisticsBoxList.ToList())
-                        {
-                            AutoAssignToRoom(boxCode);
-                        }
-                    }
-                }
-            }
+            set => SetProperty(ref _selectedRuleItem, value);
         }
 
         public ObservableCollection<Models.TaskItem> Tasks
@@ -364,7 +401,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             set => SetProperty(ref _roomBoxLists, value);
         }
 
-        public DelegateCommand ExecuteCommand { get; private set; }
     }
 }
 

@@ -6,6 +6,7 @@
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1200">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <Style x:Key="SearchButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="20,8"/>
             <Setter Property="FontSize" Value="14"/>
@@ -73,14 +74,29 @@
                    Command="{Binding SearchCommand}"/>
         </Grid>
 
-        <!-- Add Button -->
-        <Button Grid.Row="2" Content="新增" Style="{StaticResource PrimaryButtonStyle}" 
-               Command="{Binding AddCommand}" 
-               HorizontalAlignment="Left" Margin="0,0,0,15"/>
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,15">
+            <Button Content="新增" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding AddCommand}" 
+                   Visibility="{Binding CanAdd, Converter={StaticResource BooleanToVisibilityConverter}}"
+                   Margin="0,0,10,0"/>
+            <Button Content="编辑" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding EditCommand}" 
+                   Visibility="{Binding CanEdit, Converter={StaticResource BooleanToVisibilityConverter}}"
+                   Margin="0,0,10,0"/>
+            <Button Content="删除" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding DeleteCommand}" 
+                   Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}}"
+                   Margin="0,0,10,0"/>
+            <Button Content="查看" Style="{StaticResource PrimaryButtonStyle}" 
+                   Command="{Binding ViewCommand}"
+                   Visibility="{Binding CanView, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        </StackPanel>
 
         <!-- Data Grid -->
         <DataGrid Grid.Row="3" 
                  ItemsSource="{Binding Roles}"
+                 SelectedItem="{Binding SelectedItem}"
                  Style="{StaticResource StandardDataGridStyle}"
                  Margin="0"
                  RowStyle="{StaticResource DataGridRowStyle}"
@@ -91,25 +107,6 @@
                 <DataGridTextColumn Header="角色编号" Binding="{Binding RoleNo}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="角色名称" Binding="{Binding RoleName}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTemplateColumn Header="操作" Width="200">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="编辑" Foreground="{StaticResource SuccessBrush}" 
-                                          Style="{StaticResource LinkButtonStyle}"
-                                           Margin="0,0,15,0"
-                                          MouseLeftButtonDown="Edit_Click"/>
-                                <TextBlock Text="删除" Foreground="{StaticResource DangerBrush}" 
-                                          Style="{StaticResource LinkButtonStyle}"
-                                            Margin="0,0,15,0"
-                                          MouseLeftButtonDown="Delete_Click"/>
-                                <TextBlock Text="查看" Foreground="{StaticResource InfoBrush}" 
-                                          Style="{StaticResource LinkButtonStyle}"
-                                          MouseLeftButtonDown="View_Click"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
 
