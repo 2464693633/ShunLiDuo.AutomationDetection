@@ -102,7 +102,7 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="80"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
@@ -113,7 +113,7 @@
                                   materialDesign:ShadowAssist.ShadowDepth="Depth1"
                                   Mode="PrimaryMid"
                                   MouseDown="Header_MouseDown">
-            <Grid>
+            <Grid Height="80">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -197,7 +197,7 @@
                 <ColumnDefinition>
                     <ColumnDefinition.Style>
                         <Style TargetType="ColumnDefinition">
-                            <Setter Property="Width" Value="200"/>
+                            <Setter Property="Width" Value="240"/>
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsLeftNavVisible}" Value="False">
                                     <Setter Property="Width" Value="0"/>
@@ -216,16 +216,24 @@
                                  materialDesign:ElevationAssist.Elevation="Dp2"
                                  Visibility="{Binding IsLeftNavVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="10">
+                    <StackPanel Margin="15,20">
                         <!-- 调度规则菜单 -->
                         <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=RuleManagementView}">
                             <Button Tag="LogisticsBox" 
                                     Command="{Binding NavigateToLogisticsBoxCommand}" 
-                                    Margin="0,5"
-                                    HorizontalContentAlignment="Left">
+                                    Margin="0,12"
+                                    Padding="20,16"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="56">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -234,22 +242,31 @@
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                    
-                                    <TextBlock Text="物流盒管理" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="物流盒管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="DetectionRoom" 
                                     Command="{Binding NavigateToDetectionRoomCommand}" 
-                                    Margin="0,5"
-                                    HorizontalContentAlignment="Left">
+                                    Margin="0,12"
+                                    Padding="20,16"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="56">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -258,22 +275,31 @@
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                   
-                                    <TextBlock Text="检测室管理" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="检测室管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="RuleManagement" 
                                     Command="{Binding NavigateToRuleManagementCommand}" 
-                                    Margin="0,5"
-                                    HorizontalContentAlignment="Left">
+                                    Margin="0,12"
+                                    Padding="20,16"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="56">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -282,13 +308,14 @@
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                   
-                                    <TextBlock Text="规则管理" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="规则管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -297,11 +324,19 @@
                         <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=AlarmView}">
                             <Button Tag="DeviceException" 
                                     Command="{Binding NavigateToDeviceExceptionCommand}" 
-                                    Margin="0,5"
-                                    HorizontalContentAlignment="Left">
+                                    Margin="0,12"
+                                    Padding="20,16"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="56">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -310,22 +345,31 @@
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                    
-                                    <TextBlock Text="设备异常" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="设备异常" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="DeviceAlarm" 
                                     Command="{Binding NavigateToDeviceAlarmCommand}" 
-                                    Margin="0,5"
-                                    HorizontalContentAlignment="Left">
+                                    Margin="0,12"
+                                    Padding="20,16"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="56">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -334,13 +378,14 @@
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                    
-                                    <TextBlock Text="设备报警" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="设备报警" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -349,12 +394,20 @@
                         <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=SystemSettingsView}">
                             <Button Tag="AccountManagement" 
                                     Command="{Binding NavigateToAccountManagementCommand}" 
-                                    Margin="0,5"
+                                    Margin="0,12"
+                                    Padding="20,16"
                                     HorizontalContentAlignment="Left"
+                                    MinHeight="56"
                                     Visibility="{Binding CanAccessAccountManagement, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -363,23 +416,32 @@
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                   
-                                    <TextBlock Text="账户管理" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="账户管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="RoleManagement" 
                                     Command="{Binding NavigateToRoleManagementCommand}" 
-                                    Margin="0,5"
+                                    Margin="0,12"
+                                    Padding="20,16"
                                     HorizontalContentAlignment="Left"
+                                    MinHeight="56"
                                     Visibility="{Binding CanAccessRoleManagement, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -388,22 +450,31 @@
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                    
-                                    <TextBlock Text="角色管理" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="角色管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                             <Button Tag="CommunicationSettings" 
                                     Command="{Binding NavigateToCommunicationSettingsCommand}" 
-                                    Margin="0,5"
-                                    HorizontalContentAlignment="Left">
+                                    Margin="0,12"
+                                    Padding="20,16"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="56">
                                 <Button.Style>
                                     <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
                                         <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -412,13 +483,14 @@
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
                                    
-                                    <TextBlock Text="通讯设置" FontSize="18" VerticalAlignment="Center"/>
+                                    <TextBlock Text="通讯设置" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -446,8 +518,8 @@
                                   Padding="30,15"
                                   Mode="PrimaryLight"
                                   materialDesign:ShadowAssist.ShadowDepth="Depth1"
-                                  VerticalAlignment="Stretch">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100">
+                                  VerticalAlignment="Stretch" Background="#E0F2F1">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" >
                 <Button Tag="TaskManagement" 
                         Command="{Binding NavigateToTaskCommand}" 
                         Padding="30,20"
@@ -580,7 +652,7 @@
                     </Button.Style>
                     <StackPanel Orientation="Horizontal">
                        
-                        <TextBlock Text="PLC监控" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        <TextBlock Text="设备监控" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
