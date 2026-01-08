@@ -14,7 +14,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 {
     public class PlcMonitorViewModel : BindableBase
     {
-        private readonly IPlcMonitorConfigService _configService;
         private readonly IDetectionRoomService _detectionRoomService;
         private readonly IS7CommunicationService _s7Service;
         private ObservableCollection<PlcMonitorConfigItem> _configs;
@@ -25,11 +24,9 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private string _monitorStatus = "未启动";
 
         public PlcMonitorViewModel(
-            IPlcMonitorConfigService configService,
             IDetectionRoomService detectionRoomService,
             IS7CommunicationService s7Service)
         {
-            _configService = configService;
             _detectionRoomService = detectionRoomService;
             _s7Service = s7Service;
             
@@ -106,7 +103,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     try
                     {
-                        config.Cylinder1ExtendValue = await ReadValueByDataTypeAsync(config.Cylinder1ExtendAddress, config.Cylinder1DataType);
+                        config.Cylinder1ExtendValue = await _s7Service.ReadBoolAsync(config.Cylinder1ExtendAddress);
                     }
                     catch (Exception ex)
                     {
@@ -118,7 +115,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     try
                     {
-                        config.Cylinder1RetractValue = await ReadValueByDataTypeAsync(config.Cylinder1RetractAddress, config.Cylinder1DataType);
+                        config.Cylinder1RetractValue = await _s7Service.ReadBoolAsync(config.Cylinder1RetractAddress);
                     }
                     catch (Exception ex)
                     {
@@ -130,7 +127,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     try
                     {
-                        config.Cylinder1ExtendFeedbackValue = await ReadValueByDataTypeAsync(config.Cylinder1ExtendFeedbackAddress, config.Cylinder1DataType);
+                        config.Cylinder1ExtendFeedbackValue = await _s7Service.ReadBoolAsync(config.Cylinder1ExtendFeedbackAddress);
                     }
                     catch (Exception ex)
                     {
@@ -142,7 +139,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     try
                     {
-                        config.Cylinder1RetractFeedbackValue = await ReadValueByDataTypeAsync(config.Cylinder1RetractFeedbackAddress, config.Cylinder1DataType);
+                        config.Cylinder1RetractFeedbackValue = await _s7Service.ReadBoolAsync(config.Cylinder1RetractFeedbackAddress);
                     }
                     catch (Exception ex)
                     {
@@ -159,7 +156,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     try
                     {
-                        config.Cylinder2ExtendValue = await ReadValueByDataTypeAsync(config.Cylinder2ExtendAddress, config.Cylinder2DataType);
+                        config.Cylinder2ExtendValue = await _s7Service.ReadBoolAsync(config.Cylinder2ExtendAddress);
                     }
                     catch (Exception ex)
                     {
@@ -171,7 +168,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     try
                     {
-                        config.Cylinder2RetractValue = await ReadValueByDataTypeAsync(config.Cylinder2RetractAddress, config.Cylinder2DataType);
+                        config.Cylinder2RetractValue = await _s7Service.ReadBoolAsync(config.Cylinder2RetractAddress);
                     }
                     catch (Exception ex)
                     {
@@ -183,7 +180,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     try
                     {
-                        config.Cylinder2ExtendFeedbackValue = await ReadValueByDataTypeAsync(config.Cylinder2ExtendFeedbackAddress, config.Cylinder2DataType);
+                        config.Cylinder2ExtendFeedbackValue = await _s7Service.ReadBoolAsync(config.Cylinder2ExtendFeedbackAddress);
                     }
                     catch (Exception ex)
                     {
@@ -195,7 +192,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     try
                     {
-                        config.Cylinder2RetractFeedbackValue = await ReadValueByDataTypeAsync(config.Cylinder2RetractFeedbackAddress, config.Cylinder2DataType);
+                        config.Cylinder2RetractFeedbackValue = await _s7Service.ReadBoolAsync(config.Cylinder2RetractFeedbackAddress);
                     }
                     catch (Exception ex)
                     {
@@ -208,8 +205,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 // 读取传感器
                 if (!string.IsNullOrWhiteSpace(config.SensorAddress))
                 {
-                    config.SensorValue = await ReadValueByDataTypeAsync(config.SensorAddress, config.SensorDataType);
-                    config.SensorStatus = "正常";
+                    try
+                    {
+                        config.SensorValue = await _s7Service.ReadBoolAsync(config.SensorAddress);
+                        config.SensorStatus = "正常";
+                    }
+                    catch (Exception ex)
+                    {
+                        config.SensorStatus = $"读取错误: {ex.Message}";
+                    }
                 }
                 else
                 {
@@ -280,10 +284,34 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             IsLoading = true;
             try
             {
-                var configs = await _configService.GetAllConfigsAsync();
+                var rooms = await _detectionRoomService.GetAllRoomsAsync();
                 Configs.Clear();
-                foreach (var config in configs)
+                foreach (var room in rooms)
                 {
+                    // 将DetectionRoomItem转换为PlcMonitorConfigItem用于监控显示
+                    var config = new PlcMonitorConfigItem
+                    {
+                        Id = room.Id,
+                        RoomId = room.Id,
+                        RoomNo = room.RoomNo,
+                        RoomName = room.RoomName,
+                        Cylinder1Name = "气缸1",  // 固定显示名称
+                        Cylinder1ExtendAddress = room.Cylinder1ExtendAddress ?? string.Empty,
+                        Cylinder1RetractAddress = room.Cylinder1RetractAddress ?? string.Empty,
+                        Cylinder1ExtendFeedbackAddress = room.Cylinder1ExtendFeedbackAddress ?? string.Empty,
+                        Cylinder1RetractFeedbackAddress = room.Cylinder1RetractFeedbackAddress ?? string.Empty,
+                        Cylinder1DataType = room.Cylinder1DataType ?? "Bool",
+                        Cylinder2Name = "气缸2",  // 固定显示名称
+                        Cylinder2ExtendAddress = room.Cylinder2ExtendAddress ?? string.Empty,
+                        Cylinder2RetractAddress = room.Cylinder2RetractAddress ?? string.Empty,
+                        Cylinder2ExtendFeedbackAddress = room.Cylinder2ExtendFeedbackAddress ?? string.Empty,
+                        Cylinder2RetractFeedbackAddress = room.Cylinder2RetractFeedbackAddress ?? string.Empty,
+                        Cylinder2DataType = room.Cylinder2DataType ?? "Bool",
+                        SensorName = "传感器",  // 固定显示名称
+                        SensorAddress = room.SensorAddress ?? string.Empty,
+                        SensorDataType = room.SensorDataType ?? "Bool",
+                        Remark = room.Remark
+                    };
                     Configs.Add(config);
                 }
             }
@@ -294,71 +322,32 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             finally
             {
                 IsLoading = false;
+                // 加载完成后更新命令状态
+                StartMonitorCommand.RaiseCanExecuteChanged();
+                StopMonitorCommand.RaiseCanExecuteChanged();
             }
         }
 
         private void OnAdd()
         {
-            var dialog = new Views.AddPlcMonitorConfigDialog(_detectionRoomService, _configService);
-            dialog.Owner = Application.Current.MainWindow;
-            
-            if (dialog.ShowDialog() == true)
-            {
-                LoadConfigsAsync();
-            }
+            MessageBox.Show("请在检测室管理中配置PLC参数", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnEdit()
         {
             if (SelectedConfig == null) return;
 
-            var dialog = new Views.AddPlcMonitorConfigDialog(_detectionRoomService, _configService, SelectedConfig);
-            dialog.Owner = Application.Current.MainWindow;
-            
-            if (dialog.ShowDialog() == true)
-            {
-                LoadConfigsAsync();
-            }
+            MessageBox.Show("请在检测室管理中编辑PLC参数", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private async void OnDelete()
+        private void OnDelete()
         {
             if (SelectedConfig == null)
             {
                 return;
             }
 
-            var result = MessageBox.Show(
-                $"确定要删除检测室 '{SelectedConfig.RoomName}' 的监控配置吗？",
-                "确认删除",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Question);
-
-            if (result == MessageBoxResult.Yes)
-            {
-                IsLoading = true;
-                try
-                {
-                    var success = await _configService.DeleteConfigAsync(SelectedConfig.Id);
-                    if (success)
-                    {
-                        MessageBox.Show("删除成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-                        LoadConfigsAsync();
-                    }
-                    else
-                    {
-                        MessageBox.Show("删除失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"删除失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-                finally
-                {
-                    IsLoading = false;
-                }
-            }
+            MessageBox.Show("PLC配置已合并到检测室设置中，请在检测室管理中编辑", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
         private void OnView()
@@ -398,6 +387,8 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 EditCommand.RaiseCanExecuteChanged();
                 DeleteCommand.RaiseCanExecuteChanged();
                 ViewCommand.RaiseCanExecuteChanged();
+                StartMonitorCommand.RaiseCanExecuteChanged();
+                StopMonitorCommand.RaiseCanExecuteChanged();
             }
         }
 

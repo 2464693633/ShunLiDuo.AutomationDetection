@@ -21,7 +21,15 @@ namespace ShunLiDuo.AutomationDetection.Data
             {
                 var rooms = new List<DetectionRoomItem>();
                 string sql = @"SELECT Id, RoomNo, RoomName, Remark, ScannerPortName, ScannerBaudRate, 
-                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled 
+                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled,
+                              Cylinder1ExtendAddress, Cylinder1RetractAddress,
+                              Cylinder1ExtendFeedbackAddress, Cylinder1RetractFeedbackAddress, Cylinder1DataType,
+                              Cylinder2ExtendAddress, Cylinder2RetractAddress,
+                              Cylinder2ExtendFeedbackAddress, Cylinder2RetractFeedbackAddress, Cylinder2DataType,
+                              SensorAddress, SensorDataType,
+                              PushCylinderRetractTimeout, PushCylinderExtendTimeout,
+                              BlockingCylinderRetractTimeout, BlockingCylinderExtendTimeout,
+                              SensorDetectTimeout, PassageDelayTime, SensorConfirmDelayTime
                               FROM DetectionRooms ORDER BY Id";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -41,6 +49,27 @@ namespace ShunLiDuo.AutomationDetection.Data
                             ScannerStopBits = reader.IsDBNull(7) ? 1 : reader.GetInt32(7),
                             ScannerParity = reader.IsDBNull(8) ? "None" : reader.GetString(8),
                             ScannerIsEnabled = reader.IsDBNull(9) ? false : reader.GetInt32(9) == 1,
+                            Cylinder1ExtendAddress = reader.IsDBNull(10) ? string.Empty : reader.GetString(10),
+                            Cylinder1RetractAddress = reader.IsDBNull(11) ? string.Empty : reader.GetString(11),
+                            Cylinder1ExtendFeedbackAddress = reader.IsDBNull(12) ? string.Empty : reader.GetString(12),
+                            Cylinder1RetractFeedbackAddress = reader.IsDBNull(13) ? string.Empty : reader.GetString(13),
+                            Cylinder1DataType = reader.IsDBNull(14) ? string.Empty : reader.GetString(14),
+                            Cylinder2ExtendAddress = reader.IsDBNull(15) ? string.Empty : reader.GetString(15),
+                            Cylinder2RetractAddress = reader.IsDBNull(16) ? string.Empty : reader.GetString(16),
+                            Cylinder2ExtendFeedbackAddress = reader.IsDBNull(17) ? string.Empty : reader.GetString(17),
+                            Cylinder2RetractFeedbackAddress = reader.IsDBNull(18) ? string.Empty : reader.GetString(18),
+                            Cylinder2DataType = reader.IsDBNull(19) ? string.Empty : reader.GetString(19),
+                            SensorAddress = reader.IsDBNull(20) ? string.Empty : reader.GetString(20),
+                            SensorDataType = reader.IsDBNull(21) ? string.Empty : reader.GetString(21),
+                            // 如果值为NULL或0，使用新默认值30000；否则使用数据库中的值
+                            // 注意：索引从0开始，根据SELECT语句的顺序计算
+                            PushCylinderRetractTimeout = reader.IsDBNull(22) || reader.GetInt32(22) == 0 ? 30000 : reader.GetInt32(22),
+                            PushCylinderExtendTimeout = reader.IsDBNull(23) || reader.GetInt32(23) == 0 ? 30000 : reader.GetInt32(23),
+                            BlockingCylinderRetractTimeout = reader.IsDBNull(24) || reader.GetInt32(24) == 0 ? 30000 : reader.GetInt32(24),
+                            BlockingCylinderExtendTimeout = reader.IsDBNull(25) || reader.GetInt32(25) == 0 ? 30000 : reader.GetInt32(25),
+                            SensorDetectTimeout = reader.IsDBNull(26) ? 15000 : reader.GetInt32(26),
+                            PassageDelayTime = reader.IsDBNull(27) ? 5000 : reader.GetInt32(27),
+                            SensorConfirmDelayTime = reader.IsDBNull(28) ? 3000 : reader.GetInt32(28),
                             IsSelected = false
                         });
                     }
@@ -54,7 +83,15 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 string sql = @"SELECT Id, RoomNo, RoomName, Remark, ScannerPortName, ScannerBaudRate, 
-                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled 
+                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled,
+                              Cylinder1ExtendAddress, Cylinder1RetractAddress,
+                              Cylinder1ExtendFeedbackAddress, Cylinder1RetractFeedbackAddress, Cylinder1DataType,
+                              Cylinder2ExtendAddress, Cylinder2RetractAddress,
+                              Cylinder2ExtendFeedbackAddress, Cylinder2RetractFeedbackAddress, Cylinder2DataType,
+                              SensorAddress, SensorDataType,
+                              PushCylinderRetractTimeout, PushCylinderExtendTimeout,
+                              BlockingCylinderRetractTimeout, BlockingCylinderExtendTimeout,
+                              SensorDetectTimeout, PassageDelayTime, SensorConfirmDelayTime
                               FROM DetectionRooms WHERE Id = @id";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -76,6 +113,27 @@ namespace ShunLiDuo.AutomationDetection.Data
                                 ScannerStopBits = reader.IsDBNull(7) ? 1 : reader.GetInt32(7),
                                 ScannerParity = reader.IsDBNull(8) ? "None" : reader.GetString(8),
                                 ScannerIsEnabled = reader.IsDBNull(9) ? false : reader.GetInt32(9) == 1,
+                                Cylinder1ExtendAddress = reader.IsDBNull(10) ? string.Empty : reader.GetString(10),
+                                Cylinder1RetractAddress = reader.IsDBNull(11) ? string.Empty : reader.GetString(11),
+                                Cylinder1ExtendFeedbackAddress = reader.IsDBNull(12) ? string.Empty : reader.GetString(12),
+                                Cylinder1RetractFeedbackAddress = reader.IsDBNull(13) ? string.Empty : reader.GetString(13),
+                                Cylinder1DataType = reader.IsDBNull(14) ? string.Empty : reader.GetString(14),
+                                Cylinder2ExtendAddress = reader.IsDBNull(15) ? string.Empty : reader.GetString(15),
+                                Cylinder2RetractAddress = reader.IsDBNull(16) ? string.Empty : reader.GetString(16),
+                                Cylinder2ExtendFeedbackAddress = reader.IsDBNull(17) ? string.Empty : reader.GetString(17),
+                                Cylinder2RetractFeedbackAddress = reader.IsDBNull(18) ? string.Empty : reader.GetString(18),
+                                Cylinder2DataType = reader.IsDBNull(19) ? string.Empty : reader.GetString(19),
+                                SensorAddress = reader.IsDBNull(20) ? string.Empty : reader.GetString(20),
+                                SensorDataType = reader.IsDBNull(21) ? string.Empty : reader.GetString(21),
+                                // 如果值为NULL或0，使用新默认值30000；否则使用数据库中的值
+                                // 注意：索引从0开始，根据SELECT语句的顺序计算
+                                PushCylinderRetractTimeout = reader.IsDBNull(22) || reader.GetInt32(22) == 0 ? 30000 : reader.GetInt32(22),
+                                PushCylinderExtendTimeout = reader.IsDBNull(23) || reader.GetInt32(23) == 0 ? 30000 : reader.GetInt32(23),
+                                BlockingCylinderRetractTimeout = reader.IsDBNull(24) || reader.GetInt32(24) == 0 ? 30000 : reader.GetInt32(24),
+                                BlockingCylinderExtendTimeout = reader.IsDBNull(25) || reader.GetInt32(25) == 0 ? 30000 : reader.GetInt32(25),
+                                SensorDetectTimeout = reader.IsDBNull(26) ? 15000 : reader.GetInt32(26),
+                                PassageDelayTime = reader.IsDBNull(27) ? 5000 : reader.GetInt32(27),
+                                SensorConfirmDelayTime = reader.IsDBNull(28) ? 3000 : reader.GetInt32(28),
                                 IsSelected = false
                             };
                         }
@@ -90,9 +148,27 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 string sql = @"INSERT INTO DetectionRooms (RoomNo, RoomName, Remark, ScannerPortName, ScannerBaudRate, 
-                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled, CreateTime, UpdateTime)
+                              ScannerDataBits, ScannerStopBits, ScannerParity, ScannerIsEnabled,
+                              Cylinder1ExtendAddress, Cylinder1RetractAddress,
+                              Cylinder1ExtendFeedbackAddress, Cylinder1RetractFeedbackAddress, Cylinder1DataType,
+                              Cylinder2ExtendAddress, Cylinder2RetractAddress,
+                              Cylinder2ExtendFeedbackAddress, Cylinder2RetractFeedbackAddress, Cylinder2DataType,
+                              SensorAddress, SensorDataType,
+                              PushCylinderRetractTimeout, PushCylinderExtendTimeout,
+                              BlockingCylinderRetractTimeout, BlockingCylinderExtendTimeout,
+                              SensorDetectTimeout, PassageDelayTime, SensorConfirmDelayTime,
+                              CreateTime, UpdateTime)
                               VALUES (@RoomNo, @RoomName, @Remark, @ScannerPortName, @ScannerBaudRate, 
-                              @ScannerDataBits, @ScannerStopBits, @ScannerParity, @ScannerIsEnabled, @CreateTime, @UpdateTime);
+                              @ScannerDataBits, @ScannerStopBits, @ScannerParity, @ScannerIsEnabled,
+                              @Cylinder1ExtendAddress, @Cylinder1RetractAddress,
+                              @Cylinder1ExtendFeedbackAddress, @Cylinder1RetractFeedbackAddress, @Cylinder1DataType,
+                              @Cylinder2ExtendAddress, @Cylinder2RetractAddress,
+                              @Cylinder2ExtendFeedbackAddress, @Cylinder2RetractFeedbackAddress, @Cylinder2DataType,
+                              @SensorAddress, @SensorDataType,
+                              @PushCylinderRetractTimeout, @PushCylinderExtendTimeout,
+                              @BlockingCylinderRetractTimeout, @BlockingCylinderExtendTimeout,
+                              @SensorDetectTimeout, @PassageDelayTime, @SensorConfirmDelayTime,
+                              @CreateTime, @UpdateTime);
                               SELECT last_insert_rowid();";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -106,6 +182,25 @@ namespace ShunLiDuo.AutomationDetection.Data
                     command.Parameters.AddWithValue("@ScannerStopBits", room.ScannerStopBits);
                     command.Parameters.AddWithValue("@ScannerParity", room.ScannerParity ?? "None");
                     command.Parameters.AddWithValue("@ScannerIsEnabled", room.ScannerIsEnabled ? 1 : 0);
+                    command.Parameters.AddWithValue("@Cylinder1ExtendAddress", room.Cylinder1ExtendAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder1RetractAddress", room.Cylinder1RetractAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder1ExtendFeedbackAddress", room.Cylinder1ExtendFeedbackAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder1RetractFeedbackAddress", room.Cylinder1RetractFeedbackAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder1DataType", room.Cylinder1DataType ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2ExtendAddress", room.Cylinder2ExtendAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2RetractAddress", room.Cylinder2RetractAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2ExtendFeedbackAddress", room.Cylinder2ExtendFeedbackAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2RetractFeedbackAddress", room.Cylinder2RetractFeedbackAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2DataType", room.Cylinder2DataType ?? string.Empty);
+                    command.Parameters.AddWithValue("@SensorAddress", room.SensorAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@SensorDataType", room.SensorDataType ?? string.Empty);
+                    command.Parameters.AddWithValue("@PushCylinderRetractTimeout", room.PushCylinderRetractTimeout);
+                    command.Parameters.AddWithValue("@PushCylinderExtendTimeout", room.PushCylinderExtendTimeout);
+                    command.Parameters.AddWithValue("@BlockingCylinderRetractTimeout", room.BlockingCylinderRetractTimeout);
+                    command.Parameters.AddWithValue("@BlockingCylinderExtendTimeout", room.BlockingCylinderExtendTimeout);
+                    command.Parameters.AddWithValue("@SensorDetectTimeout", room.SensorDetectTimeout);
+                    command.Parameters.AddWithValue("@PassageDelayTime", room.PassageDelayTime);
+                    command.Parameters.AddWithValue("@SensorConfirmDelayTime", room.SensorConfirmDelayTime);
                     command.Parameters.AddWithValue("@CreateTime", DateTime.Now);
                     command.Parameters.AddWithValue("@UpdateTime", DateTime.Now);
 
@@ -124,6 +219,25 @@ namespace ShunLiDuo.AutomationDetection.Data
                               ScannerPortName = @ScannerPortName, ScannerBaudRate = @ScannerBaudRate,
                               ScannerDataBits = @ScannerDataBits, ScannerStopBits = @ScannerStopBits,
                               ScannerParity = @ScannerParity, ScannerIsEnabled = @ScannerIsEnabled,
+                              Cylinder1ExtendAddress = @Cylinder1ExtendAddress,
+                              Cylinder1RetractAddress = @Cylinder1RetractAddress,
+                              Cylinder1ExtendFeedbackAddress = @Cylinder1ExtendFeedbackAddress,
+                              Cylinder1RetractFeedbackAddress = @Cylinder1RetractFeedbackAddress,
+                              Cylinder1DataType = @Cylinder1DataType,
+                              Cylinder2ExtendAddress = @Cylinder2ExtendAddress,
+                              Cylinder2RetractAddress = @Cylinder2RetractAddress,
+                              Cylinder2ExtendFeedbackAddress = @Cylinder2ExtendFeedbackAddress,
+                              Cylinder2RetractFeedbackAddress = @Cylinder2RetractFeedbackAddress,
+                              Cylinder2DataType = @Cylinder2DataType,
+                              SensorAddress = @SensorAddress,
+                              SensorDataType = @SensorDataType,
+                              PushCylinderRetractTimeout = @PushCylinderRetractTimeout,
+                              PushCylinderExtendTimeout = @PushCylinderExtendTimeout,
+                              BlockingCylinderRetractTimeout = @BlockingCylinderRetractTimeout,
+                              BlockingCylinderExtendTimeout = @BlockingCylinderExtendTimeout,
+                              SensorDetectTimeout = @SensorDetectTimeout,
+                              PassageDelayTime = @PassageDelayTime,
+                              SensorConfirmDelayTime = @SensorConfirmDelayTime,
                               UpdateTime = @UpdateTime
                               WHERE Id = @Id";
 
@@ -139,9 +253,38 @@ namespace ShunLiDuo.AutomationDetection.Data
                     command.Parameters.AddWithValue("@ScannerStopBits", room.ScannerStopBits);
                     command.Parameters.AddWithValue("@ScannerParity", room.ScannerParity ?? "None");
                     command.Parameters.AddWithValue("@ScannerIsEnabled", room.ScannerIsEnabled ? 1 : 0);
+                    command.Parameters.AddWithValue("@Cylinder1ExtendAddress", room.Cylinder1ExtendAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder1RetractAddress", room.Cylinder1RetractAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder1ExtendFeedbackAddress", room.Cylinder1ExtendFeedbackAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder1RetractFeedbackAddress", room.Cylinder1RetractFeedbackAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder1DataType", room.Cylinder1DataType ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2ExtendAddress", room.Cylinder2ExtendAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2RetractAddress", room.Cylinder2RetractAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2ExtendFeedbackAddress", room.Cylinder2ExtendFeedbackAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2RetractFeedbackAddress", room.Cylinder2RetractFeedbackAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@Cylinder2DataType", room.Cylinder2DataType ?? string.Empty);
+                    command.Parameters.AddWithValue("@SensorAddress", room.SensorAddress ?? string.Empty);
+                    command.Parameters.AddWithValue("@SensorDataType", room.SensorDataType ?? string.Empty);
+                    command.Parameters.AddWithValue("@PushCylinderRetractTimeout", room.PushCylinderRetractTimeout);
+                    command.Parameters.AddWithValue("@PushCylinderExtendTimeout", room.PushCylinderExtendTimeout);
+                    command.Parameters.AddWithValue("@BlockingCylinderRetractTimeout", room.BlockingCylinderRetractTimeout);
+                    command.Parameters.AddWithValue("@BlockingCylinderExtendTimeout", room.BlockingCylinderExtendTimeout);
+                    command.Parameters.AddWithValue("@SensorDetectTimeout", room.SensorDetectTimeout);
+                    command.Parameters.AddWithValue("@PassageDelayTime", room.PassageDelayTime);
+                    command.Parameters.AddWithValue("@SensorConfirmDelayTime", room.SensorConfirmDelayTime);
                     command.Parameters.AddWithValue("@UpdateTime", DateTime.Now);
 
+                    // 添加调试日志，检查参数值
+                    System.Diagnostics.Debug.WriteLine($"[数据库更新] PushCylinderRetractTimeout: {room.PushCylinderRetractTimeout}");
+                    System.Diagnostics.Debug.WriteLine($"[数据库更新] PushCylinderExtendTimeout: {room.PushCylinderExtendTimeout}");
+                    System.Diagnostics.Debug.WriteLine($"[数据库更新] BlockingCylinderRetractTimeout: {room.BlockingCylinderRetractTimeout}");
+                    System.Diagnostics.Debug.WriteLine($"[数据库更新] BlockingCylinderExtendTimeout: {room.BlockingCylinderExtendTimeout}");
+                    System.Diagnostics.Debug.WriteLine($"[数据库更新] SensorDetectTimeout: {room.SensorDetectTimeout}");
+                    System.Diagnostics.Debug.WriteLine($"[数据库更新] PassageDelayTime: {room.PassageDelayTime}");
+                    System.Diagnostics.Debug.WriteLine($"[数据库更新] SensorConfirmDelayTime: {room.SensorConfirmDelayTime}");
+
                     int rowsAffected = command.ExecuteNonQuery();
+                    System.Diagnostics.Debug.WriteLine($"[数据库更新] 受影响行数: {rowsAffected}");
                     return rowsAffected > 0;
                 }
             });

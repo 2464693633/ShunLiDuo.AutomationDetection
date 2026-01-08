@@ -21,6 +21,9 @@ namespace ShunLiDuo.AutomationDetection.Services
         Task<int> ReadIntAsync(string address);
         Task<float> ReadFloatAsync(string address);
         Task<byte[]> ReadBytesAsync(string address, int count);
+        
+        // 写入数据的方法（只使用布尔值）
+        Task<bool> WriteBoolAsync(string address, bool value);
     }
 }
 

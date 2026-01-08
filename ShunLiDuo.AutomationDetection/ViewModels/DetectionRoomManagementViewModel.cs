@@ -159,6 +159,29 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                         ScannerStopBits = dialog.ScannerStopBits,
                         ScannerParity = dialog.ScannerParity ?? "None",
                         ScannerIsEnabled = dialog.ScannerIsEnabled,
+                        // PLC配置 - 气缸1
+                        Cylinder1ExtendAddress = dialog.Cylinder1ExtendAddress ?? string.Empty,
+                        Cylinder1RetractAddress = dialog.Cylinder1RetractAddress ?? string.Empty,
+                        Cylinder1ExtendFeedbackAddress = dialog.Cylinder1ExtendFeedbackAddress ?? string.Empty,
+                        Cylinder1RetractFeedbackAddress = dialog.Cylinder1RetractFeedbackAddress ?? string.Empty,
+                        Cylinder1DataType = dialog.Cylinder1DataType ?? "Bool",
+                        // PLC配置 - 气缸2
+                        Cylinder2ExtendAddress = dialog.Cylinder2ExtendAddress ?? string.Empty,
+                        Cylinder2RetractAddress = dialog.Cylinder2RetractAddress ?? string.Empty,
+                        Cylinder2ExtendFeedbackAddress = dialog.Cylinder2ExtendFeedbackAddress ?? string.Empty,
+                        Cylinder2RetractFeedbackAddress = dialog.Cylinder2RetractFeedbackAddress ?? string.Empty,
+                        Cylinder2DataType = dialog.Cylinder2DataType ?? "Bool",
+                        // PLC配置 - 传感器
+                        SensorAddress = dialog.SensorAddress ?? string.Empty,
+                        SensorDataType = dialog.SensorDataType ?? "Bool",
+                        // 反馈报警延时时间设置（直接使用对话框的值，不进行默认值替换）
+                        PushCylinderRetractTimeout = dialog.PushCylinderRetractTimeout,
+                        PushCylinderExtendTimeout = dialog.PushCylinderExtendTimeout,
+                        BlockingCylinderRetractTimeout = dialog.BlockingCylinderRetractTimeout,
+                        BlockingCylinderExtendTimeout = dialog.BlockingCylinderExtendTimeout,
+                        SensorDetectTimeout = dialog.SensorDetectTimeout,
+                        PassageDelayTime = dialog.PassageDelayTime,
+                        SensorConfirmDelayTime = dialog.SensorConfirmDelayTime,
                         IsSelected = false
                     };
                     

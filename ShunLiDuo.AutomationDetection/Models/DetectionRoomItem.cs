@@ -16,6 +16,33 @@ namespace ShunLiDuo.AutomationDetection.Models
         public string ScannerParity { get; set; } = "None";
         public bool ScannerIsEnabled { get; set; } = false;
         
+        // PLC配置 - 气缸1（阻挡气缸）
+        public string Cylinder1ExtendAddress { get; set; }
+        public string Cylinder1RetractAddress { get; set; }
+        public string Cylinder1ExtendFeedbackAddress { get; set; }
+        public string Cylinder1RetractFeedbackAddress { get; set; }
+        public string Cylinder1DataType { get; set; }
+        
+        // PLC配置 - 气缸2（推箱气缸）
+        public string Cylinder2ExtendAddress { get; set; }
+        public string Cylinder2RetractAddress { get; set; }
+        public string Cylinder2ExtendFeedbackAddress { get; set; }
+        public string Cylinder2RetractFeedbackAddress { get; set; }
+        public string Cylinder2DataType { get; set; }
+        
+        // PLC配置 - 传感器
+        public string SensorAddress { get; set; }
+        public string SensorDataType { get; set; }
+        
+        // 反馈报警延时时间设置（单位：毫秒）
+        public int PushCylinderRetractTimeout { get; set; } = 30000;      // 推箱气缸收缩超时（匹配流程）
+        public int PushCylinderExtendTimeout { get; set; } = 30000;      // 推箱气缸伸出超时（不匹配流程）
+        public int BlockingCylinderRetractTimeout { get; set; } = 30000;  // 阻挡气缸收缩超时
+        public int BlockingCylinderExtendTimeout { get; set; } = 30000;   // 阻挡气缸伸出超时
+        public int SensorDetectTimeout { get; set; } = 15000;            // 传感器检测超时
+        public int PassageDelayTime { get; set; } = 5000;                // 放行等待时间（不匹配流程）
+        public int SensorConfirmDelayTime { get; set; } = 3000;          // 传感器确认延时（匹配流程，传感器检测到后的等待时间）
+        
         // 串口连接状态（运行时属性，不存储到数据库）
         public bool IsScannerConnected { get; set; } = false;
     }

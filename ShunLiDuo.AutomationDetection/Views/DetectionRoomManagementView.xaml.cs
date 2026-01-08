@@ -64,14 +64,54 @@ namespace ShunLiDuo.AutomationDetection.Views
                     ScannerStopBits = dialog.ViewModel.ScannerStopBits,
                     ScannerParity = dialog.ViewModel.ScannerParity ?? "None",
                     ScannerIsEnabled = dialog.ViewModel.ScannerIsEnabled,
+                    // PLC配置 - 气缸1
+                    Cylinder1ExtendAddress = dialog.ViewModel.Cylinder1ExtendAddress ?? string.Empty,
+                    Cylinder1RetractAddress = dialog.ViewModel.Cylinder1RetractAddress ?? string.Empty,
+                    Cylinder1ExtendFeedbackAddress = dialog.ViewModel.Cylinder1ExtendFeedbackAddress ?? string.Empty,
+                    Cylinder1RetractFeedbackAddress = dialog.ViewModel.Cylinder1RetractFeedbackAddress ?? string.Empty,
+                    Cylinder1DataType = dialog.ViewModel.Cylinder1DataType ?? "Bool",
+                    // PLC配置 - 气缸2
+                    Cylinder2ExtendAddress = dialog.ViewModel.Cylinder2ExtendAddress ?? string.Empty,
+                    Cylinder2RetractAddress = dialog.ViewModel.Cylinder2RetractAddress ?? string.Empty,
+                    Cylinder2ExtendFeedbackAddress = dialog.ViewModel.Cylinder2ExtendFeedbackAddress ?? string.Empty,
+                    Cylinder2RetractFeedbackAddress = dialog.ViewModel.Cylinder2RetractFeedbackAddress ?? string.Empty,
+                    Cylinder2DataType = dialog.ViewModel.Cylinder2DataType ?? "Bool",
+                    // PLC配置 - 传感器
+                    SensorAddress = dialog.ViewModel.SensorAddress ?? string.Empty,
+                    SensorDataType = dialog.ViewModel.SensorDataType ?? "Bool",
+                    // 反馈报警延时时间设置（直接使用ViewModel的值，不进行默认值替换）
+                    // 注意：直接从 ViewModel 读取，确保获取最新的值
+                    PushCylinderRetractTimeout = dialog.ViewModel.PushCylinderRetractTimeout,
+                    PushCylinderExtendTimeout = dialog.ViewModel.PushCylinderExtendTimeout,
+                    BlockingCylinderRetractTimeout = dialog.ViewModel.BlockingCylinderRetractTimeout,
+                    BlockingCylinderExtendTimeout = dialog.ViewModel.BlockingCylinderExtendTimeout,
+                    SensorDetectTimeout = dialog.ViewModel.SensorDetectTimeout,
+                    PassageDelayTime = dialog.ViewModel.PassageDelayTime,
+                    SensorConfirmDelayTime = dialog.ViewModel.SensorConfirmDelayTime,
                     IsSelected = false
                 };
 
+                // 添加调试日志，检查保存前的值
+                System.Diagnostics.Debug.WriteLine($"[保存] 准备保存 - 推箱气缸收缩超时: {updatedRoom.PushCylinderRetractTimeout}");
+                System.Diagnostics.Debug.WriteLine($"[保存] 准备保存 - 推箱气缸伸出超时: {updatedRoom.PushCylinderExtendTimeout}");
+                System.Diagnostics.Debug.WriteLine($"[保存] 准备保存 - 阻挡气缸收缩超时: {updatedRoom.BlockingCylinderRetractTimeout}");
+                System.Diagnostics.Debug.WriteLine($"[保存] 准备保存 - 阻挡气缸伸出超时: {updatedRoom.BlockingCylinderExtendTimeout}");
+                
                 var success = await _detectionRoomService.UpdateRoomAsync(updatedRoom);
                 if (success)
                 {
                     MessageBox.Show("检测室更新成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
                     _viewModel.LoadRoomsAsync();
+                    
+                    // 验证保存后的值
+                    var savedRoom = await _detectionRoomService.GetRoomByIdAsync(room.Id);
+                    if (savedRoom != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[保存] 保存后验证 - 推箱气缸收缩超时: {savedRoom.PushCylinderRetractTimeout}");
+                        System.Diagnostics.Debug.WriteLine($"[保存] 保存后验证 - 推箱气缸伸出超时: {savedRoom.PushCylinderExtendTimeout}");
+                        System.Diagnostics.Debug.WriteLine($"[保存] 保存后验证 - 阻挡气缸收缩超时: {savedRoom.BlockingCylinderRetractTimeout}");
+                        System.Diagnostics.Debug.WriteLine($"[保存] 保存后验证 - 阻挡气缸伸出超时: {savedRoom.BlockingCylinderExtendTimeout}");
+                    }
                 }
                 else
                 {
@@ -127,7 +167,26 @@ namespace ShunLiDuo.AutomationDetection.Views
             {
                 new ViewDetailDialog.DetailItem { Label = "检测室编号", Value = room.RoomNo ?? "" },
                 new ViewDetailDialog.DetailItem { Label = "检测室名称", Value = room.RoomName ?? "" },
-                new ViewDetailDialog.DetailItem { Label = "备注", Value = room.Remark ?? "" }
+                new ViewDetailDialog.DetailItem { Label = "备注", Value = room.Remark ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "", Value = "--- 扫码器配置 ---" },
+                new ViewDetailDialog.DetailItem { Label = "串口号", Value = room.ScannerPortName ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "波特率", Value = room.ScannerBaudRate.ToString() },
+                new ViewDetailDialog.DetailItem { Label = "数据位", Value = room.ScannerDataBits.ToString() },
+                new ViewDetailDialog.DetailItem { Label = "停止位", Value = room.ScannerStopBits.ToString() },
+                new ViewDetailDialog.DetailItem { Label = "校验位", Value = room.ScannerParity ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "启用扫码器", Value = room.ScannerIsEnabled ? "是" : "否" },
+                new ViewDetailDialog.DetailItem { Label = "", Value = "--- PLC配置 - 气缸1（阻挡气缸）---" },
+                new ViewDetailDialog.DetailItem { Label = "伸出控制地址", Value = room.Cylinder1ExtendAddress ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "收缩控制地址", Value = room.Cylinder1RetractAddress ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "伸出反馈地址", Value = room.Cylinder1ExtendFeedbackAddress ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "收缩反馈地址", Value = room.Cylinder1RetractFeedbackAddress ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "", Value = "--- PLC配置 - 气缸2（推箱气缸）---" },
+                new ViewDetailDialog.DetailItem { Label = "伸出控制地址", Value = room.Cylinder2ExtendAddress ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "收缩控制地址", Value = room.Cylinder2RetractAddress ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "伸出反馈地址", Value = room.Cylinder2ExtendFeedbackAddress ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "收缩反馈地址", Value = room.Cylinder2RetractFeedbackAddress ?? "" },
+                new ViewDetailDialog.DetailItem { Label = "", Value = "--- PLC配置 - 传感器 ---" },
+                new ViewDetailDialog.DetailItem { Label = "传感器地址", Value = room.SensorAddress ?? "" }
             };
 
             var dialog = new ViewDetailDialog("检测室详情", details);

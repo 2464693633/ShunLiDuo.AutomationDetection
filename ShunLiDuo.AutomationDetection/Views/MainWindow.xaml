@@ -102,7 +102,7 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>
+            <RowDefinition Height="60"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
@@ -113,7 +113,7 @@
                                   materialDesign:ShadowAssist.ShadowDepth="Depth1"
                                   Mode="PrimaryMid"
                                   MouseDown="Header_MouseDown">
-            <Grid Height="80">
+            <Grid Height="60">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>

@@ -401,6 +401,49 @@ namespace ShunLiDuo.AutomationDetection.Services
             });
         }
 
+        public async Task<bool> WriteBoolAsync(string address, bool value)
+        {
+            if (!IsConnected || _plc == null || !_plc.IsConnected)
+            {
+                throw new InvalidOperationException("PLC未连接");
+            }
+
+            return await Task.Run(() =>
+            {
+                try
+                {
+                    var dataType = S7.Net.DataType.DataBlock;
+                    var dbNumber = 0;
+                    var startByte = 0;
+                    var bitNumber = 0;
+
+                    ParseAddress(address, out dataType, out dbNumber, out startByte, out bitNumber);
+
+                    // 读取当前字节值
+                    var bytes = _plc.ReadBytes(dataType, dbNumber, startByte, 1);
+                    var byteValue = bytes[0];
+
+                    // 设置或清除特定位
+                    if (value)
+                    {
+                        byteValue |= (byte)(1 << bitNumber);  // 设置位为1
+                    }
+                    else
+                    {
+                        byteValue &= (byte)~(1 << bitNumber); // 清除位为0
+                    }
+
+                    // 写回字节
+                    _plc.WriteBytes(dataType, dbNumber, startByte, new byte[] { byteValue });
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"写入布尔值失败 (地址: {address}): {ex.Message}", ex);
+                }
+            });
+        }
+
         /// <summary>
         /// 解析PLC地址，支持格式：
         /// DB1.DBX0.0 (数据块1，字节0，位0)
