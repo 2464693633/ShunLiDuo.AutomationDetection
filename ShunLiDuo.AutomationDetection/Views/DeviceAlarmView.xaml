@@ -3,9 +3,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1200">
-    <Grid Background="White" Margin="15">
+    <Grid Background="#FAFAFA" Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -15,71 +17,130 @@
 
         <!-- Tabs -->
         <TabControl Grid.Row="0" Margin="0,0,0,15" Style="{StaticResource StandardTabControlStyle}">
-            <TabItem Content="设备报警列表" Style="{StaticResource StandardTabItemStyle}" IsSelected="True"/>
+            <TabItem Content="报警记录列表" Style="{StaticResource StandardTabItemStyle}" IsSelected="True"/>
         </TabControl>
 
-        <!-- Search Bar -->
-        <Grid Grid.Row="1" Margin="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <TextBox Grid.Column="0" 
-                    Style="{StaticResource StandardTextBoxStyle}"
-                    Margin="0,0,10,0"/>
-            
-            <Button Grid.Column="1" Content="查询" 
-                   Style="{StaticResource PrimaryButtonStyle}"
-                   Margin="0,0,10,0"/>
-            <Button Grid.Column="2" Content="新增" 
-                   Style="{StaticResource PrimaryButtonStyle}"/>
-        </Grid>
+        <!-- Filter Bar -->
+        <Border Grid.Row="1" 
+               Background="White"
+               BorderBrush="{StaticResource BorderBrush}"
+               BorderThickness="1"
+               CornerRadius="6"
+               Padding="20"
+               Margin="0,0,0,20">
+            <Border.Effect>
+                <DropShadowEffect Color="#15000000" 
+                                 BlurRadius="4" 
+                                 ShadowDepth="1" 
+                                 Opacity="0.08"/>
+            </Border.Effect>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="180"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <TextBlock Grid.Column="0" Text="开始时间" Style="{StaticResource StandardLabelStyle}" Margin="0,0,8,0"/>
+                <DatePicker Grid.Column="1" SelectedDate="{Binding StartTime}" Style="{StaticResource StandardDatePickerStyle}" Margin="0,0,10,0"/>
+                <TextBlock Grid.Column="2" Text="-" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="14"/>
+                <DatePicker Grid.Column="3" SelectedDate="{Binding EndTime}" Style="{StaticResource StandardDatePickerStyle}" Margin="0,0,10,0"/>
+                <TextBlock Grid.Column="4" Text="检测室" Style="{StaticResource StandardLabelStyle}" Margin="0,0,8,0"/>
+                <ComboBox Grid.Column="5" 
+                         ItemsSource="{Binding RoomNames}"
+                         SelectedItem="{Binding SelectedRoom}" 
+                         Style="{StaticResource StandardComboBoxStyle}" 
+                         Margin="0,0,10,0"/>
+                <TextBox Grid.Column="6" 
+                        Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}" 
+                        Style="{StaticResource StandardTextBoxStyle}" 
+                        Margin="0,0,10,0"/>
+                <Button Grid.Column="7" Content="查询" Style="{StaticResource PrimaryButtonStyle}" 
+                       Command="{Binding QueryCommand}" Margin="0,0,10,0"/>
+                <Button Grid.Column="8" Content="刷新" Style="{StaticResource SecondaryButtonStyle}" 
+                       Command="{Binding RefreshCommand}"/>
+            </Grid>
+        </Border>
 
         <!-- Data Grid -->
-        <DataGrid Grid.Row="2" 
-                 Style="{StaticResource StandardDataGridStyle}"
-                 Margin="0"
-                 RowStyle="{StaticResource DataGridRowStyle}"
-                 CellStyle="{StaticResource DataGridCellStyle}"
-                 ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
-            <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="" Width="50"/>
-                <DataGridTextColumn Header="序号" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="设备名称" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="报警类型" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="报警级别" Width="110" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="报警时间" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="状态" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="备注" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTemplateColumn Header="操作" Width="180">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <TextBlock Text="处理" Foreground="{StaticResource SuccessBrush}" 
-                                          Style="{StaticResource LinkButtonStyle}"/>
-                                <TextBlock Text="查看" Foreground="{StaticResource InfoBrush}" 
-                                          Style="{StaticResource LinkButtonStyle}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Border Grid.Row="2"
+               Background="White"
+               BorderBrush="{StaticResource BorderBrush}"
+               BorderThickness="1"
+               CornerRadius="6"
+               Padding="0">
+            <Border.Effect>
+                <DropShadowEffect Color="#20000000" 
+                                 BlurRadius="8" 
+                                 ShadowDepth="2" 
+                                 Opacity="0.1"/>
+            </Border.Effect>
+            <DataGrid ItemsSource="{Binding AlarmRecords}"
+                     BorderThickness="0"
+                     Background="Transparent"
+                     RowHeight="55"
+                     Margin="0"
+                     RowStyle="{StaticResource DataGridRowStyle}"
+                     CellStyle="{StaticResource DataGridCellStyle}"
+                     ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                     AutoGenerateColumns="False"
+                     IsReadOnly="True"
+                     GridLinesVisibility="None">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="报警编号" Binding="{Binding AlarmCode}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="报警标题" Binding="{Binding AlarmTitle}" Width="400" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="报警信息" Binding="{Binding AlarmMessage}" Width="400" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="检测室" Binding="{Binding RoomName}" Width="80" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="设备名称" Binding="{Binding DeviceName}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="报警时间" Binding="{Binding CreateTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="处理时间" Binding="{Binding HandleTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="处理人" Binding="{Binding Handler}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTemplateColumn Header="操作" Width="180">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Border Background="#E3F2FD"
+                                           CornerRadius="4"
+                                           Padding="8,4"
+                                           Margin="0,0,5,0"
+                                           Cursor="Hand"
+                                           MouseLeftButtonDown="HandleAlarm_Click">
+                                        <TextBlock Text="处理" 
+                                                  Foreground="{StaticResource InfoBrush}" 
+                                                  FontSize="14"
+                                                  FontWeight="Medium"/>
+                                    </Border>
+                                    <Border Background="#FFEBEE"
+                                           CornerRadius="4"
+                                           Padding="8,4"
+                                           Cursor="Hand"
+                                           MouseLeftButtonDown="DeleteAlarm_Click">
+                                        <TextBlock Text="删除" 
+                                                  Foreground="{StaticResource DangerBrush}" 
+                                                  FontSize="14"
+                                                  FontWeight="Medium"/>
+                                    </Border>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
 
-        <!-- Pagination -->
-        <Grid Grid.Row="3" Margin="0,15,0,0" Height="40">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <TextBlock Text="共0条" 
-                          VerticalAlignment="Center" 
-                          FontSize="13"
-                          Foreground="{StaticResource TextSecondaryBrush}"
-                          Margin="0,0,20,0"/>
-                <Button Content="&lt;" Style="{StaticResource PaginationButtonStyle}"/>
-                <Button Content="1" Style="{StaticResource ActivePaginationButtonStyle}"/>
-                <Button Content="&gt;" Style="{StaticResource PaginationButtonStyle}"/>
-            </StackPanel>
+        <!-- Footer -->
+        <Grid Grid.Row="3" Margin="0,15,0,0">
+            <TextBlock Text="{Binding TotalCount, StringFormat='共 {0} 条记录'}" 
+                      VerticalAlignment="Center" 
+                      FontSize="14" 
+                      Foreground="{StaticResource TextSecondaryBrush}"/>
         </Grid>
     </Grid>
 </UserControl>

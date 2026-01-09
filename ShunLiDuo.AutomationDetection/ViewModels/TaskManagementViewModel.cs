@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System;
 using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.Models;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.ViewModels
 {
@@ -17,6 +18,9 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private readonly IDetectionRoomService _detectionRoomService;
         private readonly IS7CommunicationService _s7Service;
         private readonly IScannerCommunicationService _scannerService;
+        private readonly IDetectionLogService _detectionLogService;
+        private readonly ICurrentUserService _currentUserService;
+        private readonly IAlarmRecordService _alarmRecordService;
         private string _logisticsBoxCode;
         private string _logisticsBoxInputInfo;
         private RuleItem _selectedRuleItem;
@@ -57,12 +61,18 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             IRuleService ruleService, 
             IDetectionRoomService detectionRoomService, 
             IS7CommunicationService s7Service,
-            IScannerCommunicationService scannerService)
+            IScannerCommunicationService scannerService,
+            IDetectionLogService detectionLogService,
+            ICurrentUserService currentUserService,
+            IAlarmRecordService alarmRecordService)
         {
             _ruleService = ruleService;
             _detectionRoomService = detectionRoomService;
             _s7Service = s7Service;
             _scannerService = scannerService;
+            _detectionLogService = detectionLogService;
+            _currentUserService = currentUserService;
+            _alarmRecordService = alarmRecordService;
             InitializeData();
             LoadRulesAsync();
             LoadDetectionRoomsAsync();
@@ -137,53 +147,141 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 // 更新扫码编码显示
                 roomBoxList.LastScannedCode = e.ScanData;
                 
-                // 验证扫码编码是否匹配规则
-                if (SelectedRuleItem == null)
+                // 提取物流盒编号（去掉"物流盒编码"前缀）
+                var boxNo = e.ScanData.Trim();
+                var boxCode = $"物流盒编码{boxNo}";
+                
+                // 自动查找包含该物流盒编号的规则（使用第一个匹配的规则）
+                var matchedRule = Rules?.FirstOrDefault(rule =>
                 {
-                    roomBoxList.ScanStatus = "未选择规则";
+                    if (string.IsNullOrWhiteSpace(rule.LogisticsBoxNos))
+                        return false;
+                    
+                    var ruleLogisticsBoxNos = rule.LogisticsBoxNos.Split(',')
+                        .Where(b => !string.IsNullOrWhiteSpace(b))
+                        .Select(b => b.Trim())
+                        .ToList();
+                    
+                    return ruleLogisticsBoxNos.Contains(boxNo);
+                });
+
+                if (matchedRule == null)
+                {
+                    roomBoxList.ScanStatus = "未找到匹配规则";
                     return;
                 }
 
-                // 解析规则中的物流盒编号
-                var ruleLogisticsBoxNos = SelectedRuleItem.LogisticsBoxNos?.Split(',')
-                    .Where(b => !string.IsNullOrWhiteSpace(b))
-                    .Select(b => b.Trim())
-                    .ToList() ?? new System.Collections.Generic.List<string>();
-
-                // 检查扫码的编码是否在规则的物流盒列表中
-                if (ruleLogisticsBoxNos.Contains(e.ScanData))
+                // 查找对应的任务项（根据物流盒编码）
+                // 查找最新的任务（可能有多个已完成的任务，取最新的）
+                var task = Tasks?.Where(t => t.LogisticsBoxCode == boxCode)
+                    .OrderByDescending(t => t.Id)
+                    .FirstOrDefault();
+                    
+                if (task == null)
                 {
-                    // 匹配成功
-                    var boxCode = $"物流盒编码{e.ScanData}";
+                    roomBoxList.ScanStatus = "未找到对应任务";
+                    return;
+                }
+
+                // 检查该任务是否已完成（如果已完成，不允许在当前检测室处理）
+                string assignedRoomStatus = GetRoomStatusByRoomId(task, task.AssignedRoomId ?? 0);
+                if (assignedRoomStatus == "检测完成")
+                {
+                    roomBoxList.ScanStatus = "任务已完成，请先手动录入重新上线";
+                    return;
+                }
+
+                // 检查该任务是否分配到此检测室
+                if (task.AssignedRoomId != e.RoomId)
+                {
+                    roomBoxList.ScanStatus = "任务不在此检测室";
+                    return;
+                }
+
+                // 更新扫码次数
+                if (!task.RoomScanCounts.ContainsKey(e.RoomId))
+                {
+                    task.RoomScanCounts[e.RoomId] = 0;
+                }
+                task.RoomScanCounts[e.RoomId]++;
+
+                int scanCount = task.RoomScanCounts[e.RoomId];
+
+                // 判断是首次扫码还是二次扫码
+                if (scanCount == 1)
+                {
+                    // 首次扫码：状态改为"检测中"
+                    SetRoomStatusByRoomId(task, e.RoomId, "检测中");
+                    task.StartTime = DateTime.Now;
+                    roomBoxList.ScanStatus = "匹配成功-检测中";
+                    
+                    // 将物流盒添加到检测室的 Boxes 列表（只有通过检测室扫码器扫码的才添加）
                     if (!roomBoxList.Boxes.Contains(boxCode))
                     {
                         roomBoxList.Boxes.Add(boxCode);
                     }
-                    roomBoxList.ScanStatus = "匹配成功";
                     
                     // 异步执行匹配流程（不阻塞UI）
                     _ = HandleMatchedScanAsync(e.RoomId, e.RoomName, e.ScanData);
+                    
+                    // 异步更新日志（不阻塞UI）
+                    _ = Task.Run(async () =>
+                    {
+                        var logs = await _detectionLogService.GetLogsByBoxCodeAsync(boxCode);
+                        var latestLog = logs?.OrderByDescending(l => l.CreateTime).FirstOrDefault();
+                        if (latestLog != null)
+                        {
+                            latestLog.Status = "检测中";
+                            latestLog.StartTime = DateTime.Now;
+                            await _detectionLogService.UpdateLogAsync(latestLog);
+                        }
+                    });
+                }
+                else if (scanCount == 2)
+                {
+                    // 二次扫码：状态改为"检测完成"
+                    SetRoomStatusByRoomId(task, e.RoomId, "检测完成");
+                    task.EndTime = DateTime.Now;
+                    roomBoxList.ScanStatus = "匹配成功-检测完成";
+                    
+                    // 从检测室的 Boxes 列表中移除
+                    if (roomBoxList.Boxes.Contains(boxCode))
+                    {
+                        roomBoxList.Boxes.Remove(boxCode);
+                    }
+                    
+                    // 异步更新日志（不阻塞UI）
+                    _ = Task.Run(async () =>
+                    {
+                        var logs = await _detectionLogService.GetLogsByBoxCodeAsync(boxCode);
+                        var latestLog = logs?.OrderByDescending(l => l.CreateTime).FirstOrDefault();
+                        if (latestLog != null)
+                        {
+                            latestLog.Status = "检测完成";
+                            latestLog.EndTime = DateTime.Now;
+                            await _detectionLogService.UpdateLogAsync(latestLog);
+                        }
+                    });
+                    
+                    System.Diagnostics.Debug.WriteLine($"[任务管理] 物流盒 {boxCode} 在检测室 {e.RoomName} 检测完成");
                 }
                 else
                 {
-                    // 匹配失败
-                    roomBoxList.ScanStatus = "匹配失败";
-                    
-                    // 异步执行不匹配流程（不阻塞UI）
-                    _ = HandleUnmatchedScanAsync(e.RoomId, e.RoomName);
+                    // 超过2次扫码，可能是重复扫码，不做处理
+                    roomBoxList.ScanStatus = "匹配成功-已完成";
                 }
             });
         }
 
         private async void InitializeData()
         {
-            Tasks = new ObservableCollection<Models.TaskItem>
-            {
-                new Models.TaskItem { Id = 1, InspectorName = "张三" },
-                new Models.TaskItem { Id = 2, InspectorName = "李四" },
-                new Models.TaskItem { Id = 3 },
-                new Models.TaskItem { Id = 4 }
-            };
+            //Tasks = new ObservableCollection<Models.TaskItem>
+            //{
+            //    new Models.TaskItem { Id = 1, InspectorName = "张三" },
+            //    new Models.TaskItem { Id = 2, InspectorName = "李四" },
+            //    new Models.TaskItem { Id = 3 },
+            //    new Models.TaskItem { Id = 4 }
+            //};
 
             RoomBoxLists = new ObservableCollection<Models.RoomBoxList>();
             LogisticsBoxList = new ObservableCollection<string>();
@@ -331,17 +429,245 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
         public void AddLogisticsBoxCode(string code)
         {
-            if (!string.IsNullOrWhiteSpace(code))
+            if (string.IsNullOrWhiteSpace(code))
             {
-                var formattedCode = code.StartsWith("物流盒编码") ? code : $"物流盒编码{code}";
-                if (!LogisticsBoxList.Contains(formattedCode))
-                {
-                    // 手动输入只添加到录入信息列表，不自动分配到检测室
-                    // 只有通过串口扫码器接收的数据才会显示在检测室中
-                    LogisticsBoxList.Add(formattedCode);
-                }
-                LogisticsBoxCode = string.Empty;
+                return;
             }
+
+            // 提取物流盒编号（去掉"物流盒编码"前缀）
+            var boxNo = code.Replace("物流盒编码", "").Trim();
+            var formattedCode = code.StartsWith("物流盒编码") ? code : $"物流盒编码{code}";
+            
+            // 自动查找包含该物流盒编号的规则（使用第一个匹配的规则）
+            var matchedRule = Rules?.FirstOrDefault(rule =>
+            {
+                if (string.IsNullOrWhiteSpace(rule.LogisticsBoxNos))
+                    return false;
+                
+                var ruleLogisticsBoxNos = rule.LogisticsBoxNos.Split(',')
+                    .Where(b => !string.IsNullOrWhiteSpace(b))
+                    .Select(b => b.Trim())
+                    .ToList();
+                
+                return ruleLogisticsBoxNos.Contains(boxNo);
+            });
+
+            if (matchedRule == null)
+            {
+                CustomMessageBox.ShowWarning($"未找到包含物流盒编码 {boxNo} 的规则");
+                
+                // 记录报警
+                _alarmRecordService.RecordAlarmAsync(
+                    alarmTitle: "未找到匹配规则",
+                    alarmMessage: $"未找到包含物流盒编码 {boxNo} 的规则，无法分配检测室",
+                    remark: $"物流盒编码: {formattedCode}"
+                );
+                
+                LogisticsBoxCode = string.Empty;
+                return;
+            }
+
+            // 检查是否已存在未完成的任务（同一物流盒编码只能有一个未完成任务）
+            var existingTask = Tasks?.FirstOrDefault(t => t.LogisticsBoxCode == formattedCode);
+            if (existingTask != null)
+            {
+                // 检查任务的分配检测室状态是否为"检测完成"
+                string assignedRoomStatus = GetRoomStatusByRoomId(existingTask, existingTask.AssignedRoomId ?? 0);
+                if (assignedRoomStatus != "检测完成")
+                {
+                    // 任务未完成，不允许创建新任务
+                    CustomMessageBox.ShowWarning($"物流盒编码 {boxNo} 已存在未完成的任务（状态：{assignedRoomStatus}），无法重复上线");
+                    
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "重复上线被阻止",
+                        alarmMessage: $"物流盒编码 {boxNo} 已存在未完成的任务（状态：{assignedRoomStatus}），系统已阻止重复上线",
+                        remark: $"物流盒编码: {formattedCode}, 任务状态: {assignedRoomStatus}"
+                    );
+                    
+                    LogisticsBoxCode = string.Empty;
+                    return;
+                }
+                // 如果任务已完成，允许创建新任务（物流盒重新上线）
+            }
+
+            // 根据规则找到对应的检测室列表
+            var ruleDetectionRoomNames = matchedRule.DetectionRooms?.Split(',')
+                .Where(r => !string.IsNullOrWhiteSpace(r))
+                .Select(r => r.Trim())
+                .ToList() ?? new List<string>();
+
+            if (ruleDetectionRoomNames.Count == 0)
+            {
+                CustomMessageBox.ShowWarning($"规则 {matchedRule.RuleName} 中未配置检测室");
+                
+                // 记录报警
+                _alarmRecordService.RecordAlarmAsync(
+                    alarmTitle: "规则未配置检测室",
+                    alarmMessage: $"规则 {matchedRule.RuleName} 中未配置检测室，无法分配检测任务",
+                    remark: $"规则编号: {matchedRule.RuleNo}, 物流盒编码: {formattedCode}"
+                );
+                
+                LogisticsBoxCode = string.Empty;
+                return;
+            }
+
+            // 在录入时做卡控：检查所有匹配的检测室，只允许有三个"未检测"状态的物流盒上线
+            // 查找匹配规则的所有检测室
+            var matchedRooms = DetectionRooms?.Where(room =>
+            {
+                // 检查检测室是否在规则中
+                return ruleDetectionRoomNames.Any(name => 
+                    room.RoomName == name || 
+                    room.RoomNo == name ||
+                    room.RoomName.Contains(name) ||
+                    name.Contains(room.RoomName));
+            }).ToList() ?? new List<Models.DetectionRoomItem>();
+
+            if (matchedRooms.Count == 0)
+            {
+                CustomMessageBox.ShowWarning($"未找到匹配的检测室");
+                LogisticsBoxCode = string.Empty;
+                return;
+            }
+
+            // 检查每个匹配的检测室的"未检测"数量，找出有空位的检测室
+            var availableRooms = new List<Models.DetectionRoomItem>();
+            var fullRooms = new List<string>();
+
+            foreach (var room in matchedRooms)
+            {
+                // 统计该检测室当前"未检测"的数量（只统计"未检测"状态）
+                int undetectedCount = Tasks?.Count(task =>
+                    task.AssignedRoomId == room.Id &&
+                    GetRoomStatusByRoomId(task, room.Id) == "未检测"
+                ) ?? 0;
+
+                if (undetectedCount < 3)
+                {
+                    availableRooms.Add(room);
+                }
+                else
+                {
+                    fullRooms.Add(room.RoomName);
+                }
+            }
+
+            // 如果所有匹配的检测室都满了（每个检测室都有3个"未检测"状态），则不允许上线
+            if (availableRooms.Count == 0)
+            {
+                // 所有检测室都满了，提示警告不允许上线
+                string fullRoomsText = string.Join("、", fullRooms);
+                CustomMessageBox.ShowWarning(
+                    $"警告：{fullRoomsText}检测室物流盒已满（每个检测室最多允许3个\"未检测\"状态的物流盒）！\n\n" +
+                    $"请等待检测完成后再录入新的物流盒编码。", "上线卡控警告");
+                
+                // 记录报警
+                _alarmRecordService.RecordAlarmAsync(
+                    alarmTitle: "检测室物流盒已满-上线被阻止",
+                    alarmMessage: $"{fullRoomsText}检测室物流盒已满（每个检测室最多允许3个\"未检测\"状态的物流盒），系统已阻止上线",
+                    remark: $"物流盒编码: {formattedCode}, 匹配的检测室: {string.Join("、", fullRooms)}"
+                );
+                
+                LogisticsBoxCode = string.Empty;
+                return;
+            }
+
+            // 选择第一个有空位的检测室
+            var availableRoom = availableRooms.First();
+
+            // 在创建任务之前，再次检查检测室是否还有空位（防止并发情况）
+            int finalUndetectedCount = Tasks?.Count(task =>
+                task.AssignedRoomId == availableRoom.Id &&
+                GetRoomStatusByRoomId(task, availableRoom.Id) == "未检测"
+            ) ?? 0;
+
+            if (finalUndetectedCount >= 3)
+            {
+                // 检测室已满，提示警告不允许上线
+                CustomMessageBox.ShowWarning(
+                    $"警告：{availableRoom.RoomName}检测室物流盒已满（当前有{finalUndetectedCount}个\"未检测\"状态的物流盒，最多允许3个）！\n\n" +
+                    $"请等待检测完成后再录入新的物流盒编码。", "上线卡控警告");
+                
+                // 记录报警
+                _alarmRecordService.RecordAlarmAsync(
+                    alarmTitle: "检测室物流盒已满-上线被阻止",
+                    alarmMessage: $"{availableRoom.RoomName}检测室物流盒已满（当前有{finalUndetectedCount}个\"未检测\"状态的物流盒），系统已阻止上线",
+                    roomId: availableRoom.Id,
+                    roomName: availableRoom.RoomName,
+                    remark: $"物流盒编码: {formattedCode}"
+                );
+                
+                LogisticsBoxCode = string.Empty;
+                return;
+            }
+
+            // 创建任务项
+            var taskId = (int)(DateTime.Now - new DateTime(1970, 1, 1)).TotalSeconds;
+            var newTask = new Models.TaskItem
+            {
+                Id = taskId,
+                LogisticsBoxCode = formattedCode,
+                AssignedRoomId = availableRoom.Id,
+                InspectorName = _currentUserService?.CurrentUser?.EmployeeNo ?? "", // 设置当前登录用户的工号
+                StartTime = DateTime.Now,
+                RoomScanCounts = new Dictionary<int, int>()
+            };
+
+            // 设置对应检测室状态为"未检测"，其他为空白
+            SetRoomStatusByRoomId(newTask, availableRoom.Id, "未检测");
+
+            // 添加到任务列表
+            if (Tasks == null)
+            {
+                Tasks = new ObservableCollection<Models.TaskItem>();
+            }
+            Tasks.Insert(0, newTask); // 插入到最前面
+
+            // 注意：手动录入的物流盒不应该添加到检测室的 Boxes 列表
+            // 检测室的 Boxes 列表只应该显示通过检测室扫码器扫码匹配的物流盒
+
+            // 添加到录入信息列表
+            if (!LogisticsBoxList.Contains(formattedCode))
+            {
+                LogisticsBoxList.Add(formattedCode);
+            }
+
+            // 异步记录日志（不阻塞UI）
+            _ = Task.Run(async () =>
+            {
+                await _detectionLogService.AddLogAsync(new DetectionLogItem
+                {
+                    LogisticsBoxCode = formattedCode,
+                    RoomId = availableRoom.Id,
+                    RoomName = availableRoom.RoomName,
+                    Status = "未检测",
+                    CreateTime = DateTime.Now
+                });
+            });
+
+            LogisticsBoxCode = string.Empty;
+        }
+
+        // 根据检测室ID获取状态
+        private string GetRoomStatusByRoomId(Models.TaskItem task, int roomId)
+        {
+            if (roomId == 1) return task.Room1Status;
+            if (roomId == 2) return task.Room2Status;
+            if (roomId == 3) return task.Room3Status;
+            if (roomId == 4) return task.Room4Status;
+            if (roomId == 5) return task.Room5Status;
+            return null;
+        }
+
+        // 根据检测室ID设置状态
+        private void SetRoomStatusByRoomId(Models.TaskItem task, int roomId, string status)
+        {
+            if (roomId == 1) task.Room1Status = status;
+            else if (roomId == 2) task.Room2Status = status;
+            else if (roomId == 3) task.Room3Status = status;
+            else if (roomId == 4) task.Room4Status = status;
+            else if (roomId == 5) task.Room5Status = status;
         }
 
         private void AutoAssignToRoom(string boxCode)
@@ -500,6 +826,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     if (!retracted)
                     {
                         System.Diagnostics.Debug.WriteLine($"[控制逻辑] 推箱气缸收缩超时 - 检测室: {roomName}");
+                        // 记录报警
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "推箱气缸收缩超时",
+                            alarmMessage: $"检测室 {roomName} 推箱气缸收缩操作超时，未收到反馈信号",
+                            roomId: roomId,
+                            roomName: roomName,
+                            deviceName: "推箱气缸",
+                            remark: $"超时时间: {room.PushCylinderRetractTimeout}ms"
+                        );
                         // 尝试恢复阻挡气缸（如果已经收缩了）
                         try
                         {
@@ -532,6 +867,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     if (!retracted)
                     {
                         System.Diagnostics.Debug.WriteLine($"[控制逻辑] 推箱气缸收缩失败，禁止放行 - 检测室: {roomName}");
+                        // 记录报警
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "推箱气缸收缩失败",
+                            alarmMessage: $"检测室 {roomName} 推箱气缸收缩失败，禁止放行（安全卡控）",
+                            roomId: roomId,
+                            roomName: roomName,
+                            deviceName: "推箱气缸",
+                            remark: "安全卡控验证失败，系统已阻止放行"
+                        );
                         // 尝试恢复阻挡气缸（如果已经收缩了）
                         try
                         {
@@ -597,6 +941,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     if (!pushExtended)
                     {
                         System.Diagnostics.Debug.WriteLine($"[控制逻辑] 推箱气缸伸出超时 - 检测室: {roomName}");
+                        // 记录报警
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "推箱气缸伸出超时",
+                            alarmMessage: $"检测室 {roomName} 推箱气缸伸出操作超时，未收到反馈信号",
+                            roomId: roomId,
+                            roomName: roomName,
+                            deviceName: "推箱气缸",
+                            remark: $"超时时间: {room.PushCylinderExtendTimeout}ms, 物流盒编码: {scanData}"
+                        );
                         // 推箱超时也要恢复阻挡气缸
                         await ControlCylinderAsync(blockingCylinderExtendAddress, blockingCylinderRetractAddress, true, blockingCylinderExtendFeedbackAddress, true, room.BlockingCylinderExtendTimeout);
                         return;
@@ -616,6 +969,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     if (!blockingExtended)
                     {
                         System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸伸出超时 - 检测室: {roomName}");
+                        // 记录报警
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "阻挡气缸伸出超时",
+                            alarmMessage: $"检测室 {roomName} 阻挡气缸伸出操作超时，未收到反馈信号（匹配流程）",
+                            roomId: roomId,
+                            roomName: roomName,
+                            deviceName: "阻挡气缸",
+                            remark: $"超时时间: {room.BlockingCylinderExtendTimeout}ms, 物流盒编码: {scanData}"
+                        );
                     }
                     else
                     {
@@ -627,6 +989,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 else
                 {
                     System.Diagnostics.Debug.WriteLine($"[控制逻辑] 传感器检测超时，未检测到物流盒 - 检测室: {roomName}");
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "传感器检测超时",
+                        alarmMessage: $"检测室 {roomName} 传感器检测超时，未检测到物流盒",
+                        roomId: roomId,
+                        roomName: roomName,
+                        deviceName: "传感器",
+                        remark: $"超时时间: {room.SensorDetectTimeout}ms, 物流盒编码: {scanData}"
+                    );
                     // 超时后也要恢复阻挡气缸
                     bool blockingExtended = await ControlCylinderAsync(
                         blockingCylinderExtendAddress, 
@@ -650,6 +1021,14 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[控制逻辑] 处理匹配扫码失败 - 检测室: {roomName}, 错误: {ex.Message}");
+                // 记录报警
+                _alarmRecordService.RecordAlarmAsync(
+                    alarmTitle: "匹配流程处理异常",
+                    alarmMessage: $"检测室 {roomName} 匹配流程处理失败：{ex.Message}",
+                    roomId: roomId,
+                    roomName: roomName,
+                    remark: $"异常类型: {ex.GetType().Name}, 堆栈: {ex.StackTrace}"
+                );
                 // 异常时恢复设备到安全状态
                 await RestoreRoomToSafeStateAsync(roomId, roomName, true);
             }
@@ -733,6 +1112,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     if (!extended)
                     {
                         System.Diagnostics.Debug.WriteLine($"[控制逻辑] 推箱气缸伸出超时 - 检测室: {roomName}");
+                        // 记录报警
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "推箱气缸伸出超时",
+                            alarmMessage: $"检测室 {roomName} 推箱气缸伸出操作超时，未收到反馈信号（不匹配流程）",
+                            roomId: roomId,
+                            roomName: roomName,
+                            deviceName: "推箱气缸",
+                            remark: $"超时时间: {room.PushCylinderExtendTimeout}ms"
+                        );
                         // 尝试恢复阻挡气缸（如果已经收缩了）
                         try
                         {
@@ -765,6 +1153,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     if (!extended)
                     {
                         System.Diagnostics.Debug.WriteLine($"[控制逻辑] 推箱气缸伸出失败，禁止放行 - 检测室: {roomName}");
+                        // 记录报警
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "推箱气缸伸出失败",
+                            alarmMessage: $"检测室 {roomName} 推箱气缸伸出失败，禁止放行（安全卡控-不匹配流程）",
+                            roomId: roomId,
+                            roomName: roomName,
+                            deviceName: "推箱气缸",
+                            remark: "安全卡控验证失败，系统已阻止放行"
+                        );
                         // 尝试恢复阻挡气缸（如果已经收缩了）
                         try
                         {
@@ -794,6 +1191,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 if (!blockingRetracted)
                 {
                     System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸收缩超时 - 检测室: {roomName}");
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "阻挡气缸收缩超时",
+                        alarmMessage: $"检测室 {roomName} 阻挡气缸收缩操作超时，未收到反馈信号（不匹配流程）",
+                        roomId: roomId,
+                        roomName: roomName,
+                        deviceName: "阻挡气缸",
+                        remark: $"超时时间: {room.BlockingCylinderRetractTimeout}ms"
+                    );
                     // 尝试恢复阻挡气缸（等待反馈，确保恢复到安全状态）
                     await ControlCylinderAsync(blockingCylinderExtendAddress, blockingCylinderRetractAddress, true, blockingCylinderExtendFeedbackAddress, true, room.BlockingCylinderExtendTimeout);
                     return;
@@ -818,6 +1224,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 if (!blockingExtended)
                 {
                     System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸伸出超时 - 检测室: {roomName}");
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "阻挡气缸伸出超时",
+                        alarmMessage: $"检测室 {roomName} 阻挡气缸伸出操作超时，未收到反馈信号（不匹配流程恢复）",
+                        roomId: roomId,
+                        roomName: roomName,
+                        deviceName: "阻挡气缸",
+                        remark: $"超时时间: {room.BlockingCylinderExtendTimeout}ms"
+                    );
                 }
                 else
                 {
@@ -908,9 +1323,14 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             {
                 if (!_s7Service.IsConnected)
                 {
-                    System.Windows.MessageBox.Show("PLC未连接，无法执行初始化", "提示", 
-                        System.Windows.MessageBoxButton.OK, 
-                        System.Windows.MessageBoxImage.Warning);
+                    CustomMessageBox.ShowWarning("PLC未连接，无法执行初始化");
+                    
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "PLC未连接",
+                        alarmMessage: "PLC未连接，无法执行初始化操作"
+                    );
+                    
                     return;
                 }
 
@@ -919,30 +1339,41 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 // 根据结果显示不同的提示消息
                 if (failCount == 0)
                 {
-                    System.Windows.MessageBox.Show($"所有检测室初始化成功！\n成功: {successCount} 个", "初始化完成", 
-                        System.Windows.MessageBoxButton.OK, 
-                        System.Windows.MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation($"所有检测室初始化成功！\n成功: {successCount} 个", "初始化完成");
                 }
                 else if (successCount > 0)
                 {
                     string failedRoomsText = string.Join("、", failedRooms);
-                    System.Windows.MessageBox.Show($"初始化部分成功\n成功: {successCount} 个\n失败: {failCount} 个\n失败的检测室: {failedRoomsText}", "初始化结果", 
-                        System.Windows.MessageBoxButton.OK, 
-                        System.Windows.MessageBoxImage.Warning);
+                    CustomMessageBox.ShowWarning($"初始化部分成功\n成功: {successCount} 个\n失败: {failCount} 个\n失败的检测室: {failedRoomsText}", "初始化结果");
                 }
                 else
                 {
                     string failedRoomsText = string.Join("、", failedRooms);
-                    System.Windows.MessageBox.Show($"所有检测室初始化失败！\n失败的检测室: {failedRoomsText}\n\n请检查：\n1. PLC连接状态\n2. 反馈地址配置是否正确\n3. 气缸是否正常工作", "初始化失败", 
-                        System.Windows.MessageBoxButton.OK, 
-                        System.Windows.MessageBoxImage.Error);
+                    CustomMessageBox.ShowError($"所有检测室初始化失败！\n失败的检测室: {failedRoomsText}\n\n请检查：\n1. PLC连接状态\n2. 反馈地址配置是否正确\n3. 气缸是否正常工作", "初始化失败");
+                    
+                    // 记录报警
+                    foreach (var failedRoom in failedRooms)
+                    {
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "检测室初始化失败",
+                            alarmMessage: $"检测室 {failedRoom} 初始化失败，无法获取气缸反馈信号",
+                            roomName: failedRoom,
+                            deviceName: "气缸系统",
+                            remark: "请检查PLC连接状态、反馈地址配置和气缸是否正常工作"
+                        );
+                    }
                 }
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"初始化失败: {ex.Message}", "错误", 
-                    System.Windows.MessageBoxButton.OK, 
-                    System.Windows.MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"初始化失败: {ex.Message}");
+                
+                // 记录报警
+                _alarmRecordService.RecordAlarmAsync(
+                    alarmTitle: "初始化过程异常",
+                    alarmMessage: $"初始化过程发生异常：{ex.Message}",
+                    remark: $"异常类型: {ex.GetType().Name}, 堆栈: {ex.StackTrace}"
+                );
             }
             finally
             {
@@ -971,6 +1402,14 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     string.IsNullOrWhiteSpace(room.Cylinder2ExtendAddress))
                 {
                     System.Diagnostics.Debug.WriteLine($"[初始化] 检测室 {roomName} 未配置PLC控制地址，跳过初始化");
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "检测室配置不完整",
+                        alarmMessage: $"检测室 {roomName} 未配置PLC控制地址，无法执行初始化",
+                        roomId: roomId,
+                        roomName: roomName,
+                        remark: "缺少PLC控制地址配置"
+                    );
                     return false;
                 }
                 
@@ -979,6 +1418,14 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     string.IsNullOrWhiteSpace(room.Cylinder2RetractFeedbackAddress))
                 {
                     System.Diagnostics.Debug.WriteLine($"[初始化] 检测室 {roomName} 未配置反馈地址，无法确认初始化是否成功");
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "检测室配置不完整",
+                        alarmMessage: $"检测室 {roomName} 未配置反馈地址，无法确认初始化是否成功",
+                        roomId: roomId,
+                        roomName: roomName,
+                        remark: $"缺少反馈地址配置，无法执行初始化"
+                    );
                     return false;
                 }
 
@@ -1009,6 +1456,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 else
                 {
                     System.Diagnostics.Debug.WriteLine($"[初始化] 阻挡气缸伸出超时或未到位 - 检测室: {roomName}");
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "检测室初始化失败-阻挡气缸",
+                        alarmMessage: $"检测室 {roomName} 初始化失败：阻挡气缸伸出超时或未到位",
+                        roomId: roomId,
+                        roomName: roomName,
+                        deviceName: "阻挡气缸",
+                        remark: $"超时时间: {room.BlockingCylinderExtendTimeout}ms"
+                    );
                 }
 
                 // 2. 推箱气缸初始为收缩状态（等待反馈到位，确保初始化成功）
@@ -1028,6 +1484,15 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 else
                 {
                     System.Diagnostics.Debug.WriteLine($"[初始化] 推箱气缸收缩超时或未到位 - 检测室: {roomName}");
+                    // 记录报警
+                    _alarmRecordService.RecordAlarmAsync(
+                        alarmTitle: "检测室初始化失败-推箱气缸",
+                        alarmMessage: $"检测室 {roomName} 初始化失败：推箱气缸收缩超时或未到位",
+                        roomId: roomId,
+                        roomName: roomName,
+                        deviceName: "推箱气缸",
+                        remark: $"超时时间: {room.PushCylinderRetractTimeout}ms"
+                    );
                 }
 
                 // 只有两个气缸都收到反馈才算初始化成功

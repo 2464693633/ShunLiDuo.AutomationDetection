@@ -405,6 +405,39 @@ namespace ShunLiDuo.AutomationDetection.Data
                     FOREIGN KEY (RoomId) REFERENCES DetectionRooms(Id)
                 );";
 
+            // 创建检测日志表
+            string createDetectionLogsTable = @"
+                CREATE TABLE IF NOT EXISTS DetectionLogs (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    LogisticsBoxCode TEXT NOT NULL,
+                    RoomId INTEGER,
+                    RoomName TEXT,
+                    Status TEXT NOT NULL,
+                    StartTime DATETIME,
+                    EndTime DATETIME,
+                    CreateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    Remark TEXT,
+                    FOREIGN KEY (RoomId) REFERENCES DetectionRooms(Id)
+                );";
+
+            // 创建报警记录表
+            string createAlarmRecordsTable = @"
+                CREATE TABLE IF NOT EXISTS AlarmRecords (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    AlarmCode TEXT NOT NULL UNIQUE,
+                    AlarmTitle TEXT NOT NULL,
+                    AlarmMessage TEXT,
+                    RoomId INTEGER,
+                    RoomName TEXT,
+                    DeviceName TEXT,
+                    Status TEXT DEFAULT '未处理',
+                    CreateTime DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    HandleTime DATETIME,
+                    Handler TEXT,
+                    Remark TEXT,
+                    FOREIGN KEY (RoomId) REFERENCES DetectionRooms(Id)
+                );";
+
             using (var command = Connection.CreateCommand())
             {
                 command.CommandText = createRulesTable;
@@ -431,6 +464,14 @@ namespace ShunLiDuo.AutomationDetection.Data
 
                 // 创建PLC监控配置表
                 command.CommandText = createPlcMonitorConfigTable;
+                command.ExecuteNonQuery();
+
+                // 创建检测日志表
+                command.CommandText = createDetectionLogsTable;
+                command.ExecuteNonQuery();
+
+                // 创建报警记录表
+                command.CommandText = createAlarmRecordsTable;
                 command.ExecuteNonQuery();
             }
 
@@ -581,16 +622,7 @@ namespace ShunLiDuo.AutomationDetection.Data
 
         private void InitializeDefaultAdmin()
         {
-            // 检查是否已有admin账号
-            using (var checkAccountCommand = Connection.CreateCommand())
-            {
-                checkAccountCommand.CommandText = "SELECT COUNT(*) FROM Accounts WHERE LoginAccount = 'admin'";
-                var accountCount = Convert.ToInt32(checkAccountCommand.ExecuteScalar());
-                if (accountCount > 0)
-                {
-                    return; // 已有admin账号，不需要初始化
-                }
-            }
+            var now = DateTime.Now;
 
             // 获取所有权限代码
             var allPermissionCodes = new List<string>();
@@ -610,9 +642,8 @@ namespace ShunLiDuo.AutomationDetection.Data
             }
 
             var allPermissionsString = string.Join(",", allPermissionCodes);
-            var now = DateTime.Now;
 
-            // 检查是否已有管理员角色
+            // 检查是否已有管理员角色，如果没有则创建
             int adminRoleId = 0;
             using (var checkRoleCommand = Connection.CreateCommand())
             {
@@ -636,7 +667,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 }
                 else
                 {
-                    // 创建管理员角色
+                    // 创建管理员角色（即使没有权限数据也要创建）
                     using (var roleCommand = Connection.CreateCommand())
                     {
                         roleCommand.CommandText = @"
@@ -656,26 +687,49 @@ namespace ShunLiDuo.AutomationDetection.Data
                 }
             }
 
-            // 创建admin账号
-            using (var accountCommand = Connection.CreateCommand())
+            // 检查是否已有admin账号，如果没有则创建
+            using (var checkAccountCommand = Connection.CreateCommand())
             {
-                accountCommand.CommandText = @"
-                    INSERT INTO Accounts (AccountNo, LoginAccount, Password, Name, Gender, Phone, EmployeeNo, RoleId, Remark, CreateTime, UpdateTime)
-                    VALUES (@AccountNo, @LoginAccount, @Password, @Name, @Gender, @Phone, @EmployeeNo, @RoleId, @Remark, @CreateTime, @UpdateTime)";
+                checkAccountCommand.CommandText = "SELECT COUNT(*) FROM Accounts WHERE LoginAccount = 'admin'";
+                var accountCount = Convert.ToInt32(checkAccountCommand.ExecuteScalar());
+                if (accountCount == 0)
+                {
+                    // 创建admin账号
+                    using (var accountCommand = Connection.CreateCommand())
+                    {
+                        accountCommand.CommandText = @"
+                            INSERT INTO Accounts (AccountNo, LoginAccount, Password, Name, Gender, Phone, EmployeeNo, RoleId, Remark, CreateTime, UpdateTime)
+                            VALUES (@AccountNo, @LoginAccount, @Password, @Name, @Gender, @Phone, @EmployeeNo, @RoleId, @Remark, @CreateTime, @UpdateTime)";
 
-                accountCommand.Parameters.AddWithValue("@AccountNo", "ADMIN001");
-                accountCommand.Parameters.AddWithValue("@LoginAccount", "admin");
-                accountCommand.Parameters.AddWithValue("@Password", "123");
-                accountCommand.Parameters.AddWithValue("@Name", "管理员");
-                accountCommand.Parameters.AddWithValue("@Gender", DBNull.Value);
-                accountCommand.Parameters.AddWithValue("@Phone", DBNull.Value);
-                accountCommand.Parameters.AddWithValue("@EmployeeNo", "ADMIN001");
-                accountCommand.Parameters.AddWithValue("@RoleId", adminRoleId);
-                accountCommand.Parameters.AddWithValue("@Remark", "系统默认管理员账号");
-                accountCommand.Parameters.AddWithValue("@CreateTime", now);
-                accountCommand.Parameters.AddWithValue("@UpdateTime", now);
+                        accountCommand.Parameters.AddWithValue("@AccountNo", "ADMIN001");
+                        accountCommand.Parameters.AddWithValue("@LoginAccount", "admin");
+                        accountCommand.Parameters.AddWithValue("@Password", "123");
+                        accountCommand.Parameters.AddWithValue("@Name", "管理员");
+                        accountCommand.Parameters.AddWithValue("@Gender", DBNull.Value);
+                        accountCommand.Parameters.AddWithValue("@Phone", DBNull.Value);
+                        accountCommand.Parameters.AddWithValue("@EmployeeNo", "ADMIN001");
+                        accountCommand.Parameters.AddWithValue("@RoleId", adminRoleId);
+                        accountCommand.Parameters.AddWithValue("@Remark", "系统默认管理员账号");
+                        accountCommand.Parameters.AddWithValue("@CreateTime", now);
+                        accountCommand.Parameters.AddWithValue("@UpdateTime", now);
 
-                accountCommand.ExecuteNonQuery();
+                        accountCommand.ExecuteNonQuery();
+                    }
+                }
+                else
+                {
+                    // 如果admin账号已存在，确保其角色ID指向管理员角色
+                    using (var updateAccountCommand = Connection.CreateCommand())
+                    {
+                        updateAccountCommand.CommandText = @"
+                            UPDATE Accounts 
+                            SET RoleId = @RoleId, UpdateTime = @UpdateTime 
+                            WHERE LoginAccount = 'admin'";
+                        updateAccountCommand.Parameters.AddWithValue("@RoleId", adminRoleId);
+                        updateAccountCommand.Parameters.AddWithValue("@UpdateTime", now);
+                        updateAccountCommand.ExecuteNonQuery();
+                    }
+                }
             }
         }
 

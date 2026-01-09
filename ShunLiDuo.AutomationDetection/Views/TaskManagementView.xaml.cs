@@ -32,11 +32,6 @@ namespace ShunLiDuo.AutomationDetection.Views
             // 导航离开时的处理（如果需要）
         }
 
-        private void ReInspect_Click(object sender, RoutedEventArgs e)
-        {
-            MessageBox.Show("重新检测功能待实现", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
-        }
-
         private void LogisticsBoxCode_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)

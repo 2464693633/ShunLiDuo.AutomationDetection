@@ -71,8 +71,8 @@
                 <DataGridTextColumn Header="规则编号" Binding="{Binding RuleNo}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="规则名称" Binding="{Binding RuleName}" Width="160" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="检测室" Binding="{Binding DetectionRooms}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="物流盒编号" Binding="{Binding LogisticsBoxNos}" Width="160" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="物流盒编号" Binding="{Binding LogisticsBoxNos}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
             </DataGrid.Columns>
         </DataGrid>
 

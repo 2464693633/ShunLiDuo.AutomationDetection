@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.ViewModels;
 using ShunLiDuo.AutomationDetection.Models;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
@@ -42,14 +43,14 @@ namespace ShunLiDuo.AutomationDetection.Views
             var ruleItem = _viewModel.SelectedItem;
             if (ruleItem == null)
             {
-                MessageBox.Show("请选择要编辑的规则", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要编辑的规则");
                 return;
             }
 
             var rule = await _ruleService.GetRuleByIdAsync(ruleItem.Id);
             if (rule == null)
             {
-                MessageBox.Show("规则不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("规则不存在");
                 return;
             }
 
@@ -70,7 +71,7 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"加载数据失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"加载数据失败: {ex.Message}");
                 return;
             }
             
@@ -89,12 +90,12 @@ namespace ShunLiDuo.AutomationDetection.Views
                 var success = await _ruleService.UpdateRuleAsync(updatedRule);
                 if (success)
                 {
-                    MessageBox.Show("规则更新成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("规则更新成功");
                     _viewModel.LoadRulesAsync();
                 }
                 else
                 {
-                    MessageBox.Show("规则更新失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError("规则更新失败");
                 }
             }
         }
@@ -104,24 +105,23 @@ namespace ShunLiDuo.AutomationDetection.Views
             var ruleItem = _viewModel.SelectedItem;
             if (ruleItem == null)
             {
-                MessageBox.Show("请选择要删除的规则", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要删除的规则");
                 return;
             }
 
-            var result = MessageBox.Show($"确定要删除规则 '{ruleItem.RuleName}' 吗？", "确认删除", 
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = CustomMessageBox.ShowQuestion($"确定要删除规则 '{ruleItem.RuleName}' 吗？", "确认删除");
             
-            if (result == MessageBoxResult.Yes)
+            if (result == CustomMessageBoxResult.Yes)
             {
                 var success = await _ruleService.DeleteRuleAsync(ruleItem.Id);
                 if (success)
                 {
-                    MessageBox.Show("规则删除成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("规则删除成功");
                     _viewModel.LoadRulesAsync();
                 }
                 else
                 {
-                    MessageBox.Show("规则删除失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError("规则删除失败");
                 }
             }
         }
@@ -131,14 +131,14 @@ namespace ShunLiDuo.AutomationDetection.Views
             var ruleItem = _viewModel.SelectedItem;
             if (ruleItem == null)
             {
-                MessageBox.Show("请选择要查看的规则", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要查看的规则");
                 return;
             }
 
             var rule = await _ruleService.GetRuleByIdAsync(ruleItem.Id);
             if (rule == null)
             {
-                MessageBox.Show("规则不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("规则不存在");
                 return;
             }
 

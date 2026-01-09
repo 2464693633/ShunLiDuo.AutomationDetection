@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using ShunLiDuo.AutomationDetection.Data;
 using ShunLiDuo.AutomationDetection.Models;
 
@@ -8,10 +9,12 @@ namespace ShunLiDuo.AutomationDetection.Services
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _repository;
+        private readonly IPermissionRepository _permissionRepository;
 
-        public RoleService(IRoleRepository repository)
+        public RoleService(IRoleRepository repository, IPermissionRepository permissionRepository)
         {
             _repository = repository;
+            _permissionRepository = permissionRepository;
         }
 
         public async Task<List<RoleItem>> GetAllRolesAsync()
@@ -61,6 +64,14 @@ namespace ShunLiDuo.AutomationDetection.Services
             if (role == null || role.Id <= 0 || string.IsNullOrWhiteSpace(role.RoleName))
             {
                 return false;
+            }
+
+            // 如果角色是管理员，确保其拥有所有权限
+            if (role.RoleName == "管理员")
+            {
+                var allPermissions = await _permissionRepository.GetAllPermissionsAsync();
+                var allPermissionCodes = allPermissions.Select(p => p.Code).ToList();
+                role.Permissions = string.Join(",", allPermissionCodes);
             }
 
             return await _repository.UpdateRoleAsync(role);

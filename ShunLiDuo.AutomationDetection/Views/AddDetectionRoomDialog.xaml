@@ -28,14 +28,14 @@
     </Window.Resources>
     
     <Border Background="White" 
-            CornerRadius="8" 
+            CornerRadius="12" 
             BorderBrush="{StaticResource BorderBrush}" 
             BorderThickness="1">
         <Border.Effect>
             <DropShadowEffect Color="#40000000" 
-                             BlurRadius="10" 
-                             ShadowDepth="3" 
-                             Opacity="0.5"/>
+                             BlurRadius="20" 
+                             ShadowDepth="5" 
+                             Opacity="0.3"/>
         </Border.Effect>
         <Grid>
             <Grid.RowDefinitions>
@@ -47,7 +47,7 @@
             <!-- 标题栏 -->
             <Border Grid.Row="0" 
                     Background="{StaticResource PrimaryBrush}" 
-                    CornerRadius="8,8,0,0">
+                    CornerRadius="12,12,0,0">
                 <Grid>
                     <TextBlock x:Name="TitleTextBlock"
                               FontSize="18" 
@@ -72,7 +72,7 @@
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="{TemplateBinding Background}" 
-                                                   CornerRadius="0,8,0,0">
+                                                   CornerRadius="0,12,0,0">
                                                 <ContentPresenter HorizontalAlignment="Center" 
                                                                 VerticalAlignment="Center"/>
                                             </Border>
@@ -93,7 +93,8 @@
             <!-- 内容区域 -->
             <ScrollViewer Grid.Row="1" 
                          VerticalScrollBarVisibility="Auto" 
-                         Margin="25">
+                         Margin="30"
+                         Padding="0,10">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -435,10 +436,11 @@
             <Border Grid.Row="2" 
                     BorderBrush="{StaticResource BorderBrush}" 
                     BorderThickness="0,1,0,0"
-                    Padding="20,15">
+                    Background="#FAFAFA"
+                    Padding="30,20">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="取消" Style="{StaticResource CancelButtonStyle}" 
-                           Click="CancelButton_Click" Margin="0,0,10,0"/>
+                           Click="CancelButton_Click" Margin="0,0,15,0"/>
                     <Button Content="确定" Style="{StaticResource ConfirmButtonStyle}" 
                            Click="ConfirmButton_Click"/>
                 </StackPanel>

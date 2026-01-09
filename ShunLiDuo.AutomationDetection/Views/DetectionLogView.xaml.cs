@@ -2,9 +2,9 @@ using System.Windows.Controls;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
-    public partial class PlcMonitorView : UserControl
+    public partial class DetectionLogView : UserControl
     {
-        public PlcMonitorView()
+        public DetectionLogView()
         {
             InitializeComponent();
         }

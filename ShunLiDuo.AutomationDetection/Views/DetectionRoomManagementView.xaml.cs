@@ -6,6 +6,7 @@ using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.ViewModels;
 using ShunLiDuo.AutomationDetection.Models;
 using Prism.Commands;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
@@ -36,14 +37,14 @@ namespace ShunLiDuo.AutomationDetection.Views
             var roomItem = _viewModel.SelectedItem;
             if (roomItem == null)
             {
-                MessageBox.Show("请选择要编辑的检测室", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要编辑的检测室");
                 return;
             }
 
             var room = await _detectionRoomService.GetRoomByIdAsync(roomItem.Id);
             if (room == null)
             {
-                MessageBox.Show("检测室不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("检测室不存在");
                 return;
             }
 
@@ -100,7 +101,7 @@ namespace ShunLiDuo.AutomationDetection.Views
                 var success = await _detectionRoomService.UpdateRoomAsync(updatedRoom);
                 if (success)
                 {
-                    MessageBox.Show("检测室更新成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("检测室更新成功");
                     _viewModel.LoadRoomsAsync();
                     
                     // 验证保存后的值
@@ -115,7 +116,7 @@ namespace ShunLiDuo.AutomationDetection.Views
                 }
                 else
                 {
-                    MessageBox.Show("检测室更新失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError("检测室更新失败");
                 }
             }
         }
@@ -125,24 +126,23 @@ namespace ShunLiDuo.AutomationDetection.Views
             var roomItem = _viewModel.SelectedItem;
             if (roomItem == null)
             {
-                MessageBox.Show("请选择要删除的检测室", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要删除的检测室");
                 return;
             }
 
-            var result = MessageBox.Show($"确定要删除检测室 '{roomItem.RoomName}' 吗？", "确认删除", 
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = CustomMessageBox.ShowQuestion($"确定要删除检测室 '{roomItem.RoomName}' 吗？", "确认删除");
             
-            if (result == MessageBoxResult.Yes)
+            if (result == CustomMessageBoxResult.Yes)
             {
                 var success = await _detectionRoomService.DeleteRoomAsync(roomItem.Id);
                 if (success)
                 {
-                    MessageBox.Show("检测室删除成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("检测室删除成功");
                     _viewModel.LoadRoomsAsync();
                 }
                 else
                 {
-                    MessageBox.Show("检测室删除失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError("检测室删除失败");
                 }
             }
         }
@@ -152,14 +152,14 @@ namespace ShunLiDuo.AutomationDetection.Views
             var roomItem = _viewModel.SelectedItem;
             if (roomItem == null)
             {
-                MessageBox.Show("请选择要查看的检测室", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要查看的检测室");
                 return;
             }
 
             var room = await _detectionRoomService.GetRoomByIdAsync(roomItem.Id);
             if (room == null)
             {
-                MessageBox.Show("检测室不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("检测室不存在");
                 return;
             }
 

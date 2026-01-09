@@ -111,10 +111,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\DeviceExceptionView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\AccountManagementView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -147,6 +143,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\CustomMessageBox.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AddRuleDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -167,7 +167,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\PlcMonitorView.xaml">
+    <Page Include="Views\DetectionLogView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -190,7 +190,6 @@
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\TaskManagementViewModel.cs" />
     <Compile Include="ViewModels\LogisticsBoxManagementViewModel.cs" />
-    <Compile Include="ViewModels\DeviceExceptionViewModel.cs" />
     <Compile Include="ViewModels\AccountManagementViewModel.cs" />
     <Compile Include="Views\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -200,9 +199,6 @@
     </Compile>
     <Compile Include="Views\LogisticsBoxManagementView.xaml.cs">
       <DependentUpon>LogisticsBoxManagementView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\DeviceExceptionView.xaml.cs">
-      <DependentUpon>DeviceExceptionView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AccountManagementView.xaml.cs">
       <DependentUpon>AccountManagementView.xaml</DependentUpon>
@@ -222,8 +218,8 @@
     <Compile Include="Views\CommunicationSettingsView.xaml.cs">
       <DependentUpon>CommunicationSettingsView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PlcMonitorView.xaml.cs">
-      <DependentUpon>PlcMonitorView.xaml</DependentUpon>
+    <Compile Include="Views\DetectionLogView.xaml.cs">
+      <DependentUpon>DetectionLogView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AddPlcMonitorConfigDialog.xaml.cs">
       <DependentUpon>AddPlcMonitorConfigDialog.xaml</DependentUpon>
@@ -236,6 +232,9 @@
     </Compile>
     <Compile Include="Views\AddDetectionRoomDialog.xaml.cs">
       <DependentUpon>AddDetectionRoomDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\CustomMessageBox.xaml.cs">
+      <DependentUpon>CustomMessageBox.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\AddRuleDialog.xaml.cs">
       <DependentUpon>AddRuleDialog.xaml</DependentUpon>
@@ -262,7 +261,8 @@
     <Compile Include="ViewModels\RoleManagementViewModel.cs" />
     <Compile Include="ViewModels\CommunicationSettingsViewModel.cs" />
     <Compile Include="ViewModels\RuleManagementViewModel.cs" />
-    <Compile Include="ViewModels\PlcMonitorViewModel.cs" />
+    <Compile Include="ViewModels\DetectionLogViewModel.cs" />
+    <Compile Include="ViewModels\DeviceAlarmViewModel.cs" />
     <Compile Include="Data\DatabaseContext.cs" />
     <Compile Include="Data\IRuleRepository.cs" />
     <Compile Include="Data\RuleRepository.cs" />
@@ -278,6 +278,12 @@
     <Compile Include="Data\PermissionRepository.cs" />
     <Compile Include="Data\IPlcMonitorConfigRepository.cs" />
     <Compile Include="Data\PlcMonitorConfigRepository.cs" />
+    <Compile Include="Data\IDetectionLogRepository.cs" />
+    <Compile Include="Data\DetectionLogRepository.cs" />
+    <Compile Include="Data\IAlarmRecordRepository.cs" />
+    <Compile Include="Data\AlarmRecordRepository.cs" />
+    <Compile Include="Data\IAlarmRecordRepository.cs" />
+    <Compile Include="Data\AlarmRecordRepository.cs" />
     <Compile Include="Services\IRuleService.cs" />
     <Compile Include="Services\RuleService.cs" />
     <Compile Include="Services\IDetectionRoomService.cs" />
@@ -300,6 +306,10 @@
     <Compile Include="Services\CommunicationConfigService.cs" />
     <Compile Include="Services\IPlcMonitorConfigService.cs" />
     <Compile Include="Services\PlcMonitorConfigService.cs" />
+    <Compile Include="Services\IDetectionLogService.cs" />
+    <Compile Include="Services\DetectionLogService.cs" />
+    <Compile Include="Services\IAlarmRecordService.cs" />
+    <Compile Include="Services\AlarmRecordService.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverterForError.cs" />
     <Compile Include="Converters\BoolToThreeStateConverter.cs" />
@@ -317,12 +327,13 @@
     <Compile Include="Models\DetectionRoomItem.cs" />
     <Compile Include="Models\RoomBoxList.cs" />
     <Compile Include="Models\RuleItem.cs" />
-    <Compile Include="Models\DeviceExceptionItem.cs" />
+    <Compile Include="Models\AlarmRecord.cs" />
     <Compile Include="Models\UserItem.cs" />
     <Compile Include="Models\RoleItem.cs" />
     <Compile Include="Models\PermissionItem.cs" />
     <Compile Include="Models\PermissionModel.cs" />
     <Compile Include="Models\PlcMonitorConfigItem.cs" />
+    <Compile Include="Models\DetectionLogItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

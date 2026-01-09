@@ -1,0 +1,146 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using ShunLiDuo.AutomationDetection.Data;
+using ShunLiDuo.AutomationDetection.Models;
+
+namespace ShunLiDuo.AutomationDetection.Services
+{
+    public class AlarmRecordService : IAlarmRecordService
+    {
+        private readonly IAlarmRecordRepository _alarmRecordRepository;
+
+        public AlarmRecordService(IAlarmRecordRepository alarmRecordRepository)
+        {
+            _alarmRecordRepository = alarmRecordRepository;
+        }
+
+        public async Task<List<AlarmRecord>> GetAllAlarmsAsync()
+        {
+            return await _alarmRecordRepository.GetAllAlarmsAsync();
+        }
+
+        public async Task<List<AlarmRecord>> SearchAlarmsAsync(string keyword, int? roomId, DateTime? startTime, DateTime? endTime)
+        {
+            return await _alarmRecordRepository.SearchAlarmsAsync(keyword, roomId, startTime, endTime);
+        }
+
+        public async Task<List<AlarmRecord>> GetUnhandledAlarmsAsync()
+        {
+            return await _alarmRecordRepository.GetUnhandledAlarmsAsync();
+        }
+
+        public async Task<AlarmRecord> GetAlarmByIdAsync(int id)
+        {
+            return await _alarmRecordRepository.GetAlarmByIdAsync(id);
+        }
+
+        public async Task<bool> AddAlarmAsync(AlarmRecord alarm)
+        {
+            if (alarm == null)
+                return false;
+
+            if (string.IsNullOrWhiteSpace(alarm.AlarmCode))
+            {
+                alarm.AlarmCode = $"AL{DateTime.Now:yyyyMMddHHmmss}{new Random().Next(1000, 9999)}";
+            }
+
+            if (string.IsNullOrWhiteSpace(alarm.Status))
+            {
+                alarm.Status = "未处理";
+            }
+
+            if (alarm.CreateTime == default(DateTime))
+            {
+                alarm.CreateTime = DateTime.Now;
+            }
+
+            try
+            {
+                await _alarmRecordRepository.InsertAlarmAsync(alarm);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[报警记录服务] 添加报警记录失败: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAlarmAsync(AlarmRecord alarm)
+        {
+            if (alarm == null)
+                return false;
+
+            try
+            {
+                return await _alarmRecordRepository.UpdateAlarmAsync(alarm);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[报警记录服务] 更新报警记录失败: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteAlarmAsync(int id)
+        {
+            try
+            {
+                return await _alarmRecordRepository.DeleteAlarmAsync(id);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[报警记录服务] 删除报警记录失败: {ex.Message}");
+                return false;
+            }
+        }
+
+        public async Task<bool> HandleAlarmAsync(int id, string handler, string remark)
+        {
+            try
+            {
+                return await _alarmRecordRepository.HandleAlarmAsync(id, handler, remark);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[报警记录服务] 处理报警记录失败: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 统一报警记录方法 - 供各个报警点调用
+        /// </summary>
+        public async Task RecordAlarmAsync(string alarmTitle, string alarmMessage,
+            int? roomId = null, string roomName = null, string deviceName = null, string remark = null)
+        {
+            var alarm = new AlarmRecord
+            {
+                AlarmTitle = alarmTitle ?? "报警",
+                AlarmMessage = alarmMessage ?? "",
+                RoomId = roomId,
+                RoomName = roomName ?? "",
+                DeviceName = deviceName ?? "",
+                Status = "未处理",
+                CreateTime = DateTime.Now,
+                Remark = remark ?? ""
+            };
+
+            // 异步记录，不阻塞调用者
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await AddAlarmAsync(alarm);
+                    System.Diagnostics.Debug.WriteLine($"[报警记录] 已记录报警: {alarmTitle} - {alarmMessage}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[报警记录] 记录报警失败: {ex.Message}");
+                }
+            });
+        }
+    }
+}
+

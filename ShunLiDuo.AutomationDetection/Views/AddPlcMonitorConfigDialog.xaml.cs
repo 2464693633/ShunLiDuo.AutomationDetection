@@ -4,6 +4,7 @@ using System.Windows;
 using Prism.DryIoc;
 using ShunLiDuo.AutomationDetection.Models;
 using ShunLiDuo.AutomationDetection.Services;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
@@ -47,7 +48,7 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"加载检测室失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"加载检测室失败: {ex.Message}");
             }
         }
 
@@ -99,7 +100,7 @@ namespace ShunLiDuo.AutomationDetection.Views
         {
             if (RoomComboBox.SelectedValue == null)
             {
-                MessageBox.Show("请选择检测室", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择检测室");
                 return;
             }
 
@@ -134,7 +135,7 @@ namespace ShunLiDuo.AutomationDetection.Views
                     var success = await _configService.UpdateConfigAsync(config);
                     if (!success)
                     {
-                        MessageBox.Show("更新配置失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.ShowError("更新配置失败");
                         return;
                     }
                 }
@@ -148,7 +149,7 @@ namespace ShunLiDuo.AutomationDetection.Views
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"保存配置失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"保存配置失败: {ex.Message}");
             }
         }
 

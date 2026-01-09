@@ -7,6 +7,7 @@ using System.Linq;
 using ShunLiDuo.AutomationDetection.Services;
 using S7.Net;
 using System;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.ViewModels
 {
@@ -208,7 +209,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             // 验证IP地址
             if (string.IsNullOrWhiteSpace(IpAddress))
             {
-                MessageBox.Show("请输入IP地址", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请输入IP地址");
                 return;
             }
 
@@ -218,13 +219,13 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             // 验证机架号和槽号
             if (string.IsNullOrWhiteSpace(Rack) || !short.TryParse(Rack, out short rack) || rack < 0)
             {
-                MessageBox.Show("请输入有效的机架号（≥0）", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请输入有效的机架号（≥0）");
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(Slot) || !short.TryParse(Slot, out short slot) || slot < 0)
             {
-                MessageBox.Show("请输入有效的槽号（≥0）", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请输入有效的槽号（≥0）");
                 return;
             }
 
@@ -241,8 +242,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     // 只在非自动连接时显示消息框（避免启动时弹出）
                     if (!AutoConnect)
                     {
-                        MessageBox.Show($"S7通讯连接成功\n\nIP地址: {IpAddress}\nPLC型号: {GetCpuTypeName(SelectedCpuType)}\n机架号: {Rack}\n槽号: {Slot}", 
-                            "连接成功", MessageBoxButton.OK, MessageBoxImage.Information);
+                        CustomMessageBox.ShowInformation($"S7通讯连接成功\n\nIP地址: {IpAddress}\nPLC型号: {GetCpuTypeName(SelectedCpuType)}\n机架号: {Rack}\n槽号: {Slot}", "连接成功");
                     }
                 }
                 else
@@ -251,7 +251,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     if (!AutoConnect)
                     {
                         string errorMessage = _s7Service.ConnectionStatus;
-                        MessageBox.Show($"S7通讯连接失败\n\n{errorMessage}", "连接失败", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.ShowError($"S7通讯连接失败\n\n{errorMessage}", "连接失败");
                     }
                 }
             }
@@ -260,7 +260,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 // 捕获其他未预期的异常，只在手动连接时显示（自动连接时静默处理）
                 if (!AutoConnect)
                 {
-                    MessageBox.Show($"连接时发生异常:\n{ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError($"连接时发生异常:\n{ex.Message}");
                 }
                 else
                 {
@@ -284,11 +284,11 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             {
                 // 使用实际的S7通讯服务断开连接
                 await _s7Service.DisconnectAsync();
-                MessageBox.Show("S7通讯已断开", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                CustomMessageBox.ShowInformation("S7通讯已断开");
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"断开连接失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"断开连接失败: {ex.Message}");
             }
             finally
             {

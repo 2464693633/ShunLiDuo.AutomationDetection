@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using ShunLiDuo.AutomationDetection.Models;
 using ShunLiDuo.AutomationDetection.Services;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.ViewModels
 {
@@ -64,8 +65,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             }
             catch (System.Exception ex)
             {
-                System.Windows.MessageBox.Show($"加载权限失败: {ex.Message}", "错误", 
-                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"加载权限失败: {ex.Message}");
             }
         }
 

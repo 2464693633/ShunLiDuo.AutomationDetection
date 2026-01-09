@@ -6,6 +6,7 @@ using ShunLiDuo.AutomationDetection.ViewModels;
 using ShunLiDuo.AutomationDetection.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
@@ -35,14 +36,14 @@ namespace ShunLiDuo.AutomationDetection.Views
             var boxItem = _viewModel.SelectedItem;
             if (boxItem == null)
             {
-                MessageBox.Show("请选择要编辑的物流盒", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要编辑的物流盒");
                 return;
             }
 
             var box = await _logisticsBoxService.GetBoxByIdAsync(boxItem.Id);
             if (box == null)
             {
-                MessageBox.Show("物流盒不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("物流盒不存在");
                 return;
             }
 
@@ -63,12 +64,12 @@ namespace ShunLiDuo.AutomationDetection.Views
                 var success = await _logisticsBoxService.UpdateBoxAsync(updatedBox);
                 if (success)
                 {
-                    MessageBox.Show("物流盒更新成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("物流盒更新成功");
                     _viewModel.LoadBoxesAsync();
                 }
                 else
                 {
-                    MessageBox.Show("物流盒更新失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError("物流盒更新失败");
                 }
             }
         }
@@ -78,24 +79,23 @@ namespace ShunLiDuo.AutomationDetection.Views
             var boxItem = _viewModel.SelectedItem;
             if (boxItem == null)
             {
-                MessageBox.Show("请选择要删除的物流盒", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要删除的物流盒");
                 return;
             }
 
-            var result = MessageBox.Show($"确定要删除物流盒 '{boxItem.BoxName}' 吗？", "确认删除", 
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            var result = CustomMessageBox.ShowQuestion($"确定要删除物流盒 '{boxItem.BoxName}' 吗？", "确认删除");
             
-            if (result == MessageBoxResult.Yes)
+            if (result == CustomMessageBoxResult.Yes)
             {
                 var success = await _logisticsBoxService.DeleteBoxAsync(boxItem.Id);
                 if (success)
                 {
-                    MessageBox.Show("物流盒删除成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("物流盒删除成功");
                     _viewModel.LoadBoxesAsync();
                 }
                 else
                 {
-                    MessageBox.Show("物流盒删除失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError("物流盒删除失败");
                 }
             }
         }
@@ -105,14 +105,14 @@ namespace ShunLiDuo.AutomationDetection.Views
             var boxItem = _viewModel.SelectedItem;
             if (boxItem == null)
             {
-                MessageBox.Show("请选择要查看的物流盒", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要查看的物流盒");
                 return;
             }
 
             var box = await _logisticsBoxService.GetBoxByIdAsync(boxItem.Id);
             if (box == null)
             {
-                MessageBox.Show("物流盒不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("物流盒不存在");
                 return;
             }
 

@@ -137,6 +137,10 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             if (string.IsNullOrEmpty(permissionCode))
                 return false;
             
+            // 管理员拥有全部权限
+            if (_currentUserService?.CurrentUser != null && _currentUserService.CurrentUser.Role == "管理员")
+                return true;
+            
             // 检查是否有精确匹配的权限
             if (_userPermissions.Contains(permissionCode))
                 return true;
@@ -170,8 +174,8 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 CurrentMainView = "AlarmView";
                 IsLeftNavVisible = true;
                 CurrentBottomNav = "Alarm";
-                CurrentLeftNav = "DeviceException";
-                NavigateTo("DeviceExceptionView");
+                CurrentLeftNav = "DeviceAlarm";
+                NavigateTo("DeviceAlarmView");
             });
             
             NavigateToSystemSettingsCommand = new DelegateCommand(() => 
@@ -199,11 +203,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 CurrentLeftNav = "RuleManagement";
                 NavigateTo("RuleManagementView");
             });
-            NavigateToDeviceExceptionCommand = new DelegateCommand(() => 
-            {
-                CurrentLeftNav = "DeviceException";
-                NavigateTo("DeviceExceptionView");
-            });
             NavigateToDeviceAlarmCommand = new DelegateCommand(() => 
             {
                 CurrentLeftNav = "DeviceAlarm";
@@ -224,13 +223,13 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 CurrentLeftNav = "CommunicationSettings";
                 NavigateTo("CommunicationSettingsView");
             });
-            NavigateToPlcMonitorCommand = new DelegateCommand(() => 
+            NavigateToDetectionLogCommand = new DelegateCommand(() => 
             {
-                CurrentMainView = "PlcMonitorView";
+                CurrentMainView = "DetectionLogView";
                 IsLeftNavVisible = false;
-                CurrentBottomNav = "PlcMonitor";
+                CurrentBottomNav = "DetectionLog";
                 CurrentLeftNav = "";
-                NavigateTo("PlcMonitorView");
+                NavigateTo("DetectionLogView");
             });
         }
 
@@ -289,12 +288,11 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         public DelegateCommand NavigateToLogisticsBoxCommand { get; private set; }
         public DelegateCommand NavigateToDetectionRoomCommand { get; private set; }
         public DelegateCommand NavigateToRuleManagementCommand { get; private set; }
-        public DelegateCommand NavigateToDeviceExceptionCommand { get; private set; }
         public DelegateCommand NavigateToDeviceAlarmCommand { get; private set; }
         public DelegateCommand NavigateToAccountManagementCommand { get; private set; }
         public DelegateCommand NavigateToRoleManagementCommand { get; private set; }
         public DelegateCommand NavigateToCommunicationSettingsCommand { get; private set; }
-        public DelegateCommand NavigateToPlcMonitorCommand { get; private set; }
+        public DelegateCommand NavigateToDetectionLogCommand { get; private set; }
         
         // 权限可见性属性
         public bool CanAccessRuleManagement

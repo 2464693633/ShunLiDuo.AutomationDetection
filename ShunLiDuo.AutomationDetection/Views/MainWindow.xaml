@@ -322,39 +322,6 @@
                         
                         <!-- 报警与异常菜单 -->
                         <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=AlarmView}">
-                            <Button Tag="DeviceException" 
-                                    Command="{Binding NavigateToDeviceExceptionCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
-                                    HorizontalContentAlignment="Left"
-                                    MinHeight="56">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                   
-                                    <TextBlock Text="设备异常" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
                             <Button Tag="DeviceAlarm" 
                                     Command="{Binding NavigateToDeviceAlarmCommand}" 
                                     Margin="0,12"
@@ -574,6 +541,35 @@
                         <TextBlock Text="调度规则" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+
+                <Button Tag="DetectionLog" 
+         Command="{Binding NavigateToDetectionLogCommand}" 
+         Padding="30,20"
+         Margin="30,0"
+         MinHeight="70"
+         VerticalAlignment="Center">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                            <Style.Triggers>
+                                <DataTrigger Value="True">
+                                    <DataTrigger.Binding>
+                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                            <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                        </MultiBinding>
+                                    </DataTrigger.Binding>
+                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <Setter Property="Foreground" Value="White"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <StackPanel Orientation="Horizontal">
+
+                        <TextBlock Text="检测历史" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
                 <Button Tag="Alarm" 
                         Command="{Binding NavigateToAlarmCommand}" 
                         Padding="30,20"
@@ -601,6 +597,9 @@
                         <TextBlock Text="报警与异常" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
+
+               
+
                 <Button Tag="SystemSettings" 
                         Command="{Binding NavigateToSystemSettingsCommand}" 
                         Padding="30,20"
@@ -628,33 +627,7 @@
                         <TextBlock Text="系统设置" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Button>
-                <Button Tag="PlcMonitor" 
-                        Command="{Binding NavigateToPlcMonitorCommand}" 
-                        Padding="30,20"
-                        Margin="30,0"
-                        MinHeight="70"
-                        VerticalAlignment="Center">
-                    <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                            <Style.Triggers>
-                                <DataTrigger Value="True">
-                                    <DataTrigger.Binding>
-                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                            <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                        </MultiBinding>
-                                    </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <StackPanel Orientation="Horizontal">
-                       
-                        <TextBlock Text="设备监控" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </StackPanel>
-                </Button>
+               
             </StackPanel>
         </materialDesign:ColorZone>
     </Grid>

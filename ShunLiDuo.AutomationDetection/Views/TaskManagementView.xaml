@@ -75,12 +75,18 @@
 
         <!-- 扫码录入和检测归属区域 -->
         <Border Grid.Row="0" 
-                Background="#F8F8F8" 
+                Background="White" 
                 BorderBrush="{StaticResource BorderBrush}" 
                 BorderThickness="1" 
-                Padding="20" 
-                Margin="0,0,0,15" 
-                CornerRadius="4">
+                Padding="25" 
+                Margin="0,0,0,20" 
+                CornerRadius="8">
+            <Border.Effect>
+                <DropShadowEffect Color="#20000000" 
+                                 BlurRadius="8" 
+                                 ShadowDepth="2" 
+                                 Opacity="0.1"/>
+            </Border.Effect>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="450"/>
@@ -91,27 +97,10 @@
                 <StackPanel Grid.Column="0" Margin="0,0,60,0">
                     <!-- 标题 -->
                     <TextBlock Text="扫码录入" 
-                              FontSize="18" 
-                              FontWeight="Bold" 
-                              Margin="0,0,0,20"/>
-
-                    <!-- 调度规则 -->
-                    <Grid Margin="0,0,0,15">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="140"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" 
-                                  Text="调度规则:" 
-                                  Style="{StaticResource StandardLabelStyle}" 
-                                  VerticalAlignment="Center"/>
-                        <ComboBox Grid.Column="1"
-                                 Style="{StaticResource StandardComboBoxStyle}" 
-                                 ItemsSource="{Binding Rules}"
-                                 DisplayMemberPath="RuleName"
-                                 SelectedItem="{Binding SelectedRuleItem}"
-                                 Height="42"/>
-                    </Grid>
+                              FontSize="20" 
+                              FontWeight="SemiBold" 
+                              Foreground="{StaticResource TextPrimaryBrush}"
+                              Margin="0,0,0,25"/>
 
                     <!-- 物流盒编码 -->
                     <Grid Margin="0,0,0,15">
@@ -140,23 +129,31 @@
                                   Text="物流盒录入信息:" 
                                   Style="{StaticResource StandardLabelStyle}" 
                                   VerticalAlignment="Top"/>
-                        <ListBox Grid.Column="1"
-                                ItemsSource="{Binding LogisticsBoxList}"
-                                BorderBrush="{StaticResource BorderBrush}"
-                                BorderThickness="1"
-                                Background="White"
-                                ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                MinHeight="150"
-                                MaxHeight="200">
-                            <ListBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding}" 
-                                              FontSize="15"
-                                              Padding="5,3"
-                                              Margin="0,2"/>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
+                        <Border Grid.Column="1"
+                               BorderBrush="{StaticResource BorderBrush}"
+                               BorderThickness="1"
+                               Background="White"
+                               CornerRadius="4">
+                            <ListBox ItemsSource="{Binding LogisticsBoxList}"
+                                    BorderThickness="0"
+                                    Background="Transparent"
+                                    ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                    MinHeight="150"
+                                    MaxHeight="200">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Padding="10,8" 
+                                               Margin="0,2"
+                                               Background="#FAFAFA"
+                                               CornerRadius="4">
+                                            <TextBlock Text="{Binding}" 
+                                                      FontSize="15"
+                                                      Foreground="{StaticResource TextPrimaryBrush}"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </Border>
                     </Grid>
                 </StackPanel>
 
@@ -167,7 +164,12 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" Content="检测归属" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                        <Label Grid.Column="0" 
+                              Content="检测归属" 
+                              FontSize="20" 
+                              FontWeight="SemiBold" 
+                              Foreground="{StaticResource TextPrimaryBrush}"
+                              Margin="0,0,0,25"/>
                         <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right">
                             <!-- 初始化按钮 -->
                             <Button Content="初始化" 
@@ -181,11 +183,25 @@
                                    Height="40">
                                 <Button.Style>
                                     <Style TargetType="Button">
-                                        <Setter Property="Background" Value="#4CAF50"/>
+                                        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
                                         <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
                                         <Setter Property="BorderThickness" Value="0"/>
                                         <Setter Property="Cursor" Value="Hand"/>
                                         <Setter Property="IsEnabled" Value="{Binding IsPlcConnected, Mode=OneWay}"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                            CornerRadius="4"
+                                                            BorderThickness="0">
+                                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                                        VerticalAlignment="Center"
+                                                                        Content="{TemplateBinding Content}"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
                                         <Style.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
                                                 <Setter Property="Background" Value="#45a049"/>
@@ -251,33 +267,76 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <StackPanel Margin="5">
-                                        <Label Content="{Binding Room.RoomName}" FontSize="14" FontWeight="Bold" HorizontalAlignment="Center"/>
-                                        
-                                        <!-- 扫码状态显示 -->
-                                        <Border Background="#F5F5F5" 
-                                                BorderBrush="#CCCCCC" 
-                                                BorderThickness="1" 
-                                                CornerRadius="4" 
-                                                Padding="8" 
-                                                Margin="0,5,0,5">
+                                    <Border Margin="8" 
+                                           Background="White"
+                                           BorderBrush="{StaticResource BorderBrush}"
+                                           BorderThickness="1"
+                                           CornerRadius="6"
+                                           Padding="15">
+                                        <Border.Effect>
+                                            <DropShadowEffect Color="#15000000" 
+                                                             BlurRadius="4" 
+                                                             ShadowDepth="1" 
+                                                             Opacity="0.08"/>
+                                        </Border.Effect>
+                                        <StackPanel>
+                                            <Label Content="{Binding Room.RoomName}" 
+                                                  FontSize="16" 
+                                                  FontWeight="SemiBold" 
+                                                  Foreground="{StaticResource TextPrimaryBrush}"
+                                                  HorizontalAlignment="Center"
+                                                  Margin="0,0,0,10"/>
+                                            
+                                            <!-- 扫码状态显示 -->
+                                            <Border Background="#FAFAFA" 
+                                                   BorderBrush="{StaticResource BorderBrush}" 
+                                                   BorderThickness="1" 
+                                                   CornerRadius="4" 
+                                                   Padding="12" 
+                                                   Margin="0,0,0,10">
                                             <StackPanel>
-                                                <TextBlock Text="扫码编码:" FontSize="12" FontWeight="SemiBold" Margin="0,0,0,3"/>
+                                                <TextBlock Text="扫码编码:" 
+                                                          FontSize="13" 
+                                                          FontWeight="SemiBold" 
+                                                          Foreground="{StaticResource TextSecondaryBrush}"
+                                                          Margin="0,0,0,5"/>
                                                 <TextBlock Text="{Binding LastScannedCode, FallbackValue='等待扫码'}" 
-                                                          FontSize="14" 
+                                                          FontSize="15" 
+                                                          FontWeight="Medium"
                                                           Foreground="{Binding ScanStatus, Converter={StaticResource ScanStatusToColorConverter}}"
                                                           Margin="0,0,0,5"/>
                                                 <TextBlock Text="{Binding ScanStatus, FallbackValue='等待扫码'}" 
-                                                          FontSize="11" 
+                                                          FontSize="12" 
                                                           Foreground="{Binding ScanStatus, Converter={StaticResource ScanStatusToColorConverter}}"/>
                                             </StackPanel>
                                         </Border>
                                         
-                                        <ListBox Style="{StaticResource RoomListBoxStyle}" 
-                                                ItemsSource="{Binding Boxes}" 
-                                                Width="200"
-                                                MaxHeight="200"/>
+                                        <Border BorderBrush="{StaticResource BorderBrush}"
+                                               BorderThickness="1"
+                                               Background="White"
+                                               CornerRadius="4">
+                                            <ListBox ItemsSource="{Binding Boxes}" 
+                                                    BorderThickness="0"
+                                                    Background="Transparent"
+                                                    Width="200"
+                                                    MaxHeight="200"
+                                                    ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Padding="8,6" 
+                                                               Margin="2"
+                                                               Background="#FAFAFA"
+                                                               CornerRadius="3">
+                                                            <TextBlock Text="{Binding}" 
+                                                                      FontSize="14"
+                                                                      Foreground="{StaticResource TextPrimaryBrush}"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </Border>
                                     </StackPanel>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -288,62 +347,69 @@
 
         <!-- 任务列表 -->
         <Border Grid.Row="1" 
-                Background="#F8F8F8" 
+                Background="White" 
                 BorderBrush="{StaticResource BorderBrush}" 
                 BorderThickness="1" 
-                Padding="20" 
-                CornerRadius="4">
+                Padding="25" 
+                CornerRadius="8">
+            <Border.Effect>
+                <DropShadowEffect Color="#20000000" 
+                                 BlurRadius="8" 
+                                 ShadowDepth="2" 
+                                 Opacity="0.1"/>
+            </Border.Effect>
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <Label Grid.Row="0" Content="任务列表" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                <Label Grid.Row="0" 
+                      Content="任务列表" 
+                      FontSize="20" 
+                      FontWeight="SemiBold" 
+                      Foreground="{StaticResource TextPrimaryBrush}"
+                      Margin="0,0,0,20"/>
 
-                <DataGrid Grid.Row="1" 
-                         ItemsSource="{Binding Tasks}"
-                         AutoGenerateColumns="False"
-                         CanUserAddRows="False"
-                         GridLinesVisibility="None"
-                         HeadersVisibility="Column"
-                         SelectionMode="Single"
-                         IsReadOnly="True"
-                         RowHeight="50"
-                         CellStyle="{StaticResource DataGridCellStyle}"
-                         ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
-                            <Setter Property="Padding" Value="0,10"/>
-                            <Setter Property="Margin" Value="0,3"/>
-                            <Setter Property="MinHeight" Value="50"/>
-                            <Setter Property="VerticalContentAlignment" Value="Center"/>
-                        </Style>
-                    </DataGrid.RowStyle>
+                <Border Grid.Row="1"
+                       BorderBrush="{StaticResource BorderBrush}"
+                       BorderThickness="1"
+                       Background="White"
+                       CornerRadius="4">
+                    <DataGrid ItemsSource="{Binding Tasks}"
+                             AutoGenerateColumns="False"
+                             CanUserAddRows="False"
+                             GridLinesVisibility="None"
+                             HeadersVisibility="Column"
+                             SelectionMode="Single"
+                             IsReadOnly="True"
+                             RowHeight="55"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             CellStyle="{StaticResource DataGridCellStyle}"
+                             ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
+                        <DataGrid.RowStyle>
+                            <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
+                                <Setter Property="Padding" Value="0,5"/>
+                                <Setter Property="Margin" Value="0,2"/>
+                                <Setter Property="MinHeight" Value="55"/>
+                                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            </Style>
+                        </DataGrid.RowStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="60" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测人信息" Binding="{Binding InspectorName}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测人信息" Binding="{Binding InspectorName}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测开始时间" Binding="{Binding StartTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测室2状态" Binding="{Binding Room2Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测室3状态" Binding="{Binding Room3Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测室4状态" Binding="{Binding Room4Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测室5状态" Binding="{Binding Room5Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测结束时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTemplateColumn Header="操作" Width="150">
-                            <DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="重新检测" Foreground="{StaticResource InfoBrush}" 
-                                              Cursor="Hand" 
-                                              MouseLeftButtonDown="ReInspect_Click"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                                </DataTemplate>
-                            </DataGridTemplateColumn.CellTemplate>
-                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
-                </DataGrid>
+                    </DataGrid>
+                </Border>
             </Grid>
         </Border>
     </Grid>

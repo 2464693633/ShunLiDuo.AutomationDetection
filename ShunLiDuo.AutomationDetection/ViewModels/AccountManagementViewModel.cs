@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using ShunLiDuo.AutomationDetection.Models;
 using ShunLiDuo.AutomationDetection.Services;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.ViewModels
 {
@@ -96,6 +97,10 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             if (string.IsNullOrEmpty(permissionCode))
                 return false;
 
+            // 管理员拥有全部权限
+            if (_currentUserService?.CurrentUser != null && _currentUserService.CurrentUser.Role == "管理员")
+                return true;
+
             // 检查是否有精确匹配的权限
             if (_userPermissions.Contains(permissionCode))
                 return true;
@@ -119,7 +124,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"加载账户失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"加载账户失败: {ex.Message}");
             }
             finally
             {
@@ -142,7 +147,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"搜索账户失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"搜索账户失败: {ex.Message}");
             }
             finally
             {
@@ -176,17 +181,17 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     var success = await _accountService.AddAccountAsync(newAccount);
                     if (success)
                     {
-                        MessageBox.Show("账户添加成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                        CustomMessageBox.ShowInformation("账户添加成功");
                         LoadAccountsAsync();
                     }
                     else
                     {
-                        MessageBox.Show("账户添加失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.ShowError("账户添加失败");
                     }
                 }
                 catch (System.Exception ex)
                 {
-                    MessageBox.Show($"添加账户失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError($"添加账户失败: {ex.Message}");
                 }
                 finally
                 {

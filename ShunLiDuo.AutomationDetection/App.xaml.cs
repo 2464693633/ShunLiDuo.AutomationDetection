@@ -126,6 +126,8 @@ namespace ShunLiDuo.AutomationDetection
             containerRegistry.Register<IRoleRepository, RoleRepository>();
             containerRegistry.Register<IPermissionRepository, PermissionRepository>();
             containerRegistry.Register<IPlcMonitorConfigRepository, PlcMonitorConfigRepository>();
+            containerRegistry.Register<IDetectionLogRepository, DetectionLogRepository>();
+            containerRegistry.Register<IAlarmRecordRepository, AlarmRecordRepository>();
             
             // 注册服务层
             containerRegistry.Register<IRuleService, RuleService>();
@@ -139,6 +141,8 @@ namespace ShunLiDuo.AutomationDetection
             containerRegistry.RegisterSingleton<IScannerCommunicationService, ScannerCommunicationService>();
             containerRegistry.Register<ICommunicationConfigService, CommunicationConfigService>();
             containerRegistry.Register<IPlcMonitorConfigService, PlcMonitorConfigService>();
+            containerRegistry.Register<IDetectionLogService, DetectionLogService>();
+            containerRegistry.Register<IAlarmRecordService, AlarmRecordService>();
             
             // 注册登录窗口
             containerRegistry.Register<Views.LoginWindow>();
@@ -170,12 +174,11 @@ namespace ShunLiDuo.AutomationDetection
             
             // 注册其他视图
             containerRegistry.RegisterForNavigation<TaskManagementView>("TaskManagementView");
-            containerRegistry.RegisterForNavigation<DeviceExceptionView>("DeviceExceptionView");
             containerRegistry.RegisterForNavigation<DeviceAlarmView>("DeviceAlarmView");
             
-            // 注册PLC监控视图
-            containerRegistry.Register<Views.PlcMonitorView>();
-            containerRegistry.RegisterForNavigation<Views.PlcMonitorView>("PlcMonitorView");
+            // 注册检测历史记录视图
+            containerRegistry.Register<Views.DetectionLogView>();
+            containerRegistry.RegisterForNavigation<Views.DetectionLogView>("DetectionLogView");
         }
 
         protected override void ConfigureModuleCatalog(Prism.Modularity.IModuleCatalog moduleCatalog)
@@ -194,7 +197,7 @@ namespace ShunLiDuo.AutomationDetection
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"数据库初始化失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"数据库初始化失败: {ex.Message}");
             }
         }
 

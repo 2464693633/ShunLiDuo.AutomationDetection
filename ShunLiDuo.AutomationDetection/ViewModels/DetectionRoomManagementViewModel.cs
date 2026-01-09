@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using ShunLiDuo.AutomationDetection.Models;
 using ShunLiDuo.AutomationDetection.Services;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.ViewModels
 {
@@ -100,6 +101,10 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             if (string.IsNullOrEmpty(permissionCode))
                 return false;
 
+            // 管理员拥有全部权限
+            if (_currentUserService?.CurrentUser != null && _currentUserService.CurrentUser.Role == "管理员")
+                return true;
+
             // 检查是否有精确匹配的权限
             if (_userPermissions.Contains(permissionCode))
                 return true;
@@ -123,7 +128,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"加载检测室失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"加载检测室失败: {ex.Message}");
             }
             finally
             {
@@ -188,17 +193,17 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     var success = await _detectionRoomService.AddRoomAsync(newRoom);
                     if (success)
                     {
-                        MessageBox.Show("检测室添加成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                        CustomMessageBox.ShowInformation("检测室添加成功");
                         LoadRoomsAsync();
                     }
                     else
                     {
-                        MessageBox.Show("检测室添加失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        CustomMessageBox.ShowError("检测室添加失败");
                     }
                 }
                 catch (System.Exception ex)
                 {
-                    MessageBox.Show($"添加检测室失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError($"添加检测室失败: {ex.Message}");
                 }
                 finally
                 {
@@ -317,20 +322,20 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         {
             if (SelectedItem == null)
             {
-                MessageBox.Show("请选择要测试的检测室", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要测试的检测室");
                 return;
             }
 
             var room = await _detectionRoomService.GetRoomByIdAsync(SelectedItem.Id);
             if (room == null)
             {
-                MessageBox.Show("检测室不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("检测室不存在");
                 return;
             }
 
             if (!room.ScannerIsEnabled || string.IsNullOrWhiteSpace(room.ScannerPortName))
             {
-                MessageBox.Show("该检测室未启用扫码器或未配置串口", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("该检测室未启用扫码器或未配置串口");
                 return;
             }
 
@@ -340,19 +345,19 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 var (success, errorMessage) = await _scannerService.TestConnectionAsync(room);
                 if (success)
                 {
-                    MessageBox.Show("串口连接测试成功！", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("串口连接测试成功！");
                     // 更新连接状态
                     SelectedItem.IsScannerConnected = true;
                 }
                 else
                 {
-                    MessageBox.Show($"串口连接测试失败\n\n{errorMessage}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError($"串口连接测试失败\n\n{errorMessage}");
                     SelectedItem.IsScannerConnected = false;
                 }
             }
             catch (System.Exception ex)
             {
-                MessageBox.Show($"测试连接失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"测试连接失败: {ex.Message}");
                 SelectedItem.IsScannerConnected = false;
             }
             finally

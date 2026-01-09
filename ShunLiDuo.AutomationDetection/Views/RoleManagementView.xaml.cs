@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.ViewModels;
 using ShunLiDuo.AutomationDetection.Models;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
@@ -38,14 +39,14 @@ namespace ShunLiDuo.AutomationDetection.Views
             var roleItem = _viewModel.SelectedItem;
             if (roleItem == null)
             {
-                MessageBox.Show("请选择要编辑的角色", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要编辑的角色");
                 return;
             }
 
             var role = await _roleService.GetRoleByIdAsync(roleItem.Id);
             if (role == null)
             {
-                MessageBox.Show("角色不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("角色不存在");
                 return;
             }
 
@@ -66,12 +67,12 @@ namespace ShunLiDuo.AutomationDetection.Views
                 var success = await _roleService.UpdateRoleAsync(updatedRole);
                 if (success)
                 {
-                    MessageBox.Show("角色更新成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("角色更新成功");
                     _viewModel.LoadRolesAsync();
                 }
                 else
                 {
-                    MessageBox.Show("角色更新失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError("角色更新失败");
                 }
             }
         }
@@ -81,24 +82,30 @@ namespace ShunLiDuo.AutomationDetection.Views
             var roleItem = _viewModel.SelectedItem;
             if (roleItem == null)
             {
-                MessageBox.Show("请选择要删除的角色", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要删除的角色");
                 return;
             }
 
-            var result = MessageBox.Show($"确定要删除角色 '{roleItem.RoleName}' 吗？", "确认删除", 
-                MessageBoxButton.YesNo, MessageBoxImage.Question);
+            // 检查是否为管理员角色，管理员角色不能删除
+            if (roleItem.RoleName == "管理员")
+            {
+                CustomMessageBox.ShowWarning("管理员角色不能删除！");
+                return;
+            }
+
+            var result = CustomMessageBox.ShowQuestion($"确定要删除角色 '{roleItem.RoleName}' 吗？", "确认删除");
             
-            if (result == MessageBoxResult.Yes)
+            if (result == CustomMessageBoxResult.Yes)
             {
                 var success = await _roleService.DeleteRoleAsync(roleItem.Id);
                 if (success)
                 {
-                    MessageBox.Show("角色删除成功", "提示", MessageBoxButton.OK, MessageBoxImage.Information);
+                    CustomMessageBox.ShowInformation("角色删除成功");
                     _viewModel.LoadRolesAsync();
                 }
                 else
                 {
-                    MessageBox.Show("角色删除失败", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    CustomMessageBox.ShowError("角色删除失败");
                 }
             }
         }
@@ -108,14 +115,14 @@ namespace ShunLiDuo.AutomationDetection.Views
             var roleItem = _viewModel.SelectedItem;
             if (roleItem == null)
             {
-                MessageBox.Show("请选择要查看的角色", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                CustomMessageBox.ShowWarning("请选择要查看的角色");
                 return;
             }
 
             var role = await _roleService.GetRoleByIdAsync(roleItem.Id);
             if (role == null)
             {
-                MessageBox.Show("角色不存在", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                CustomMessageBox.ShowError("角色不存在");
                 return;
             }
 

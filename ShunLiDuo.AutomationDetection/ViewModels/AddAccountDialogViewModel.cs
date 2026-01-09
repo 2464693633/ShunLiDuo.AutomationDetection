@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ShunLiDuo.AutomationDetection.Services;
 using ShunLiDuo.AutomationDetection.Models;
+using ShunLiDuo.AutomationDetection.Views;
 
 namespace ShunLiDuo.AutomationDetection.ViewModels
 {
@@ -57,8 +58,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             }
             catch (System.Exception ex)
             {
-                System.Windows.MessageBox.Show($"加载角色列表失败: {ex.Message}", "错误", 
-                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                CustomMessageBox.ShowError($"加载角色列表失败: {ex.Message}");
             }
         }
 
