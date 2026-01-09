@@ -67,7 +67,7 @@
                  CellStyle="{StaticResource DataGridCellStyle}"
                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="规则编号" Binding="{Binding RuleNo}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="规则名称" Binding="{Binding RuleName}" Width="160" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="检测室" Binding="{Binding DetectionRooms}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>

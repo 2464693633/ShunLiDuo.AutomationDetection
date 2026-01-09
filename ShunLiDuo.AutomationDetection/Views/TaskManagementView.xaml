@@ -401,11 +401,11 @@
                         <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测人信息" Binding="{Binding InspectorName}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测开始时间" Binding="{Binding StartTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室2状态" Binding="{Binding Room2Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室3状态" Binding="{Binding Room3Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室4状态" Binding="{Binding Room4Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室5状态" Binding="{Binding Room5Status}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室2状态" Binding="{Binding Room2Status}" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室3状态" Binding="{Binding Room3Status}" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室4状态" Binding="{Binding Room4Status}" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室5状态" Binding="{Binding Room5Status}" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测结束时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                     </DataGrid.Columns>
                     </DataGrid>

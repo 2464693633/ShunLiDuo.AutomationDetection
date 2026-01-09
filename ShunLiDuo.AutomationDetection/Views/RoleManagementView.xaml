@@ -103,8 +103,8 @@
                  CellStyle="{StaticResource DataGridCellStyle}"
                  ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="角色编号" Binding="{Binding RoleNo}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="角色编号" Binding="{Binding RoleNo}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="角色名称" Binding="{Binding RoleName}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
             </DataGrid.Columns>

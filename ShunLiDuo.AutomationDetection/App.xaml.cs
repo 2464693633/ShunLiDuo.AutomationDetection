@@ -13,6 +13,8 @@ namespace ShunLiDuo.AutomationDetection
 {
     public partial class App : PrismApplication
     {
+        private ApiHostService _apiHostService;
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
@@ -99,6 +101,17 @@ namespace ShunLiDuo.AutomationDetection
                 
                 // 自动连接所有检测室的串口
                 AutoConnectAllScannersAsync();
+                
+                // 启动API服务器（在登录成功后）
+                try
+                {
+                    _apiHostService = new ApiHostService(Container, "http://localhost:8080");
+                    _apiHostService.Start();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"API服务器启动失败: {ex.Message}");
+                }
                 
                 // 显示主窗口
                 mainWindow.Visibility = Visibility.Visible;
@@ -262,6 +275,13 @@ namespace ShunLiDuo.AutomationDetection
                 // 自动连接失败，但不影响应用启动
                 System.Diagnostics.Debug.WriteLine($"串口自动连接异常: {ex.Message}");
             }
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            // 停止API服务器
+            _apiHostService?.Stop();
+            base.OnExit(e);
         }
     }
 }

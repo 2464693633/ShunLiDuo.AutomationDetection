@@ -111,7 +111,7 @@
                 <DataGridTextColumn Header="登录账户" Binding="{Binding LoginAccount}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="姓名" Binding="{Binding Name}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="性别" Binding="{Binding Gender}" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="电话" Binding="{Binding Phone}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="电话" Binding="{Binding Phone}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="工号" Binding="{Binding EmployeeNo}" Width="110" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="角色" Binding="{Binding Role}" Width="110" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
