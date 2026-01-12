@@ -138,10 +138,39 @@ namespace ShunLiDuo.AutomationDetection.Services
                 }
             }
 
+            // 根据报警标题自动判断报警类型
+            string alarmType = "系统报警"; // 默认类型
+            string alarmLevel = "警告"; // 默认级别
+            if (!string.IsNullOrWhiteSpace(alarmTitle))
+            {
+                if (alarmTitle.Contains("超时"))
+                {
+                    alarmType = "超时报警";
+                    alarmLevel = "警告";
+                }
+                else if (alarmTitle.Contains("失败") || alarmTitle.Contains("错误"))
+                {
+                    alarmType = "设备故障";
+                    alarmLevel = "严重";
+                }
+                else if (alarmTitle.Contains("配置") || alarmTitle.Contains("未配置"))
+                {
+                    alarmType = "配置错误";
+                    alarmLevel = "严重";
+                }
+                else if (alarmTitle.Contains("阻止") || alarmTitle.Contains("未找到"))
+                {
+                    alarmType = "业务异常";
+                    alarmLevel = "警告";
+                }
+            }
+
             var alarm = new AlarmRecord
             {
                 AlarmTitle = alarmTitle ?? "报警",
                 AlarmMessage = alarmMessage ?? "",
+                AlarmType = alarmType,
+                AlarmLevel = alarmLevel,
                 RoomId = roomId,
                 RoomName = extractedRoomName ?? "",
                 DeviceName = "", // 不再使用设备名称字段

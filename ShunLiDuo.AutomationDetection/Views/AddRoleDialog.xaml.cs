@@ -60,13 +60,13 @@ namespace ShunLiDuo.AutomationDetection.Views
                 // 同步初始状态
                 UpdateCheckBoxState(checkBox, item);
                 
-                // 订阅 PropertyChanged 事件以同步 IsIndeterminate 状态
-                // 注意：IsSelected 的更新由绑定处理，这里只处理 IsIndeterminate
+                // 订阅 PropertyChanged 事件以同步状态变化
                 item.PropertyChanged += (s, args) =>
                 {
-                    if (args.PropertyName == nameof(PermissionItem.IsIndeterminate))
+                    if (args.PropertyName == nameof(PermissionItem.IsIndeterminate) || 
+                        args.PropertyName == nameof(PermissionItem.IsSelected))
                     {
-                        // 只在 IsIndeterminate 改变时更新复选框状态
+                        // 当 IsIndeterminate 或 IsSelected 改变时更新复选框状态
                         UpdateCheckBoxState(checkBox, item);
                     }
                 };

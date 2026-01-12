@@ -94,7 +94,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     {
                         if (child != null)
                         {
-                            // 直接设置字段值，避免触发属性变更通知
                             var isSelected = selectedCodes.Contains(child.Code);
                             if (child.IsSelected != isSelected)
                             {
@@ -105,21 +104,24 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 }
             }
             
-            // 然后设置父权限的选择状态
+            // 然后更新父权限的选择状态（根据子权限状态自动更新）
             foreach (var permission in Permissions)
             {
                 if (permission == null) continue;
                 
-                var isSelected = selectedCodes.Contains(permission.Code);
-                if (permission.IsSelected != isSelected)
-                {
-                    permission.IsSelected = isSelected;
-                }
-                
-                // 最后更新父权限的选择状态（这会根据子权限的状态更新父权限）
+                // 只更新有子权限的父权限状态，根据子权限状态自动计算
                 if (permission.Children != null && permission.Children.Count > 0)
                 {
                     permission.UpdateSelectionState();
+                }
+                else
+                {
+                    // 如果没有子权限，直接检查父权限的 Code
+                    var isSelected = selectedCodes.Contains(permission.Code);
+                    if (permission.IsSelected != isSelected)
+                    {
+                        permission.IsSelected = isSelected;
+                    }
                 }
             }
         }
@@ -202,17 +204,59 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
         private void OnSelectAll()
         {
+            // 先设置所有子权限，避免触发父权限的状态更新冲突
             foreach (var permission in Permissions)
             {
-                permission.IsSelected = true;
+                if (permission.Children != null && permission.Children.Count > 0)
+                {
+                    foreach (var child in permission.Children)
+                    {
+                        child.IsSelected = true;
+                    }
+                }
+            }
+            
+            // 然后设置父权限（这会根据子权限状态自动更新父权限状态）
+            foreach (var permission in Permissions)
+            {
+                if (permission.Children != null && permission.Children.Count > 0)
+                {
+                    permission.UpdateSelectionState();
+                }
+                else
+                {
+                    // 如果没有子权限，直接设置父权限
+                    permission.IsSelected = true;
+                }
             }
         }
 
         private void OnDeselectAll()
         {
+            // 先设置所有子权限，避免触发父权限的状态更新冲突
             foreach (var permission in Permissions)
             {
-                permission.IsSelected = false;
+                if (permission.Children != null && permission.Children.Count > 0)
+                {
+                    foreach (var child in permission.Children)
+                    {
+                        child.IsSelected = false;
+                    }
+                }
+            }
+            
+            // 然后设置父权限（这会根据子权限状态自动更新父权限状态）
+            foreach (var permission in Permissions)
+            {
+                if (permission.Children != null && permission.Children.Count > 0)
+                {
+                    permission.UpdateSelectionState();
+                }
+                else
+                {
+                    // 如果没有子权限，直接设置父权限
+                    permission.IsSelected = false;
+                }
             }
         }
 

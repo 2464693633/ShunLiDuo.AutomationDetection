@@ -17,7 +17,7 @@
 
         <!-- Tabs -->
         <TabControl Grid.Row="0" Margin="0,0,0,15" Style="{StaticResource StandardTabControlStyle}">
-            <TabItem Content="报警记录列表" Style="{StaticResource StandardTabItemStyle}" IsSelected="True"/>
+            <TabItem Header="报警记录列表" Style="{StaticResource StandardTabItemStyle}" IsSelected="True"/>
         </TabControl>
 
         <!-- Filter Bar -->
@@ -93,14 +93,14 @@
                      IsReadOnly="True"
                      GridLinesVisibility="None">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="报警编号" Binding="{Binding AlarmCode}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                    <DataGridTextColumn Header="报警标题" Binding="{Binding AlarmTitle}" Width="400" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                    <DataGridTextColumn Header="报警信息" Binding="{Binding AlarmMessage}" Width="400" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                    <DataGridTextColumn Header="检测室" Binding="{Binding RoomName}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="报警编号" Binding="{Binding AlarmCode}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="报警标题" Binding="{Binding AlarmTitle}" Width="300" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="报警信息" Binding="{Binding AlarmMessage}" Width="300" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="检测室" Binding="{Binding RoomName}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                     <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                     <DataGridTextColumn Header="报警时间" Binding="{Binding CreateTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                     <DataGridTextColumn Header="处理时间" Binding="{Binding HandleTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                    <DataGridTextColumn Header="处理人" Binding="{Binding Handler}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                    <DataGridTextColumn Header="处理人" Binding="{Binding Handler}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                     <DataGridTemplateColumn Header="操作" Width="180">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

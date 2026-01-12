@@ -202,7 +202,6 @@
                                      Checked="CheckBox_Checked"
                                      Unchecked="CheckBox_Unchecked"
                                      Indeterminate="CheckBox_Indeterminate"
-                                     IsChecked="{Binding IsSelected, Mode=TwoWay}"
                                      Loaded="CheckBox_Loaded">
                             </CheckBox>
                             <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="13"/>

@@ -345,9 +345,22 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 var (success, errorMessage) = await _scannerService.TestConnectionAsync(room);
                 if (success)
                 {
-                    CustomMessageBox.ShowInformation("串口连接测试成功！");
-                    // 更新连接状态
-                    SelectedItem.IsScannerConnected = true;
+                    // 测试成功后，真正建立连接
+                    System.Diagnostics.Debug.WriteLine($"[检测室管理] 测试连接成功，开始建立实际连接 - 检测室ID:{room.Id}");
+                    var connectResult = await _scannerService.OpenConnectionAsync(room);
+                    if (connectResult)
+                    {
+                        CustomMessageBox.ShowInformation("串口连接成功！");
+                        // 更新连接状态（事件会自动触发，这里也手动更新一下确保同步）
+                        SelectedItem.IsScannerConnected = true;
+                        System.Diagnostics.Debug.WriteLine($"[检测室管理] 实际连接成功 - 检测室ID:{room.Id}");
+                    }
+                    else
+                    {
+                        CustomMessageBox.ShowWarning("串口连接测试成功，但建立连接失败。请检查串口是否被占用。");
+                        SelectedItem.IsScannerConnected = false;
+                        System.Diagnostics.Debug.WriteLine($"[检测室管理] 实际连接失败 - 检测室ID:{room.Id}");
+                    }
                 }
                 else
                 {
@@ -359,6 +372,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             {
                 CustomMessageBox.ShowError($"测试连接失败: {ex.Message}");
                 SelectedItem.IsScannerConnected = false;
+                System.Diagnostics.Debug.WriteLine($"[检测室管理] 测试连接异常 - 检测室ID:{room?.Id}, 错误:{ex.Message}");
             }
             finally
             {

@@ -19,76 +19,84 @@
 
         <!-- Tab -->
         <TabControl Grid.Row="0" Margin="0,0,0,15" Style="{StaticResource StandardTabControlStyle}">
-            <TabItem Content="规则列表" Style="{StaticResource StandardTabItemStyle}" IsSelected="True"/>
+            <TabItem Header="规则列表" Style="{StaticResource StandardTabItemStyle}" IsSelected="True">
+            </TabItem>
         </TabControl>
 
+
         <!-- Search Bar -->
-        <Grid Grid.Row="1" Margin="0,0,0,15">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <TextBox Grid.Column="0" 
-                    Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
-                    Style="{StaticResource StandardTextBoxStyle}"
-                    Margin="0,0,10,0"/>
-            
-            <Button Grid.Column="1" Content="查询" Style="{StaticResource PrimaryButtonStyle}" 
-                   Command="{Binding SearchCommand}"/>
-        </Grid>
+                    <Grid Grid.Row="1" Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <TextBox Grid.Column="0" 
+                                Text="{Binding SearchKeyword, UpdateSourceTrigger=PropertyChanged}"
+                                Style="{StaticResource StandardTextBoxStyle}"
+                                Margin="0,0,10,0"/>
+                        
+                        <Button Grid.Column="1" Content="查询" Style="{StaticResource PrimaryButtonStyle}" 
+                               Command="{Binding SearchCommand}"/>
+                    </Grid>
 
-        <!-- Action Buttons -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,15">
-            <Button Content="新增" Style="{StaticResource PrimaryButtonStyle}" 
-                   Command="{Binding AddCommand}" 
-                   Visibility="{Binding CanAdd, Converter={StaticResource BooleanToVisibilityConverter}}"
-                   Margin="0,0,10,0"/>
-            <Button Content="编辑" Style="{StaticResource PrimaryButtonStyle}" 
-                   Command="{Binding EditCommand}" 
-                   Visibility="{Binding CanEdit, Converter={StaticResource BooleanToVisibilityConverter}}"
-                   Margin="0,0,10,0"/>
-            <Button Content="删除" Style="{StaticResource PrimaryButtonStyle}" 
-                   Command="{Binding DeleteCommand}" 
-                   Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}}"
-                   Margin="0,0,10,0"/>
-            <Button Content="查看" Style="{StaticResource PrimaryButtonStyle}" 
-                   Command="{Binding ViewCommand}"
-                   Visibility="{Binding CanView, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-        </StackPanel>
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,15">
+                        <Button Content="新增" Style="{StaticResource PrimaryButtonStyle}" 
+                               Command="{Binding AddCommand}" 
+                               Visibility="{Binding CanAdd, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               Margin="0,0,10,0"/>
+                        <Button Content="编辑" Style="{StaticResource PrimaryButtonStyle}" 
+                               Command="{Binding EditCommand}" 
+                               Visibility="{Binding CanEdit, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               Margin="0,0,10,0"/>
+                        <Button Content="删除" Style="{StaticResource PrimaryButtonStyle}" 
+                               Command="{Binding DeleteCommand}" 
+                               Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibilityConverter}}"
+                               Margin="0,0,10,0"/>
+                        <Button Content="查看" Style="{StaticResource PrimaryButtonStyle}" 
+                               Command="{Binding ViewCommand}"
+                               Visibility="{Binding CanView, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </StackPanel>
 
-        <!-- Data Grid -->
-        <DataGrid Grid.Row="3" 
-                 ItemsSource="{Binding Rules}"
-                 SelectedItem="{Binding SelectedItem}"
-                 Style="{StaticResource StandardDataGridStyle}"
-                 Margin="0"
-                 RowStyle="{StaticResource DataGridRowStyle}"
-                 CellStyle="{StaticResource DataGridCellStyle}"
-                 ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="规则编号" Binding="{Binding RuleNo}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="规则名称" Binding="{Binding RuleName}" Width="160" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="检测室" Binding="{Binding DetectionRooms}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="物流盒编号" Binding="{Binding LogisticsBoxNos}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-            </DataGrid.Columns>
-        </DataGrid>
+                    <!-- Data Grid -->
+                    
+                        <DataGrid  Grid.Row="3"
+                                 ItemsSource="{Binding Rules}"
+                                 SelectedItem="{Binding SelectedItem}"
+                                 Style="{StaticResource StandardDataGridStyle}"
+                                 
+                                 Margin="0"
+                                 RowStyle="{StaticResource DataGridRowStyle}"
+                                 CellStyle="{StaticResource DataGridCellStyle}"
+                                 ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                                >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                                <DataGridTextColumn Header="规则编号" Binding="{Binding RuleNo}" Width="130" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                                <DataGridTextColumn Header="规则名称" Binding="{Binding RuleName}" Width="160" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                                <DataGridTextColumn Header="检测室" Binding="{Binding DetectionRooms}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                                <DataGridTextColumn Header="物流盒编号" Binding="{Binding LogisticsBoxNos}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                                <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                   
 
-        <!-- Pagination -->
-        <Grid Grid.Row="4" Margin="0,15,0,0" Height="40">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <TextBlock Text="{Binding TotalCount, StringFormat='共{0}条'}" 
-                          VerticalAlignment="Center" 
-                          FontSize="13"
-                          Foreground="{StaticResource TextSecondaryBrush}"
-                          Margin="0,0,20,0"/>
-                <Button Content="&lt;" Style="{StaticResource PaginationButtonStyle}"/>
-                <Button Content="1" Style="{StaticResource ActivePaginationButtonStyle}"/>
-                <Button Content="&gt;" Style="{StaticResource PaginationButtonStyle}"/>
-            </StackPanel>
-        </Grid>
+                    <!-- Pagination -->
+                    <Grid Grid.Row="4" Margin="0,15,0,0" Height="40">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding TotalCount, StringFormat='共{0}条'}" 
+                                      VerticalAlignment="Center" 
+                                      FontSize="13"
+                                      Foreground="{StaticResource TextSecondaryBrush}"
+                                      Margin="0,0,20,0"/>
+                            <Button Content="&lt;" Style="{StaticResource PaginationButtonStyle}"/>
+                            <Button Content="1" Style="{StaticResource ActivePaginationButtonStyle}"/>
+                            <Button Content="&gt;" Style="{StaticResource PaginationButtonStyle}"/>
+                        </StackPanel>
+                    </Grid>
+               
+        
     </Grid>
 </UserControl>
 

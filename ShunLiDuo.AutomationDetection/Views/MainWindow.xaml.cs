@@ -2,6 +2,7 @@ using System;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Windows.Media;
 using Prism.Regions;
 using ShunLiDuo.AutomationDetection.Services;
 
@@ -12,7 +13,7 @@ namespace ShunLiDuo.AutomationDetection.Views
         private DispatcherTimer _timer;
         private readonly IRegionManager _regionManager;
 
-        public MainWindow(IRegionManager regionManager, ICurrentUserService currentUserService, Services.IAccountService accountService)
+        public MainWindow(IRegionManager regionManager, ICurrentUserService currentUserService, Services.IAccountService accountService, IS7CommunicationService s7Service)
         {
             InitializeComponent();
             _regionManager = regionManager;
@@ -88,12 +89,12 @@ namespace ShunLiDuo.AutomationDetection.Views
             {
                 if (WindowState == WindowState.Maximized)
                 {
-                    MaximizeIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowRestore;
+                    MaximizeIcon.Text = "❐";
                     MaximizeRestoreButton.ToolTip = "还原";
                 }
                 else
                 {
-                    MaximizeIcon.Kind = MaterialDesignThemes.Wpf.PackIconKind.WindowMaximize;
+                    MaximizeIcon.Text = "□";
                     MaximizeRestoreButton.ToolTip = "最大化";
                 }
             }

@@ -107,92 +107,127 @@
             <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <materialDesign:ColorZone Grid.Row="0" 
-                                  Padding="20,0"
-                                  materialDesign:ShadowAssist.ShadowDepth="Depth1"
-                                  Mode="PrimaryMid"
-                                  MouseDown="Header_MouseDown">
-            <Grid Height="60">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                
-                <!-- Title -->
-                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
-                    
-                    <TextBlock Text="顺多利自动化检测" 
-                              FontSize="28" FontWeight="SemiBold"
-                              Foreground="White"
-                              VerticalAlignment="Center"/>
-                </StackPanel>
-                
-                <!-- User Info -->
-                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,20,0">
-                    <StackPanel Orientation="Horizontal" Margin="15,0">
-                        <materialDesign:PackIcon Kind="Account" Width="20" Height="20" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <TextBlock VerticalAlignment="Center" FontSize="14" Foreground="White">
-                            <Run Text="姓名: "/>
-                            <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="SemiBold"/>
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="15,0">
-                        <materialDesign:PackIcon Kind="BadgeAccount" Width="20" Height="20" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <TextBlock VerticalAlignment="Center" FontSize="14" Foreground="White">
-                            <Run Text="工号: "/>
-                            <Run Text="{Binding CurrentUserEmployeeNo, Mode=OneWay}" FontWeight="SemiBold"/>
-                        </TextBlock>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Margin="15,0">
-                        <materialDesign:PackIcon Kind="AccountKey" Width="20" Height="20" Foreground="White" Margin="0,0,8,0" VerticalAlignment="Center"/>
-                        <TextBlock VerticalAlignment="Center" FontSize="14" Foreground="White">
-                            <Run Text="账号: "/>
-                            <Run Text="{Binding CurrentUserLoginAccount, Mode=OneWay}" FontWeight="SemiBold"/>
-                        </TextBlock>
-                    </StackPanel>
-                    <TextBlock x:Name="CurrentTimeText" Margin="15,0" VerticalAlignment="Center" FontSize="14" Foreground="White"/>
-                </StackPanel>
-
+        <!-- Header - 明亮主题 -->
+        <Grid Grid.Row="0" 
+              Background="#90CAF9" 
+              Height="80"
+              MouseDown="Header_MouseDown">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- 左侧标题 -->
+            <TextBlock Grid.Column="0"
+                       Text="顺多利自动化检测" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       Foreground="#212121"
+                       VerticalAlignment="Center"
+                       Margin="30,0,0,0"/>
+            
+            <!-- 中间空白区域 -->
+            <Grid Grid.Column="1"/>
+            
+            <!-- 右侧用户信息和时间 -->
+            <StackPanel Grid.Column="2" 
+                       Orientation="Horizontal" 
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Margin="0,0,30,0">
+                <TextBlock FontSize="14" Foreground="#757575" VerticalAlignment="Center">
+                    <Run Text="姓名: "/>
+                    <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="SemiBold" Foreground="#212121"/>
+                    <Run Text=" | "/>
+                    <Run Text="工号: "/>
+                    <Run Text="{Binding CurrentUserEmployeeNo, Mode=OneWay}" FontWeight="SemiBold" Foreground="#212121"/>
+                    <Run Text=" | "/>
+                    <Run Text="账号: "/>
+                    <Run Text="{Binding CurrentUserLoginAccount, Mode=OneWay}" FontWeight="SemiBold" Foreground="#212121"/>
+                    <Run Text=" "/>
+                    <Run x:Name="CurrentTimeText" Foreground="#757575"/>
+                </TextBlock>
+            </StackPanel>
+            
+            <!-- 窗口控制按钮容器 -->
+            <StackPanel Grid.Column="3" 
+                       Orientation="Horizontal" 
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Right"
+                       Margin="0,0,30,0">
                 <!-- Window Control Buttons -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+
+                <StackPanel Orientation="Horizontal" 
+                           VerticalAlignment="Center">
                     <Button x:Name="MinimizeButton" 
-                            Click="MinimizeButton_Click"
-                            ToolTip="最小化">
+                        Click="MinimizeButton_Click"
+                        ToolTip="最小化"
+                        Width="46"
+                        Height="32"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
                         <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}"/>
-                        </Button.Style>
-                        <materialDesign:PackIcon Kind="WindowMinimize" Width="20" Height="20" Foreground="White"/>
-                    </Button>
-                    <Button x:Name="MaximizeRestoreButton" 
-                            Click="MaximizeRestoreButton_Click"
-                            ToolTip="最大化/还原">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}"/>
-                        </Button.Style>
-                        <materialDesign:PackIcon x:Name="MaximizeIcon" Kind="WindowMaximize" Width="20" Height="20" Foreground="White"/>
-                    </Button>
-                    <Button x:Name="CloseButton" 
-                            Click="CloseButton_Click"
-                            ToolTip="关闭">
-                        <Button.Style>
-                            <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignIconButton}">
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="#212121"/>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#E81123"/>
+                                        <Setter Property="Background" Value="#F5F5F5"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
                         </Button.Style>
-                        <materialDesign:PackIcon Kind="WindowClose" Width="20" Height="20" Foreground="White"/>
+                        <TextBlock Text="—" FontSize="20" Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
+                    </Button>
+                    <Button x:Name="MaximizeRestoreButton" 
+                        Click="MaximizeRestoreButton_Click"
+                        ToolTip="最大化/还原"
+                        Width="46"
+                        Height="32"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="#212121"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#F5F5F5"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock x:Name="MaximizeIcon" Text="□" FontSize="16" Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
+                    </Button>
+                    <Button x:Name="CloseButton" 
+                        Click="CloseButton_Click"
+                        ToolTip="关闭"
+                        Width="46"
+                        Height="32"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="#212121"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#E81123"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="✕" FontSize="16" Foreground="{Binding RelativeSource={RelativeSource AncestorType=Button}, Path=Foreground}"/>
                     </Button>
                 </StackPanel>
-            </Grid>
-        </materialDesign:ColorZone>
+            </StackPanel>
+        </Grid>
 
-        <!-- Main Content Area -->
-        <Grid Grid.Row="1">
+        <!-- Main Content Area - 明亮背景 -->
+        <Grid Grid.Row="1" Background="#F5F7FA">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition>
                     <ColumnDefinition.Style>
@@ -318,6 +353,76 @@
                                     <TextBlock Text="规则管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
+                            <Button Tag="CommunicationSettings" 
+                                    Command="{Binding NavigateToCommunicationSettingsCommand}" 
+                                    Margin="0,12"
+                                    Padding="20,16"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="56">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                   
+                                    <TextBlock Text="通讯设置" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        
+                        <!-- 检测历史菜单 -->
+                        <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=DetectionLogView}">
+                            <Button Tag="DetectionLog" 
+                                    Command="{Binding NavigateToDetectionLogCommand}" 
+                                    Margin="0,12"
+                                    Padding="20,16"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="56">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
+                                            <DataTrigger Value="True">
+                                                <DataTrigger.Binding>
+                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                    </MultiBinding>
+                                                </DataTrigger.Binding>
+                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                   
+                                    <TextBlock Text="检测历史记录" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                         
                         <!-- 报警与异常菜单 -->
@@ -427,46 +532,16 @@
                                     <TextBlock Text="角色管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
-                            <Button Tag="CommunicationSettings" 
-                                    Command="{Binding NavigateToCommunicationSettingsCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
-                                    HorizontalContentAlignment="Left"
-                                    MinHeight="56">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                   
-                                    <TextBlock Text="通讯设置" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
             </materialDesign:Card>
 
             <!-- Main Content Region -->
-            <ContentControl Grid.Column="1" prism:RegionManager.RegionName="MainContentRegion">
+            <ContentControl Grid.Column="1" 
+                          prism:RegionManager.RegionName="MainContentRegion"
+                          VerticalAlignment="Stretch"
+                          VerticalContentAlignment="Stretch">
                 <ContentControl.Style>
                     <Style TargetType="ContentControl">
                         <Setter Property="Margin" Value="0"/>
@@ -480,22 +555,30 @@
             </ContentControl>
         </Grid>
 
-        <!-- Footer Navigation -->
-        <materialDesign:ColorZone Grid.Row="2" 
-                                  Padding="30,15"
-                                  Mode="PrimaryLight"
-                                  materialDesign:ShadowAssist.ShadowDepth="Depth1"
-                                  VerticalAlignment="Stretch" Background="#E0F2F1">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" >
+        <!-- Footer Navigation - 明亮主题 -->
+        <Border Grid.Row="2" 
+               Background="#B3E5FC" 
+               BorderBrush="#E0E0E0" 
+               BorderThickness="0,2,0,0"
+               Height="100">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
                 <Button Tag="TaskManagement" 
                         Command="{Binding NavigateToTaskCommand}" 
                         Padding="30,20"
                         Margin="30,0"
                         MinHeight="70"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
                     <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                        <Style TargetType="Button">
+                            <Setter Property="Foreground" Value="#757575"/>
+                            <Setter Property="FontSize" Value="18"/>
                             <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </Trigger>
                                 <DataTrigger Value="True">
                                     <DataTrigger.Binding>
                                         <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -503,26 +586,51 @@
                                             <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
                                         </MultiBinding>
                                     </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <Setter Property="Background" Value="#2196F3"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
-                    <StackPanel Orientation="Horizontal">
-                       
-                        <TextBlock Text="任务管理" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock Text="任务管理" 
+                              FontSize="20" 
+                              FontWeight="SemiBold" 
+                              VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#757575"/>
+                                <Style.Triggers>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
+                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Button>
                 <Button Tag="RuleManagement" 
                         Command="{Binding NavigateToRuleCommand}" 
                         Padding="30,20"
                         Margin="30,0"
                         MinHeight="70"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
                     <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                        <Style TargetType="Button">
+                            <Setter Property="Foreground" Value="#757575"/>
+                            <Setter Property="FontSize" Value="18"/>
                             <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </Trigger>
                                 <DataTrigger Value="True">
                                     <DataTrigger.Binding>
                                         <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -530,27 +638,52 @@
                                             <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
                                         </MultiBinding>
                                     </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <Setter Property="Background" Value="#2196F3"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
-                    <StackPanel Orientation="Horizontal">
-                       
-                        <TextBlock Text="调度规则" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock Text="调度规则" 
+                              FontSize="20" 
+                              FontWeight="SemiBold" 
+                              VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#757575"/>
+                                <Style.Triggers>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
+                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Button>
 
                 <Button Tag="DetectionLog" 
-         Command="{Binding NavigateToDetectionLogCommand}" 
-         Padding="30,20"
-         Margin="30,0"
-         MinHeight="70"
-         VerticalAlignment="Center">
+                        Command="{Binding NavigateToDetectionLogCommand}" 
+                        Padding="30,20"
+                        Margin="30,0"
+                        MinHeight="70"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
                     <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                        <Style TargetType="Button">
+                            <Setter Property="Foreground" Value="#757575"/>
+                            <Setter Property="FontSize" Value="18"/>
                             <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </Trigger>
                                 <DataTrigger Value="True">
                                     <DataTrigger.Binding>
                                         <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -558,16 +691,33 @@
                                             <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
                                         </MultiBinding>
                                     </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <Setter Property="Background" Value="#2196F3"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
-                    <StackPanel Orientation="Horizontal">
-
-                        <TextBlock Text="检测历史" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock Text="检测历史" 
+                              FontSize="20" 
+                              FontWeight="SemiBold" 
+                              VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#757575"/>
+                                <Style.Triggers>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
+                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Button>
 
                 <Button Tag="Alarm" 
@@ -575,10 +725,18 @@
                         Padding="30,20"
                         Margin="30,0"
                         MinHeight="70"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
                     <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                        <Style TargetType="Button">
+                            <Setter Property="Foreground" Value="#757575"/>
+                            <Setter Property="FontSize" Value="18"/>
                             <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </Trigger>
                                 <DataTrigger Value="True">
                                     <DataTrigger.Binding>
                                         <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -586,29 +744,52 @@
                                             <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
                                         </MultiBinding>
                                     </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <Setter Property="Background" Value="#2196F3"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
-                    <StackPanel Orientation="Horizontal">
-                        
-                        <TextBlock Text="报警与异常" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock Text="报警与异常" 
+                              FontSize="20" 
+                              FontWeight="SemiBold" 
+                              VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#757575"/>
+                                <Style.Triggers>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
+                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Button>
-
-               
 
                 <Button Tag="SystemSettings" 
                         Command="{Binding NavigateToSystemSettingsCommand}" 
                         Padding="30,20"
                         Margin="30,0"
                         MinHeight="70"
-                        VerticalAlignment="Center">
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
                     <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                        <Style TargetType="Button">
+                            <Setter Property="Foreground" Value="#757575"/>
+                            <Setter Property="FontSize" Value="18"/>
                             <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                </Trigger>
                                 <DataTrigger Value="True">
                                     <DataTrigger.Binding>
                                         <MultiBinding Converter="{StaticResource TagEqualsConverter}">
@@ -616,19 +797,35 @@
                                             <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
                                         </MultiBinding>
                                     </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueMidBrush}"/>
+                                    <Setter Property="Background" Value="#2196F3"/>
                                     <Setter Property="Foreground" Value="White"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
-                    <StackPanel Orientation="Horizontal">
-                       
-                        <TextBlock Text="系统设置" FontSize="20" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <TextBlock Text="系统设置" 
+                              FontSize="20" 
+                              FontWeight="SemiBold" 
+                              VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Foreground" Value="#757575"/>
+                                <Style.Triggers>
+                                    <DataTrigger Value="True">
+                                        <DataTrigger.Binding>
+                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
+                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                            </MultiBinding>
+                                        </DataTrigger.Binding>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
                 </Button>
-               
             </StackPanel>
-        </materialDesign:ColorZone>
+        </Border>
     </Grid>
 </Window>

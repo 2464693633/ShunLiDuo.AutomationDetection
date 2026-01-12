@@ -14,6 +14,7 @@ namespace ShunLiDuo.AutomationDetection.Views
     {
         private readonly IDetectionRoomService _detectionRoomService;
         private readonly DetectionRoomManagementViewModel _viewModel;
+        private readonly IScannerCommunicationService _scannerService;
 
         public DetectionRoomManagementView(
             IDetectionRoomService detectionRoomService,
@@ -23,6 +24,7 @@ namespace ShunLiDuo.AutomationDetection.Views
         {
             InitializeComponent();
             _detectionRoomService = detectionRoomService;
+            _scannerService = scannerService;
             _viewModel = new DetectionRoomManagementViewModel(detectionRoomService, accountService, currentUserService, scannerService);
             DataContext = _viewModel;
             
@@ -92,6 +94,30 @@ namespace ShunLiDuo.AutomationDetection.Views
                     IsSelected = false
                 };
 
+                // 检查扫码器配置变化，如果禁用或清空串口号，需要关闭连接
+                bool shouldCloseConnection = false;
+                if (room.ScannerIsEnabled && (!updatedRoom.ScannerIsEnabled || string.IsNullOrWhiteSpace(updatedRoom.ScannerPortName)))
+                {
+                    // 原来启用了扫码器，现在禁用了或清空了串口号，需要关闭连接
+                    shouldCloseConnection = true;
+                    System.Diagnostics.Debug.WriteLine($"[检测室管理] 检测到扫码器配置变化，需要关闭连接 - 检测室ID:{room.Id}, 原启用:{room.ScannerIsEnabled}, 新启用:{updatedRoom.ScannerIsEnabled}, 原串口:{room.ScannerPortName}, 新串口:{updatedRoom.ScannerPortName}");
+                }
+                else if (room.ScannerIsEnabled && !string.IsNullOrWhiteSpace(room.ScannerPortName) && 
+                         updatedRoom.ScannerIsEnabled && !string.IsNullOrWhiteSpace(updatedRoom.ScannerPortName) &&
+                         room.ScannerPortName != updatedRoom.ScannerPortName)
+                {
+                    // 串口号改变了，需要关闭旧连接
+                    shouldCloseConnection = true;
+                    System.Diagnostics.Debug.WriteLine($"[检测室管理] 检测到串口号变化，需要关闭旧连接 - 检测室ID:{room.Id}, 原串口:{room.ScannerPortName}, 新串口:{updatedRoom.ScannerPortName}");
+                }
+                
+                // 如果需要关闭连接，先关闭
+                if (shouldCloseConnection)
+                {
+                    await _scannerService.CloseConnectionAsync(room.Id);
+                    System.Diagnostics.Debug.WriteLine($"[检测室管理] 已关闭串口连接 - 检测室ID:{room.Id}");
+                }
+                
                 // 添加调试日志，检查保存前的值
                 System.Diagnostics.Debug.WriteLine($"[保存] 准备保存 - 推箱气缸收缩超时: {updatedRoom.PushCylinderRetractTimeout}");
                 System.Diagnostics.Debug.WriteLine($"[保存] 准备保存 - 推箱气缸伸出超时: {updatedRoom.PushCylinderExtendTimeout}");

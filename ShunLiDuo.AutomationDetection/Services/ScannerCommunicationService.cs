@@ -17,6 +17,7 @@ namespace ShunLiDuo.AutomationDetection.Services
         private readonly object _lockObject = new object();
 
         public event EventHandler<ScannerDataReceivedEventArgs> DataReceived;
+        public event EventHandler<ScannerConnectionStatusChangedEventArgs> ConnectionStatusChanged;
 
         public async Task<(bool Success, string ErrorMessage)> TestConnectionAsync(DetectionRoomItem room)
         {
@@ -146,6 +147,17 @@ namespace ShunLiDuo.AutomationDetection.Services
                         _roomConfigs[room.Id] = room;
 
                         System.Diagnostics.Debug.WriteLine($"[串口连接] 成功打开串口 - 检测室ID:{room.Id}, 检测室名称:{room.RoomName}, 串口:{room.ScannerPortName}, 波特率:{room.ScannerBaudRate}");
+                        
+                        // 触发连接状态变化事件（在后台线程触发，事件处理会切换到UI线程）
+                        var eventArgs = new ScannerConnectionStatusChangedEventArgs
+                        {
+                            RoomId = room.Id,
+                            IsConnected = true
+                        };
+                        System.Diagnostics.Debug.WriteLine($"[串口连接] 准备触发连接状态变化事件 - 检测室ID:{room.Id}, IsConnected:True");
+                        ConnectionStatusChanged?.Invoke(this, eventArgs);
+                        System.Diagnostics.Debug.WriteLine($"[串口连接] 已触发连接状态变化事件 - 检测室ID:{room.Id}, 事件订阅者数量:{(ConnectionStatusChanged?.GetInvocationList()?.Length ?? 0)}");
+                        
                         return true;
                     }
                     catch (Exception ex)
@@ -174,7 +186,8 @@ namespace ShunLiDuo.AutomationDetection.Services
             {
                 try
                 {
-                    if (serialPort.IsOpen)
+                    bool wasOpen = serialPort.IsOpen;
+                    if (wasOpen)
                     {
                         serialPort.Close();
                     }
@@ -182,6 +195,17 @@ namespace ShunLiDuo.AutomationDetection.Services
                     _serialPorts.Remove(roomId);
                     _roomConfigs.Remove(roomId);
                     _readBuffers.Remove(roomId); // 清理缓冲区
+                    
+                    // 触发连接状态变化事件
+                    if (wasOpen)
+                    {
+                        ConnectionStatusChanged?.Invoke(this, new ScannerConnectionStatusChangedEventArgs
+                        {
+                            RoomId = roomId,
+                            IsConnected = false
+                        });
+                    }
+                    
                     return true;
                 }
                 catch (Exception ex)

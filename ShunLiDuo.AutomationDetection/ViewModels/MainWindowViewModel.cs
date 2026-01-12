@@ -226,9 +226,9 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             NavigateToDetectionLogCommand = new DelegateCommand(() => 
             {
                 CurrentMainView = "DetectionLogView";
-                IsLeftNavVisible = false;
+                IsLeftNavVisible = true;
                 CurrentBottomNav = "DetectionLog";
-                CurrentLeftNav = "";
+                CurrentLeftNav = "DetectionLog";
                 NavigateTo("DetectionLogView");
             });
         }

@@ -69,6 +69,9 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             // 监听扫码数据接收事件
             _scannerService.DataReceived += ScannerService_DataReceived;
             
+            // 监听扫码器连接状态变化事件
+            _scannerService.ConnectionStatusChanged += ScannerService_ConnectionStatusChanged;
+            
             // 启动定时器定期检查连接状态（每秒检查一次）
             _plcStatusTimer = new DispatcherTimer();
             _plcStatusTimer.Interval = System.TimeSpan.FromSeconds(1);
@@ -105,6 +108,39 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             IsPlcConnected = isConnected;
         }
 
+        private void ScannerService_ConnectionStatusChanged(object sender, Services.ScannerConnectionStatusChangedEventArgs e)
+        {
+            // 确保在UI线程上更新
+            if (System.Windows.Application.Current?.Dispatcher != null)
+            {
+                if (System.Windows.Application.Current.Dispatcher.CheckAccess())
+                {
+                    UpdateScannerConnectionStatusFromEvent(e);
+                }
+                else
+                {
+                    System.Windows.Application.Current.Dispatcher.Invoke(() => UpdateScannerConnectionStatusFromEvent(e));
+                }
+            }
+            else
+            {
+                UpdateScannerConnectionStatusFromEvent(e);
+            }
+        }
+        
+        private void UpdateScannerConnectionStatusFromEvent(Services.ScannerConnectionStatusChangedEventArgs e)
+        {
+            // 立即更新对应检测室的连接状态
+            if (RoomBoxLists != null && e != null)
+            {
+                var roomBoxList = RoomBoxLists.FirstOrDefault(rbl => rbl.Room?.Id == e.RoomId);
+                if (roomBoxList != null)
+                {
+                    roomBoxList.IsScannerConnected = e.IsConnected;
+                }
+            }
+        }
+
         private void UpdatePlcConnectionStatus()
         {
             // 直接更新，BindableBase的SetProperty已经处理了线程安全
@@ -115,18 +151,34 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
         private void UpdateScannerConnectionStatus()
         {
-            // 更新每个检测室的串口连接状态
-            if (RoomBoxLists != null)
+            // DispatcherTimer已经在UI线程上运行，直接更新即可
+            if (RoomBoxLists == null)
             {
-                foreach (var roomBoxList in RoomBoxLists)
+                return;
+            }
+            
+            foreach (var roomBoxList in RoomBoxLists)
+            {
+                if (roomBoxList?.Room == null)
                 {
-                    if (roomBoxList.Room != null)
-                    {
-                        bool isConnected = _scannerService.IsConnected(roomBoxList.Room.Id);
-                        roomBoxList.IsScannerConnected = isConnected;
-                    }
+                    continue;
+                }
+                
+                bool isConnected = _scannerService.IsConnected(roomBoxList.Room.Id);
+                bool oldValue = roomBoxList.IsScannerConnected;
+                
+                // 只有当值不同时才更新，避免不必要的通知
+                if (oldValue != isConnected)
+                {
+                    roomBoxList.IsScannerConnected = isConnected;
                 }
             }
+        }
+        
+        // 公开方法：手动刷新扫码器连接状态（供外部调用）
+        public void RefreshScannerConnectionStatus()
+        {
+            UpdateScannerConnectionStatus();
         }
 
         private async void ScannerService_DataReceived(object sender, Services.ScannerDataReceivedEventArgs e)
@@ -168,6 +220,8 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 if (matchedRule == null)
                 {
                     roomBoxList.ScanStatus = "未找到匹配规则";
+                    // 执行不匹配流程（放行动作）
+                    _ = HandleUnmatchedScanAsync(e.RoomId, e.RoomName);
                     return;
                 }
 
@@ -180,6 +234,8 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 if (task == null)
                 {
                     roomBoxList.ScanStatus = "未找到对应任务";
+                    // 执行不匹配流程（放行动作）
+                    _ = HandleUnmatchedScanAsync(e.RoomId, e.RoomName);
                     return;
                 }
 
@@ -188,6 +244,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 if (assignedRoomStatus == "检测完成")
                 {
                     roomBoxList.ScanStatus = "任务已完成，请先手动录入重新上线";
+                    // 任务已完成，不执行放行动作
                     return;
                 }
 
@@ -195,6 +252,8 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 if (task.AssignedRoomId != e.RoomId)
                 {
                     roomBoxList.ScanStatus = "任务不在此检测室";
+                    // 执行不匹配流程（放行动作）
+                    _ = HandleUnmatchedScanAsync(e.RoomId, e.RoomName);
                     return;
                 }
 
@@ -249,6 +308,9 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     {
                         roomBoxList.Boxes.Remove(boxCode);
                     }
+                    
+                    // 执行放行动作（让物流盒离开检测室）
+                    _ = HandleUnmatchedScanAsync(e.RoomId, e.RoomName);
                     
                     // 异步更新日志（不阻塞UI）
                     _ = Task.Run(async () =>

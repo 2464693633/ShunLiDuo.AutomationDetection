@@ -473,6 +473,62 @@ namespace ShunLiDuo.AutomationDetection.Data
                 // 创建报警记录表
                 command.CommandText = createAlarmRecordsTable;
                 command.ExecuteNonQuery();
+                
+                // 检查并添加 AlarmType 字段（如果不存在）
+                try
+                {
+                    // 先检查字段是否存在
+                    command.CommandText = "SELECT COUNT(*) FROM pragma_table_info('AlarmRecords') WHERE name='AlarmType';";
+                    var fieldExists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                    
+                    if (!fieldExists)
+                    {
+                        command.CommandText = "ALTER TABLE AlarmRecords ADD COLUMN AlarmType TEXT DEFAULT '系统报警';";
+                        command.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine("[数据库] 已添加 AlarmType 字段到 AlarmRecords 表");
+                    }
+                    
+                    // 更新现有记录，为 NULL 的 AlarmType 设置默认值
+                    command.CommandText = "UPDATE AlarmRecords SET AlarmType = '系统报警' WHERE AlarmType IS NULL;";
+                    int updatedRows = command.ExecuteNonQuery();
+                    if (updatedRows > 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[数据库] 已更新 {updatedRows} 条报警记录的 AlarmType 字段");
+                    }
+                }
+                catch (SQLiteException ex)
+                {
+                    // 如果字段已存在或其他错误，记录日志但继续执行
+                    System.Diagnostics.Debug.WriteLine($"[数据库] 处理 AlarmType 字段时出错: {ex.Message}");
+                }
+                
+                // 检查并添加 AlarmLevel 字段（如果不存在）
+                try
+                {
+                    // 先检查字段是否存在
+                    command.CommandText = "SELECT COUNT(*) FROM pragma_table_info('AlarmRecords') WHERE name='AlarmLevel';";
+                    var fieldExists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                    
+                    if (!fieldExists)
+                    {
+                        command.CommandText = "ALTER TABLE AlarmRecords ADD COLUMN AlarmLevel TEXT DEFAULT '警告';";
+                        command.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine("[数据库] 已添加 AlarmLevel 字段到 AlarmRecords 表");
+                    }
+                    
+                    // 更新现有记录，为 NULL 的 AlarmLevel 设置默认值
+                    command.CommandText = "UPDATE AlarmRecords SET AlarmLevel = '警告' WHERE AlarmLevel IS NULL;";
+                    int updatedRows = command.ExecuteNonQuery();
+                    if (updatedRows > 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[数据库] 已更新 {updatedRows} 条报警记录的 AlarmLevel 字段");
+                    }
+                }
+                catch (SQLiteException ex)
+                {
+                    // 如果字段已存在或其他错误，记录日志但继续执行
+                    System.Diagnostics.Debug.WriteLine($"[数据库] 处理 AlarmLevel 字段时出错: {ex.Message}");
+                }
             }
 
             // 初始化权限数据

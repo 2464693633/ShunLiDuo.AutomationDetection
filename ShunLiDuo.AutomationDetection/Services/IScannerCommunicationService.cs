@@ -37,6 +37,11 @@ namespace ShunLiDuo.AutomationDetection.Services
         event EventHandler<ScannerDataReceivedEventArgs> DataReceived;
 
         /// <summary>
+        /// 串口连接状态变化事件（roomId, isConnected）
+        /// </summary>
+        event EventHandler<ScannerConnectionStatusChangedEventArgs> ConnectionStatusChanged;
+
+        /// <summary>
         /// 自动连接所有已启用扫码器的检测室
         /// </summary>
         Task AutoConnectAllScannersAsync(System.Collections.Generic.List<DetectionRoomItem> rooms);
@@ -48,6 +53,12 @@ namespace ShunLiDuo.AutomationDetection.Services
         public string RoomName { get; set; }
         public string ScanData { get; set; }
         public DateTime ReceiveTime { get; set; }
+    }
+
+    public class ScannerConnectionStatusChangedEventArgs : EventArgs
+    {
+        public int RoomId { get; set; }
+        public bool IsConnected { get; set; }
     }
 }
 

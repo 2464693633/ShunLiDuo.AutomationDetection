@@ -23,7 +23,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 using (var command = _dbContext.Connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage,
+                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage, AlarmType, AlarmLevel,
                                RoomId, RoomName, DeviceName, Status, CreateTime, HandleTime, Handler, Remark
                         FROM AlarmRecords
                         ORDER BY CreateTime DESC";
@@ -77,7 +77,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 using (var command = _dbContext.Connection.CreateCommand())
                 {
                     command.CommandText = $@"
-                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage,
+                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage, AlarmType, AlarmLevel,
                                RoomId, RoomName, DeviceName, Status, CreateTime, HandleTime, Handler, Remark
                         FROM AlarmRecords
                         {whereClause}
@@ -105,7 +105,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 using (var command = _dbContext.Connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage,
+                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage, AlarmType, AlarmLevel,
                                RoomId, RoomName, DeviceName, Status, CreateTime, HandleTime, Handler, Remark
                         FROM AlarmRecords
                         WHERE Status = '未处理'
@@ -130,7 +130,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 using (var command = _dbContext.Connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage,
+                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage, AlarmType, AlarmLevel,
                                RoomId, RoomName, DeviceName, Status, CreateTime, HandleTime, Handler, Remark
                         FROM AlarmRecords
                         WHERE Id = @id";
@@ -155,7 +155,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 using (var command = _dbContext.Connection.CreateCommand())
                 {
                     command.CommandText = @"
-                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage,
+                        SELECT Id, AlarmCode, AlarmTitle, AlarmMessage, AlarmType, AlarmLevel,
                                RoomId, RoomName, DeviceName, Status, CreateTime, HandleTime, Handler, Remark
                         FROM AlarmRecords
                         WHERE AlarmCode = @alarmCode";
@@ -187,14 +187,16 @@ namespace ShunLiDuo.AutomationDetection.Data
 
                     command.CommandText = @"
                         INSERT INTO AlarmRecords 
-                        (AlarmCode, AlarmTitle, AlarmMessage, RoomId, RoomName, DeviceName, Status, CreateTime, Remark)
+                        (AlarmCode, AlarmTitle, AlarmMessage, AlarmType, AlarmLevel, RoomId, RoomName, DeviceName, Status, CreateTime, Remark)
                         VALUES 
-                        (@AlarmCode, @AlarmTitle, @AlarmMessage, @RoomId, @RoomName, @DeviceName, @Status, @CreateTime, @Remark);
+                        (@AlarmCode, @AlarmTitle, @AlarmMessage, @AlarmType, @AlarmLevel, @RoomId, @RoomName, @DeviceName, @Status, @CreateTime, @Remark);
                         SELECT last_insert_rowid();";
                     
                     command.Parameters.Add(new SQLiteParameter("@AlarmCode", alarm.AlarmCode));
                     command.Parameters.Add(new SQLiteParameter("@AlarmTitle", alarm.AlarmTitle));
                     command.Parameters.Add(new SQLiteParameter("@AlarmMessage", alarm.AlarmMessage ?? ""));
+                    command.Parameters.Add(new SQLiteParameter("@AlarmType", alarm.AlarmType ?? "系统报警"));
+                    command.Parameters.Add(new SQLiteParameter("@AlarmLevel", alarm.AlarmLevel ?? "警告"));
                     command.Parameters.Add(new SQLiteParameter("@RoomId", alarm.RoomId ?? (object)DBNull.Value));
                     command.Parameters.Add(new SQLiteParameter("@RoomName", alarm.RoomName ?? ""));
                     command.Parameters.Add(new SQLiteParameter("@DeviceName", alarm.DeviceName ?? ""));
@@ -279,14 +281,16 @@ namespace ShunLiDuo.AutomationDetection.Data
                 AlarmCode = reader.IsDBNull(1) ? null : reader.GetString(1),
                 AlarmTitle = reader.IsDBNull(2) ? null : reader.GetString(2),
                 AlarmMessage = reader.IsDBNull(3) ? null : reader.GetString(3),
-                RoomId = reader.IsDBNull(4) ? null : (int?)reader.GetInt32(4),
-                RoomName = reader.IsDBNull(5) ? null : reader.GetString(5),
-                DeviceName = reader.IsDBNull(6) ? null : reader.GetString(6),
-                Status = reader.IsDBNull(7) ? "未处理" : reader.GetString(7),
-                CreateTime = reader.IsDBNull(8) ? DateTime.Now : reader.GetDateTime(8),
-                HandleTime = reader.IsDBNull(9) ? null : (DateTime?)reader.GetDateTime(9),
-                Handler = reader.IsDBNull(10) ? null : reader.GetString(10),
-                Remark = reader.IsDBNull(11) ? null : reader.GetString(11)
+                AlarmType = reader.IsDBNull(4) ? "系统报警" : reader.GetString(4),
+                AlarmLevel = reader.IsDBNull(5) ? "警告" : reader.GetString(5),
+                RoomId = reader.IsDBNull(6) ? null : (int?)reader.GetInt32(6),
+                RoomName = reader.IsDBNull(7) ? null : reader.GetString(7),
+                DeviceName = reader.IsDBNull(8) ? null : reader.GetString(8),
+                Status = reader.IsDBNull(9) ? "未处理" : reader.GetString(9),
+                CreateTime = reader.IsDBNull(10) ? DateTime.Now : reader.GetDateTime(10),
+                HandleTime = reader.IsDBNull(11) ? null : (DateTime?)reader.GetDateTime(11),
+                Handler = reader.IsDBNull(12) ? null : reader.GetString(12),
+                Remark = reader.IsDBNull(13) ? null : reader.GetString(13)
             };
         }
     }

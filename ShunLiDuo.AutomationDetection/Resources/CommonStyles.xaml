@@ -13,6 +13,17 @@
     <Color x:Key="BorderColor">#E0E0E0</Color>
     <Color x:Key="BackgroundColor">#F5F5F5</Color>
     
+    <!-- 明亮主题颜色定义 -->
+    <Color x:Key="LightBackgroundColor">#F5F7FA</Color>
+    <Color x:Key="LightBackgroundSecondaryColor">#FFFFFF</Color>
+    <Color x:Key="LightPanelColor">#FFFFFF</Color>
+    <Color x:Key="LightBorderColor">#2196F3</Color>
+    <Color x:Key="LightTextPrimaryColor">#212121</Color>
+    <Color x:Key="LightTextSecondaryColor">#757575</Color>
+    <Color x:Key="LightCodeBackgroundColor">#FAFBFC</Color>
+    <Color x:Key="LightTableBorderColor">#E0E0E0</Color>
+    <Color x:Key="LightTableHeaderColor">#F5F5F5</Color>
+    
     <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
     <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDarkColor}"/>
     <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
@@ -23,6 +34,23 @@
     <SolidColorBrush x:Key="TextSecondaryBrush" Color="{StaticResource TextSecondaryColor}"/>
     <SolidColorBrush x:Key="BorderBrush" Color="{StaticResource BorderColor}"/>
     <SolidColorBrush x:Key="BackgroundBrush" Color="{StaticResource BackgroundColor}"/>
+    
+    <!-- 明亮主题画笔（使用别名以保持兼容性） -->
+    <SolidColorBrush x:Key="DarkBackgroundBrush" Color="{StaticResource LightBackgroundColor}"/>
+    <SolidColorBrush x:Key="DarkBackgroundSecondaryBrush" Color="{StaticResource LightBackgroundSecondaryColor}"/>
+    <SolidColorBrush x:Key="DarkPanelBrush" Color="{StaticResource LightPanelColor}"/>
+    <SolidColorBrush x:Key="DarkBorderBrush" Color="{StaticResource LightBorderColor}"/>
+    <SolidColorBrush x:Key="DarkTextPrimaryBrush" Color="{StaticResource LightTextPrimaryColor}"/>
+    <SolidColorBrush x:Key="DarkTextSecondaryBrush" Color="{StaticResource LightTextSecondaryColor}"/>
+    <SolidColorBrush x:Key="DarkCodeBackgroundBrush" Color="{StaticResource LightCodeBackgroundColor}"/>
+    <SolidColorBrush x:Key="DarkTableBorderBrush" Color="{StaticResource LightTableBorderColor}"/>
+    <SolidColorBrush x:Key="DarkTableHeaderBrush" Color="{StaticResource LightTableHeaderColor}"/>
+    
+    <!-- 明亮主题渐变背景 -->
+    <LinearGradientBrush x:Key="DarkBackgroundGradient" StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="{StaticResource LightBackgroundColor}" Offset="0"/>
+        <GradientStop Color="#FFFFFF" Offset="1"/>
+    </LinearGradientBrush>
     
     <!-- 主按钮样式 -->
     <Style x:Key="PrimaryButtonStyle" TargetType="Button">
@@ -196,11 +224,11 @@
         </Style.Triggers>
     </Style>
     
-    <!-- DataGrid 单元格样式 - 垂直居中 -->
+    <!-- DataGrid 单元格样式 - 垂直居中，支持文本换行 -->
     <Style x:Key="DataGridCellStyle" TargetType="DataGridCell">
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="HorizontalContentAlignment" Value="Center"/>
-        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="8,5"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="VerticalAlignment" Value="Stretch"/>
         <Style.Triggers>
@@ -230,12 +258,13 @@
         </Style.Triggers>
     </Style>
     
-    <!-- DataGrid TextColumn ElementStyle - 用于单元格内容垂直和水平居中 -->
+    <!-- DataGrid TextColumn ElementStyle - 用于单元格内容垂直和水平居中，支持文本换行 -->
     <Style x:Key="DataGridTextColumnElementStyle" TargetType="TextBlock">
         <Setter Property="VerticalAlignment" Value="Center"/>
-        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="TextAlignment" Value="Center"/>
-        <Setter Property="Padding" Value="0"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="Padding" Value="5,5"/>
     </Style>
     
     <!-- 标准标签页容器样式 -->
@@ -260,7 +289,7 @@
     
     <!-- 标准标签页样式 -->
     <Style x:Key="StandardTabItemStyle" TargetType="TabItem">
-        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontSize" Value="20"/>
         <Setter Property="Padding" Value="25,15"/>
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Foreground" Value="{StaticResource TextSecondaryBrush}"/>
@@ -272,7 +301,7 @@
                             BorderThickness="0"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter ContentSource="Header"
-                                         HorizontalAlignment="Center"
+                                         HorizontalAlignment="Left"
                                          VerticalAlignment="Center"/>
                     </Border>
                     <ControlTemplate.Triggers>
@@ -371,6 +400,98 @@
         <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
         <Setter Property="MinHeight" Value="100"/>
         <Setter Property="Height" Value="Auto"/>
+    </Style>
+    
+    <!-- 深色主题样式 -->
+    <!-- 深色面板样式 -->
+    <Style x:Key="DarkPanelStyle" TargetType="Border">
+        <Setter Property="Background" Value="{StaticResource DarkPanelBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource DarkBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="CornerRadius" Value="8"/>
+        <Setter Property="Padding" Value="20"/>
+        <Setter Property="Margin" Value="10"/>
+    </Style>
+    
+    <!-- 明亮输入框样式 -->
+    <Style x:Key="DarkTextBoxStyle" TargetType="TextBox">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="{StaticResource DarkTextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource DarkBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="Height" Value="42"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsFocused" Value="True">
+                <Setter Property="BorderBrush" Value="#2196F3"/>
+                <Setter Property="BorderThickness" Value="2"/>
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="#64B5F6"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <!-- 明亮数据表格样式 -->
+    <Style x:Key="DarkDataGridStyle" TargetType="DataGrid">
+        <Setter Property="AutoGenerateColumns" Value="False"/>
+        <Setter Property="CanUserAddRows" Value="False"/>
+        <Setter Property="GridLinesVisibility" Value="None"/>
+        <Setter Property="HeadersVisibility" Value="Column"/>
+        <Setter Property="SelectionMode" Value="Single"/>
+        <Setter Property="IsReadOnly" Value="True"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="Foreground" Value="{StaticResource DarkTextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource DarkTableBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontSize" Value="15"/>
+        <Setter Property="RowHeight" Value="55"/>
+    </Style>
+    
+    <!-- 明亮数据表格行样式 -->
+    <Style x:Key="DarkDataGridRowStyle" TargetType="DataGridRow">
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderBrush" Value="{StaticResource DarkTableBorderBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource DarkTextPrimaryBrush}"/>
+        <Setter Property="Margin" Value="0,1"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#F5F5F5"/>
+            </Trigger>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{StaticResource PrimaryBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+    
+    <!-- 明亮数据表格单元格样式 -->
+    <Style x:Key="DarkDataGridCellStyle" TargetType="DataGridCell">
+        <Setter Property="BorderBrush" Value="{StaticResource DarkTableBorderBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource DarkTextPrimaryBrush}"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    </Style>
+    
+    <!-- 明亮数据表格列标题样式 -->
+    <Style x:Key="DarkDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="{StaticResource DarkTableHeaderBrush}"/>
+        <Setter Property="Foreground" Value="{StaticResource DarkTextPrimaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource DarkTableBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="0,0,1,1"/>
+        <Setter Property="Padding" Value="10"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#E8E8E8"/>
+            </Trigger>
+        </Style.Triggers>
     </Style>
     
 </ResourceDictionary>

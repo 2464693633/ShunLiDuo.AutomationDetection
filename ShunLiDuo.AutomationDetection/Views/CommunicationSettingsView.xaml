@@ -28,7 +28,7 @@
 
         <!-- Tabs -->
         <TabControl Grid.Row="0" Margin="0,0,0,15" Style="{StaticResource StandardTabControlStyle}">
-            <TabItem Content="通讯设置" Style="{StaticResource StandardTabItemStyle}" IsSelected="True"/>
+            <TabItem Header="通讯设置" Style="{StaticResource StandardTabItemStyle}" IsSelected="True"/>
         </TabControl>
 
         <!-- Content Area -->
