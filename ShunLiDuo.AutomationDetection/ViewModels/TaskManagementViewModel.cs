@@ -227,7 +227,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     // 异步更新日志（不阻塞UI）
                     _ = Task.Run(async () =>
                     {
-                        var logs = await _detectionLogService.GetLogsByBoxCodeAsync(boxCode);
+                        var logs = await _detectionLogService.GetLogsByBoxCodeAsync(boxNo);
                         var latestLog = logs?.OrderByDescending(l => l.CreateTime).FirstOrDefault();
                         if (latestLog != null)
                         {
@@ -253,7 +253,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     // 异步更新日志（不阻塞UI）
                     _ = Task.Run(async () =>
                     {
-                        var logs = await _detectionLogService.GetLogsByBoxCodeAsync(boxCode);
+                        var logs = await _detectionLogService.GetLogsByBoxCodeAsync(boxNo);
                         var latestLog = logs?.OrderByDescending(l => l.CreateTime).FirstOrDefault();
                         if (latestLog != null)
                         {
@@ -638,7 +638,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             {
                 await _detectionLogService.AddLogAsync(new DetectionLogItem
                 {
-                    LogisticsBoxCode = formattedCode,
+                    LogisticsBoxCode = boxNo,
                     RoomId = availableRoom.Id,
                     RoomName = availableRoom.RoomName,
                     Status = "未检测",

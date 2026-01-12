@@ -386,6 +386,7 @@
     <Compile Include="Services\AlarmRecordService.cs" />
     <Compile Include="Services\ApiHostService.cs" />
     <Compile Include="Api\Controllers\DetectionLogController.cs" />
+    <Compile Include="Api\Controllers\HomeController.cs" />
     <Compile Include="Api\Controllers\TaskController.cs" />
     <Compile Include="Converters\StringToVisibilityConverter.cs" />
     <Compile Include="Converters\StringToVisibilityConverterForError.cs" />

@@ -45,7 +45,10 @@ namespace ShunLiDuo.AutomationDetection.Services
                     // 配置依赖解析器（关键！）
                     config.DependencyResolver = new DryIocDependencyResolver(_containerProvider);
                     
-                    // 配置路由
+                    // 启用属性路由（支持 RoutePrefix 和 Route 属性）
+                    config.MapHttpAttributeRoutes();
+                    
+                    // 配置传统路由（作为后备）
                     config.Routes.MapHttpRoute(
                         name: "DefaultApi",
                         routeTemplate: "api/{controller}/{id}",
