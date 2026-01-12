@@ -1,4 +1,5 @@
 using System;
+using System.Configuration;
 using System.Windows;
 using Prism.DryIoc;
 using Prism.Ioc;
@@ -105,7 +106,11 @@ namespace ShunLiDuo.AutomationDetection
                 // 启动API服务器（在登录成功后）
                 try
                 {
-                    _apiHostService = new ApiHostService(Container, "http://localhost:8080");
+                    // 从配置文件读取API地址，如果不存在则使用默认值
+                    string apiBaseAddress = ConfigurationManager.AppSettings["ApiBaseAddress"] 
+                        ?? "http://localhost:8080";
+                    
+                    _apiHostService = new ApiHostService(Container, apiBaseAddress);
                     _apiHostService.Start();
                 }
                 catch (Exception ex)

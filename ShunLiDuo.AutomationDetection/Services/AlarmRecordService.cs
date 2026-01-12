@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ShunLiDuo.AutomationDetection.Data;
 using ShunLiDuo.AutomationDetection.Models;
@@ -115,13 +117,34 @@ namespace ShunLiDuo.AutomationDetection.Services
         public async Task RecordAlarmAsync(string alarmTitle, string alarmMessage,
             int? roomId = null, string roomName = null, string deviceName = null, string remark = null)
         {
+            // 如果 roomName 为空，尝试从报警信息中提取检测室名称
+            string extractedRoomName = roomName;
+            if (string.IsNullOrWhiteSpace(extractedRoomName) && !string.IsNullOrWhiteSpace(alarmMessage))
+            {
+                // 尝试匹配"检测室X"或"检测室 X"的格式
+                var match = Regex.Match(alarmMessage, @"检测室\s*(\d+|[一二三四五六七八九十]+|[A-Za-z]+)");
+                if (match.Success)
+                {
+                    extractedRoomName = match.Value; // 提取完整的"检测室X"字符串
+                }
+                else
+                {
+                    // 尝试匹配其他可能的检测室名称格式（如"检测室1"、"检测室一"等）
+                    var roomMatch = Regex.Match(alarmMessage, @"(检测室[^\s，,。]+)");
+                    if (roomMatch.Success)
+                    {
+                        extractedRoomName = roomMatch.Groups[1].Value;
+                    }
+                }
+            }
+
             var alarm = new AlarmRecord
             {
                 AlarmTitle = alarmTitle ?? "报警",
                 AlarmMessage = alarmMessage ?? "",
                 RoomId = roomId,
-                RoomName = roomName ?? "",
-                DeviceName = deviceName ?? "",
+                RoomName = extractedRoomName ?? "",
+                DeviceName = "", // 不再使用设备名称字段
                 Status = "未处理",
                 CreateTime = DateTime.Now,
                 Remark = remark ?? ""

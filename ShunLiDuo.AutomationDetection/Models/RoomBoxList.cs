@@ -9,11 +9,13 @@ namespace ShunLiDuo.AutomationDetection.Models
         private ObservableCollection<string> _boxes;
         private string _lastScannedCode;
         private string _scanStatus; // "等待扫码", "匹配成功", "匹配失败"
+        private bool _isScannerConnected;
 
         public RoomBoxList()
         {
             Boxes = new ObservableCollection<string>();
             ScanStatus = "等待扫码";
+            IsScannerConnected = false;
         }
 
         public DetectionRoomItem Room
@@ -38,6 +40,12 @@ namespace ShunLiDuo.AutomationDetection.Models
         {
             get => _scanStatus;
             set => SetProperty(ref _scanStatus, value);
+        }
+
+        public bool IsScannerConnected
+        {
+            get => _isScannerConnected;
+            set => SetProperty(ref _isScannerConnected, value);
         }
     }
 }

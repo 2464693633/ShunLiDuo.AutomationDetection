@@ -171,53 +171,6 @@
                               Foreground="{StaticResource TextPrimaryBrush}"
                               Margin="0,0,0,25"/>
                         <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right">
-                            <!-- 初始化按钮 -->
-                            <Button Content="初始化" 
-                                   Command="{Binding InitializeCommand}"
-                                   Padding="20,10"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   Margin="0,0,0,10"
-                                   HorizontalAlignment="Right"
-                                   MinWidth="100"
-                                   Height="40">
-                                <Button.Style>
-                                    <Style TargetType="Button">
-                                        <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
-                                        <Setter Property="Foreground" Value="White"/>
-                                        <Setter Property="FontWeight" Value="SemiBold"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Setter Property="Cursor" Value="Hand"/>
-                                        <Setter Property="IsEnabled" Value="{Binding IsPlcConnected, Mode=OneWay}"/>
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}"
-                                                            CornerRadius="4"
-                                                            BorderThickness="0">
-                                                        <ContentPresenter HorizontalAlignment="Center" 
-                                                                        VerticalAlignment="Center"
-                                                                        Content="{TemplateBinding Content}"/>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#45a049"/>
-                                            </Trigger>
-                                            <Trigger Property="IsEnabled" Value="False">
-                                                <Setter Property="Background" Value="#CCCCCC"/>
-                                                <Setter Property="Foreground" Value="Gray"/>
-                                            </Trigger>
-                                            <DataTrigger Binding="{Binding IsInitializing}" Value="True">
-                                                <Setter Property="Content" Value="初始化中..."/>
-                                                <Setter Property="IsEnabled" Value="False"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                            </Button>
                             
                             <!-- PLC连接状态指示器 -->
                             <StackPanel Orientation="Horizontal" 
@@ -280,12 +233,46 @@
                                                              Opacity="0.08"/>
                                         </Border.Effect>
                                         <StackPanel>
-                                            <Label Content="{Binding Room.RoomName}" 
-                                                  FontSize="16" 
-                                                  FontWeight="SemiBold" 
-                                                  Foreground="{StaticResource TextPrimaryBrush}"
-                                                  HorizontalAlignment="Center"
-                                                  Margin="0,0,0,10"/>
+                                            <!-- 检测室名称和串口连接状态 -->
+                                            <StackPanel Orientation="Horizontal" 
+                                                       HorizontalAlignment="Center" 
+                                                       Margin="0,0,0,10">
+                                                <Label Content="{Binding Room.RoomName}" 
+                                                      FontSize="16" 
+                                                      FontWeight="SemiBold" 
+                                                      Foreground="{StaticResource TextPrimaryBrush}"
+                                                      Padding="0"
+                                                      Margin="0,0,8,0"/>
+                                                <!-- 串口连接状态指示器 -->
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <Ellipse Width="10" Height="10" Margin="0,0,5,0">
+                                                        <Ellipse.Style>
+                                                            <Style TargetType="Ellipse">
+                                                                <Setter Property="Fill" Value="Red"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsScannerConnected, Mode=OneWay}" Value="True">
+                                                                        <Setter Property="Fill" Value="#4CAF50"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Ellipse.Style>
+                                                    </Ellipse>
+                                                    <TextBlock FontSize="12" VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Text" Value="扫码器未连接"/>
+                                                                <Setter Property="Foreground" Value="Red"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsScannerConnected, Mode=OneWay}" Value="True">
+                                                                        <Setter Property="Text" Value="扫码器已连接"/>
+                                                                        <Setter Property="Foreground" Value="#4CAF50"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </StackPanel>
                                             
                                             <!-- 扫码状态显示 -->
                                             <Border Background="#FAFAFA" 

@@ -22,7 +22,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private readonly ICurrentUserService _currentUserService;
         private readonly IAlarmRecordService _alarmRecordService;
         private string _logisticsBoxCode;
-        private string _logisticsBoxInputInfo;
         private RuleItem _selectedRuleItem;
         private ObservableCollection<Models.TaskItem> _tasks;
         private ObservableCollection<RuleItem> _rules;
@@ -30,7 +29,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private ObservableCollection<string> _logisticsBoxList;
         private ObservableCollection<Models.RoomBoxList> _roomBoxLists;
         private bool _isPlcConnected;
-        private bool _isInitializing;
         private DispatcherTimer _plcStatusTimer;
         private readonly object _lockObject = new object(); // 并发控制锁
         private readonly Dictionary<int, bool> _roomControlLock = new Dictionary<int, bool>(); // 防止同一检测室并发控制
@@ -38,24 +36,9 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         public bool IsPlcConnected
         {
             get => _isPlcConnected;
-            set
-            {
-                SetProperty(ref _isPlcConnected, value);
-                InitializeCommand?.RaiseCanExecuteChanged();
-            }
+            set => SetProperty(ref _isPlcConnected, value);
         }
 
-        public bool IsInitializing
-        {
-            get => _isInitializing;
-            set
-            {
-                SetProperty(ref _isInitializing, value);
-                InitializeCommand?.RaiseCanExecuteChanged();
-            }
-        }
-
-        public DelegateCommand InitializeCommand { get; private set; }
 
         public TaskManagementViewModel(
             IRuleService ruleService, 
@@ -89,11 +72,12 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             // 启动定时器定期检查连接状态（每秒检查一次）
             _plcStatusTimer = new DispatcherTimer();
             _plcStatusTimer.Interval = System.TimeSpan.FromSeconds(1);
-            _plcStatusTimer.Tick += (s, e) => UpdatePlcConnectionStatus();
+            _plcStatusTimer.Tick += (s, e) => 
+            {
+                UpdatePlcConnectionStatus();
+                UpdateScannerConnectionStatus();
+            };
             _plcStatusTimer.Start();
-            
-            // 初始化命令
-            InitializeCommand = new DelegateCommand(OnInitialize, () => !_isInitializing && IsPlcConnected);
         }
         
         // 公开刷新方法，供视图调用
@@ -127,6 +111,22 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             var currentStatus = _s7Service.IsConnected;
             // 强制更新，即使值相同也触发通知（确保UI刷新）
             IsPlcConnected = currentStatus;
+        }
+
+        private void UpdateScannerConnectionStatus()
+        {
+            // 更新每个检测室的串口连接状态
+            if (RoomBoxLists != null)
+            {
+                foreach (var roomBoxList in RoomBoxLists)
+                {
+                    if (roomBoxList.Room != null)
+                    {
+                        bool isConnected = _scannerService.IsConnected(roomBoxList.Room.Id);
+                        roomBoxList.IsScannerConnected = isConnected;
+                    }
+                }
+            }
         }
 
         private async void ScannerService_DataReceived(object sender, Services.ScannerDataReceivedEventArgs e)
@@ -275,14 +275,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
         private async void InitializeData()
         {
-            //Tasks = new ObservableCollection<Models.TaskItem>
-            //{
-            //    new Models.TaskItem { Id = 1, InspectorName = "张三" },
-            //    new Models.TaskItem { Id = 2, InspectorName = "李四" },
-            //    new Models.TaskItem { Id = 3 },
-            //    new Models.TaskItem { Id = 4 }
-            //};
-
             RoomBoxLists = new ObservableCollection<Models.RoomBoxList>();
             LogisticsBoxList = new ObservableCollection<string>();
             Rules = new ObservableCollection<RuleItem>();
@@ -380,7 +372,8 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     var roomBoxList = new Models.RoomBoxList
                     {
-                        Room = room
+                        Room = room,
+                        IsScannerConnected = _scannerService.IsConnected(room.Id) // 初始化串口连接状态
                     };
                     
                     // 恢复之前的物流盒分配（如果存在）
@@ -710,12 +703,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     }
                 }
             }
-        }
-
-        public string LogisticsBoxInputInfo
-        {
-            get => _logisticsBoxInputInfo;
-            set => SetProperty(ref _logisticsBoxInputInfo, value);
         }
 
         public ObservableCollection<string> LogisticsBoxList
@@ -1313,73 +1300,6 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             }
         }
 
-        /// <summary>
-        /// 初始化按钮点击处理
-        /// </summary>
-        private async void OnInitialize()
-        {
-            IsInitializing = true;
-            try
-            {
-                if (!_s7Service.IsConnected)
-                {
-                    CustomMessageBox.ShowWarning("PLC未连接，无法执行初始化");
-                    
-                    // 记录报警
-                    _alarmRecordService.RecordAlarmAsync(
-                        alarmTitle: "PLC未连接",
-                        alarmMessage: "PLC未连接，无法执行初始化操作"
-                    );
-                    
-                    return;
-                }
-
-                var (successCount, failCount, failedRooms) = await InitializeAllRoomsAsync();
-                
-                // 根据结果显示不同的提示消息
-                if (failCount == 0)
-                {
-                    CustomMessageBox.ShowInformation($"所有检测室初始化成功！\n成功: {successCount} 个", "初始化完成");
-                }
-                else if (successCount > 0)
-                {
-                    string failedRoomsText = string.Join("、", failedRooms);
-                    CustomMessageBox.ShowWarning($"初始化部分成功\n成功: {successCount} 个\n失败: {failCount} 个\n失败的检测室: {failedRoomsText}", "初始化结果");
-                }
-                else
-                {
-                    string failedRoomsText = string.Join("、", failedRooms);
-                    CustomMessageBox.ShowError($"所有检测室初始化失败！\n失败的检测室: {failedRoomsText}\n\n请检查：\n1. PLC连接状态\n2. 反馈地址配置是否正确\n3. 气缸是否正常工作", "初始化失败");
-                    
-                    // 记录报警
-                    foreach (var failedRoom in failedRooms)
-                    {
-                        _alarmRecordService.RecordAlarmAsync(
-                            alarmTitle: "检测室初始化失败",
-                            alarmMessage: $"检测室 {failedRoom} 初始化失败，无法获取气缸反馈信号",
-                            roomName: failedRoom,
-                            deviceName: "气缸系统",
-                            remark: "请检查PLC连接状态、反馈地址配置和气缸是否正常工作"
-                        );
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                CustomMessageBox.ShowError($"初始化失败: {ex.Message}");
-                
-                // 记录报警
-                _alarmRecordService.RecordAlarmAsync(
-                    alarmTitle: "初始化过程异常",
-                    alarmMessage: $"初始化过程发生异常：{ex.Message}",
-                    remark: $"异常类型: {ex.GetType().Name}, 堆栈: {ex.StackTrace}"
-                );
-            }
-            finally
-            {
-                IsInitializing = false;
-            }
-        }
 
         /// <summary>
         /// 初始化单个检测室的初始状态
