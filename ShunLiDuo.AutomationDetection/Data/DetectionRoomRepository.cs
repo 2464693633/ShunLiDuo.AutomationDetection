@@ -29,7 +29,8 @@ namespace ShunLiDuo.AutomationDetection.Data
                               SensorAddress, SensorDataType,
                               PushCylinderRetractTimeout, PushCylinderExtendTimeout,
                               BlockingCylinderRetractTimeout, BlockingCylinderExtendTimeout,
-                              SensorDetectTimeout, PassageDelayTime, SensorConfirmDelayTime
+                              SensorDetectTimeout, PassageDelayTime, SensorConfirmDelayTime,
+                              EnableBlockingCylinderRetractFeedback
                               FROM DetectionRooms ORDER BY Id";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -70,6 +71,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                             SensorDetectTimeout = reader.IsDBNull(26) ? 15000 : reader.GetInt32(26),
                             PassageDelayTime = reader.IsDBNull(27) ? 5000 : reader.GetInt32(27),
                             SensorConfirmDelayTime = reader.IsDBNull(28) ? 3000 : reader.GetInt32(28),
+                            EnableBlockingCylinderRetractFeedback = reader.IsDBNull(29) ? true : (reader.GetInt32(29) == 1),
                             IsSelected = false
                         });
                     }
@@ -91,7 +93,8 @@ namespace ShunLiDuo.AutomationDetection.Data
                               SensorAddress, SensorDataType,
                               PushCylinderRetractTimeout, PushCylinderExtendTimeout,
                               BlockingCylinderRetractTimeout, BlockingCylinderExtendTimeout,
-                              SensorDetectTimeout, PassageDelayTime, SensorConfirmDelayTime
+                              SensorDetectTimeout, PassageDelayTime, SensorConfirmDelayTime,
+                              EnableBlockingCylinderRetractFeedback
                               FROM DetectionRooms WHERE Id = @id";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -134,6 +137,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                                 SensorDetectTimeout = reader.IsDBNull(26) ? 15000 : reader.GetInt32(26),
                                 PassageDelayTime = reader.IsDBNull(27) ? 5000 : reader.GetInt32(27),
                                 SensorConfirmDelayTime = reader.IsDBNull(28) ? 3000 : reader.GetInt32(28),
+                                EnableBlockingCylinderRetractFeedback = reader.IsDBNull(29) ? true : (reader.GetInt32(29) == 1),
                                 IsSelected = false
                             };
                         }
@@ -157,6 +161,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                               PushCylinderRetractTimeout, PushCylinderExtendTimeout,
                               BlockingCylinderRetractTimeout, BlockingCylinderExtendTimeout,
                               SensorDetectTimeout, PassageDelayTime, SensorConfirmDelayTime,
+                              EnableBlockingCylinderRetractFeedback,
                               CreateTime, UpdateTime)
                               VALUES (@RoomNo, @RoomName, @Remark, @ScannerPortName, @ScannerBaudRate, 
                               @ScannerDataBits, @ScannerStopBits, @ScannerParity, @ScannerIsEnabled,
@@ -168,6 +173,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                               @PushCylinderRetractTimeout, @PushCylinderExtendTimeout,
                               @BlockingCylinderRetractTimeout, @BlockingCylinderExtendTimeout,
                               @SensorDetectTimeout, @PassageDelayTime, @SensorConfirmDelayTime,
+                              @EnableBlockingCylinderRetractFeedback,
                               @CreateTime, @UpdateTime);
                               SELECT last_insert_rowid();";
 
@@ -201,6 +207,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                     command.Parameters.AddWithValue("@SensorDetectTimeout", room.SensorDetectTimeout);
                     command.Parameters.AddWithValue("@PassageDelayTime", room.PassageDelayTime);
                     command.Parameters.AddWithValue("@SensorConfirmDelayTime", room.SensorConfirmDelayTime);
+                    command.Parameters.AddWithValue("@EnableBlockingCylinderRetractFeedback", room.EnableBlockingCylinderRetractFeedback ? 1 : 0);
                     command.Parameters.AddWithValue("@CreateTime", DateTime.Now);
                     command.Parameters.AddWithValue("@UpdateTime", DateTime.Now);
 
@@ -238,6 +245,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                               SensorDetectTimeout = @SensorDetectTimeout,
                               PassageDelayTime = @PassageDelayTime,
                               SensorConfirmDelayTime = @SensorConfirmDelayTime,
+                              EnableBlockingCylinderRetractFeedback = @EnableBlockingCylinderRetractFeedback,
                               UpdateTime = @UpdateTime
                               WHERE Id = @Id";
 
@@ -272,6 +280,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                     command.Parameters.AddWithValue("@SensorDetectTimeout", room.SensorDetectTimeout);
                     command.Parameters.AddWithValue("@PassageDelayTime", room.PassageDelayTime);
                     command.Parameters.AddWithValue("@SensorConfirmDelayTime", room.SensorConfirmDelayTime);
+                    command.Parameters.AddWithValue("@EnableBlockingCylinderRetractFeedback", room.EnableBlockingCylinderRetractFeedback ? 1 : 0);
                     command.Parameters.AddWithValue("@UpdateTime", DateTime.Now);
 
                     // 添加调试日志，检查参数值

@@ -44,6 +44,28 @@ namespace ShunLiDuo.AutomationDetection.Views
                 }
             }
         }
+
+        private void WorkOrderNo_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+            {
+                if (DataContext is ViewModels.TaskManagementViewModel viewModel)
+                {
+                    // 如果物流盒编码已输入，则触发任务创建或更新
+                    if (!string.IsNullOrWhiteSpace(viewModel.LogisticsBoxCode))
+                    {
+                        viewModel.AddLogisticsBoxCode(viewModel.LogisticsBoxCode);
+                        e.Handled = true;
+                    }
+                    else
+                    {
+                        // 如果物流盒编码为空，尝试更新已存在任务的报工单编号
+                        viewModel.UpdateWorkOrderNoForLatestTask();
+                        e.Handled = true;
+                    }
+                }
+            }
+        }
     }
 }
 

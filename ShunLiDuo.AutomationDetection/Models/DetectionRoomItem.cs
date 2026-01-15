@@ -43,6 +43,9 @@ namespace ShunLiDuo.AutomationDetection.Models
         public int PassageDelayTime { get; set; } = 5000;                // 放行等待时间（不匹配流程）
         public int SensorConfirmDelayTime { get; set; } = 3000;          // 传感器确认延时（匹配流程，传感器检测到后的等待时间）
         
+        // 容错模式设置
+        public bool EnableBlockingCylinderRetractFeedback { get; set; } = true;  // 是否启用阻挡气缸收缩反馈检查（默认启用，false时使用容错模式）
+        
         // 串口连接状态（运行时属性，不存储到数据库）
         public bool IsScannerConnected { get; set; } = false;
     }

@@ -134,6 +134,24 @@
                                     KeyDown="LogisticsBoxCode_KeyDown"/>
                         </Grid>
 
+                        <!-- 报工单编号 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                      Text="报工单编号:" 
+                                      FontSize="14"
+                                      Foreground="{StaticResource DarkTextSecondaryBrush}"
+                                      VerticalAlignment="Center"
+                                      Margin="0,0,12,0"/>
+                            <TextBox Grid.Column="1"
+                                    Style="{StaticResource DarkTextBoxStyle}" 
+                                    Text="{Binding WorkOrderNo, UpdateSourceTrigger=PropertyChanged}"
+                                    KeyDown="WorkOrderNo_KeyDown"/>
+                        </Grid>
+
                         <!-- 物流盒录入信息 -->
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -454,15 +472,16 @@
                         </DataGrid.RowStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测人信息" Binding="{Binding InspectorName}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="报工单编号" Binding="{Binding WorkOrderNo}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测人信息" Binding="{Binding InspectorName}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                         <DataGridTextColumn Header="检测开始时间" Binding="{Binding StartTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室2状态" Binding="{Binding Room2Status}" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室3状态" Binding="{Binding Room3Status}" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室4状态" Binding="{Binding Room4Status}" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室5状态" Binding="{Binding Room5Status}" Width="170" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测结束时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室2状态" Binding="{Binding Room2Status}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室3状态" Binding="{Binding Room3Status}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室4状态" Binding="{Binding Room4Status}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室5状态" Binding="{Binding Room5Status}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测结束时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                     </DataGrid.Columns>
                     </DataGrid>
                 </Border>

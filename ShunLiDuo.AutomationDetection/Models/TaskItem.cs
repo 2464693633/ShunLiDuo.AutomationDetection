@@ -8,6 +8,7 @@ namespace ShunLiDuo.AutomationDetection.Models
     {
         private int _id;
         private string _logisticsBoxCode;
+        private string _workOrderNo;
         private string _inspectorName;
         private DateTime? _startTime;
         private string _room1Status;
@@ -34,6 +35,12 @@ namespace ShunLiDuo.AutomationDetection.Models
         {
             get => _logisticsBoxCode;
             set => SetProperty(ref _logisticsBoxCode, value);
+        }
+
+        public string WorkOrderNo
+        {
+            get => _workOrderNo;
+            set => SetProperty(ref _workOrderNo, value);
         }
 
         public string InspectorName

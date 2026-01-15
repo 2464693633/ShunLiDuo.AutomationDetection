@@ -22,6 +22,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private readonly ICurrentUserService _currentUserService;
         private readonly IAlarmRecordService _alarmRecordService;
         private string _logisticsBoxCode;
+        private string _workOrderNo;
         private RuleItem _selectedRuleItem;
         private ObservableCollection<Models.TaskItem> _tasks;
         private ObservableCollection<RuleItem> _rules;
@@ -482,6 +483,12 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             set => SetProperty(ref _logisticsBoxCode, value);
         }
 
+        public string WorkOrderNo
+        {
+            get => _workOrderNo;
+            set => SetProperty(ref _workOrderNo, value);
+        }
+
         public void AddLogisticsBoxCode(string code)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -519,6 +526,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 );
                 
                 LogisticsBoxCode = string.Empty;
+                WorkOrderNo = string.Empty;
                 return;
             }
 
@@ -541,6 +549,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                     );
                     
                     LogisticsBoxCode = string.Empty;
+                    WorkOrderNo = string.Empty;
                     return;
                 }
                 // 如果任务已完成，允许创建新任务（物流盒重新上线）
@@ -564,6 +573,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 );
                 
                 LogisticsBoxCode = string.Empty;
+                WorkOrderNo = string.Empty;
                 return;
             }
 
@@ -583,6 +593,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             {
                 CustomMessageBox.ShowWarning($"未找到匹配的检测室");
                 LogisticsBoxCode = string.Empty;
+                WorkOrderNo = string.Empty;
                 return;
             }
 
@@ -625,6 +636,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 );
                 
                 LogisticsBoxCode = string.Empty;
+                WorkOrderNo = string.Empty;
                 return;
             }
 
@@ -654,6 +666,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 );
                 
                 LogisticsBoxCode = string.Empty;
+                WorkOrderNo = string.Empty;
                 return;
             }
 
@@ -663,6 +676,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             {
                 Id = taskId,
                 LogisticsBoxCode = formattedCode,
+                WorkOrderNo = WorkOrderNo ?? "",
                 AssignedRoomId = availableRoom.Id,
                 InspectorName = _currentUserService?.CurrentUser?.EmployeeNo ?? "", // 设置当前登录用户的工号
                 StartTime = DateTime.Now,
@@ -694,6 +708,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 await _detectionLogService.AddLogAsync(new DetectionLogItem
                 {
                     LogisticsBoxCode = boxNo,
+                    WorkOrderNo = newTask.WorkOrderNo ?? "",
                     RoomId = availableRoom.Id,
                     RoomName = availableRoom.RoomName,
                     Status = "未检测",
@@ -702,6 +717,50 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             });
 
             LogisticsBoxCode = string.Empty;
+            WorkOrderNo = string.Empty;
+        }
+
+        /// <summary>
+        /// 更新最新任务的报工单编号（用于在报工单编号输入框中按回车时更新已存在的任务）
+        /// </summary>
+        public void UpdateWorkOrderNoForLatestTask()
+        {
+            if (string.IsNullOrWhiteSpace(WorkOrderNo))
+            {
+                return;
+            }
+
+            // 查找最新的未完成任务（按ID降序，取第一个）
+            var latestTask = Tasks?.OrderByDescending(t => t.Id)
+                .FirstOrDefault(t =>
+                {
+                    // 检查任务是否未完成
+                    if (t.AssignedRoomId == null) return false;
+                    string status = GetRoomStatusByRoomId(t, t.AssignedRoomId.Value);
+                    return status != "检测完成" && string.IsNullOrWhiteSpace(t.WorkOrderNo);
+                });
+
+            if (latestTask != null)
+            {
+                latestTask.WorkOrderNo = WorkOrderNo;
+                WorkOrderNo = string.Empty;
+                
+                // 异步更新检测日志中的报工单编号
+                _ = Task.Run(async () =>
+                {
+                    var boxNo = latestTask.LogisticsBoxCode?.Replace("物流盒编码", "").Trim();
+                    if (!string.IsNullOrWhiteSpace(boxNo))
+                    {
+                        var logs = await _detectionLogService.GetLogsByBoxCodeAsync(boxNo);
+                        var latestLog = logs?.OrderByDescending(l => l.CreateTime).FirstOrDefault();
+                        if (latestLog != null && string.IsNullOrWhiteSpace(latestLog.WorkOrderNo))
+                        {
+                            latestLog.WorkOrderNo = latestTask.WorkOrderNo;
+                            await _detectionLogService.UpdateLogAsync(latestLog);
+                        }
+                    }
+                });
+            }
         }
 
         // 根据检测室ID获取状态
@@ -942,22 +1001,57 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
                 // 2. 阻挡气缸收缩放行
                 System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸开始收缩放行 - 检测室: {roomName}");
-                bool blockingRetracted = await ControlCylinderAsync(
-                    blockingCylinderExtendAddress, 
-                    blockingCylinderRetractAddress, 
-                    false,  // 收缩
-                    blockingCylinderRetractFeedbackAddress,  // 反馈地址
-                    true,   // 目标反馈值（收缩到位应为true）
-                    room.BlockingCylinderRetractTimeout    // 使用配置的超时时间
-                );
-                
-                if (!blockingRetracted)
+                bool blockingRetracted = false;
+
+                if (room.EnableBlockingCylinderRetractFeedback)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸收缩超时 - 检测室: {roomName}");
-                    // 尝试恢复阻挡气缸（等待反馈，确保恢复到安全状态）
-                    await ControlCylinderAsync(blockingCylinderExtendAddress, blockingCylinderRetractAddress, true, blockingCylinderExtendFeedbackAddress, true, room.BlockingCylinderExtendTimeout);
-                    return;
+                    // 正常模式：等待反馈
+                    blockingRetracted = await ControlCylinderAsync(
+                        blockingCylinderExtendAddress, 
+                        blockingCylinderRetractAddress, 
+                        false,  // 收缩
+                        blockingCylinderRetractFeedbackAddress,  // 反馈地址
+                        true,   // 目标反馈值（收缩到位应为true）
+                        room.BlockingCylinderRetractTimeout    // 使用配置的超时时间
+                    );
+                    
+                    if (!blockingRetracted)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸收缩超时 - 检测室: {roomName}");
+                        // 记录报警
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "阻挡气缸收缩超时",
+                            alarmMessage: $"检测室 {roomName} 阻挡气缸收缩操作超时，未收到反馈信号",
+                            roomId: roomId,
+                            roomName: roomName,
+                            deviceName: "阻挡气缸",
+                            remark: $"超时时间: {room.BlockingCylinderRetractTimeout}ms"
+                        );
+                        // 尝试恢复阻挡气缸（等待反馈，确保恢复到安全状态）
+                        await ControlCylinderAsync(blockingCylinderExtendAddress, blockingCylinderRetractAddress, true, blockingCylinderExtendFeedbackAddress, true, room.BlockingCylinderExtendTimeout);
+                        return;
+                    }
                 }
+                else
+                {
+                    // 容错模式：不等待反馈，发送信号后等待固定时间
+                    System.Diagnostics.Debug.WriteLine($"[控制逻辑] 容错模式：阻挡气缸收缩不等待反馈 - 检测室: {roomName}");
+                    
+                    // 发送收缩信号
+                    await _s7Service.WriteBoolAsync(blockingCylinderRetractAddress, true);
+                    await _s7Service.WriteBoolAsync(blockingCylinderExtendAddress, false);
+                    
+                    // 等待固定时间（假设气缸已经动作完成），例如500ms
+                    await Task.Delay(500);
+                    
+                    // 清零信号
+                    await _s7Service.WriteBoolAsync(blockingCylinderRetractAddress, false);
+                    await _s7Service.WriteBoolAsync(blockingCylinderExtendAddress, false);
+                    
+                    blockingRetracted = true; // 假设已收缩到位
+                    System.Diagnostics.Debug.WriteLine($"[控制逻辑] 容错模式：阻挡气缸收缩信号已发送，假设已收缩到位 - 检测室: {roomName}");
+                }
+
                 System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸已收缩到位 - 检测室: {roomName}");
 
                 // 3. 等待传感器检测到物流盒到达推箱位置
@@ -1228,31 +1322,57 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
                 // 2. 阻挡气缸收缩放行
                 System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸开始收缩放行 - 检测室: {roomName}");
-                bool blockingRetracted = await ControlCylinderAsync(
-                    blockingCylinderExtendAddress, 
-                    blockingCylinderRetractAddress, 
-                    false,  // 收缩
-                    blockingCylinderRetractFeedbackAddress,  // 反馈地址
-                    true,   // 目标反馈值（收缩到位应为true）
-                    room.BlockingCylinderRetractTimeout    // 使用配置的超时时间
-                );
-                
-                if (!blockingRetracted)
+                bool blockingRetracted = false;
+
+                if (room.EnableBlockingCylinderRetractFeedback)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸收缩超时 - 检测室: {roomName}");
-                    // 记录报警
-                    _alarmRecordService.RecordAlarmAsync(
-                        alarmTitle: "阻挡气缸收缩超时",
-                        alarmMessage: $"检测室 {roomName} 阻挡气缸收缩操作超时，未收到反馈信号（不匹配流程）",
-                        roomId: roomId,
-                        roomName: roomName,
-                        deviceName: "阻挡气缸",
-                        remark: $"超时时间: {room.BlockingCylinderRetractTimeout}ms"
+                    // 正常模式：等待反馈
+                    blockingRetracted = await ControlCylinderAsync(
+                        blockingCylinderExtendAddress, 
+                        blockingCylinderRetractAddress, 
+                        false,  // 收缩
+                        blockingCylinderRetractFeedbackAddress,  // 反馈地址
+                        true,   // 目标反馈值（收缩到位应为true）
+                        room.BlockingCylinderRetractTimeout    // 使用配置的超时时间
                     );
-                    // 尝试恢复阻挡气缸（等待反馈，确保恢复到安全状态）
-                    await ControlCylinderAsync(blockingCylinderExtendAddress, blockingCylinderRetractAddress, true, blockingCylinderExtendFeedbackAddress, true, room.BlockingCylinderExtendTimeout);
-                    return;
+                    
+                    if (!blockingRetracted)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸收缩超时 - 检测室: {roomName}");
+                        // 记录报警
+                        _alarmRecordService.RecordAlarmAsync(
+                            alarmTitle: "阻挡气缸收缩超时",
+                            alarmMessage: $"检测室 {roomName} 阻挡气缸收缩操作超时，未收到反馈信号（不匹配流程）",
+                            roomId: roomId,
+                            roomName: roomName,
+                            deviceName: "阻挡气缸",
+                            remark: $"超时时间: {room.BlockingCylinderRetractTimeout}ms"
+                        );
+                        // 尝试恢复阻挡气缸（等待反馈，确保恢复到安全状态）
+                        await ControlCylinderAsync(blockingCylinderExtendAddress, blockingCylinderRetractAddress, true, blockingCylinderExtendFeedbackAddress, true, room.BlockingCylinderExtendTimeout);
+                        return;
+                    }
                 }
+                else
+                {
+                    // 容错模式：不等待反馈，发送信号后等待固定时间
+                    System.Diagnostics.Debug.WriteLine($"[控制逻辑] 容错模式：阻挡气缸收缩不等待反馈 - 检测室: {roomName}");
+                    
+                    // 发送收缩信号
+                    await _s7Service.WriteBoolAsync(blockingCylinderRetractAddress, true);
+                    await _s7Service.WriteBoolAsync(blockingCylinderExtendAddress, false);
+                    
+                    // 等待固定时间（假设气缸已经动作完成），例如500ms
+                    await Task.Delay(500);
+                    
+                    // 清零信号
+                    await _s7Service.WriteBoolAsync(blockingCylinderRetractAddress, false);
+                    await _s7Service.WriteBoolAsync(blockingCylinderExtendAddress, false);
+                    
+                    blockingRetracted = true; // 假设已收缩到位
+                    System.Diagnostics.Debug.WriteLine($"[控制逻辑] 容错模式：阻挡气缸收缩信号已发送，假设已收缩到位 - 检测室: {roomName}");
+                }
+
                 System.Diagnostics.Debug.WriteLine($"[控制逻辑] 阻挡气缸已收缩到位 - 检测室: {roomName}");
 
                 // 3. 等待配置的放行时间

@@ -387,6 +387,18 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="启用收缩反馈检查" Style="{StaticResource LabelStyle}" Width="120"/>
+                    <CheckBox Grid.Column="1" 
+                             IsChecked="{Binding EnableBlockingCylinderRetractFeedback, UpdateSourceTrigger=PropertyChanged}"
+                             VerticalAlignment="Center"
+                             Content="启用阻挡气缸收缩反馈检查（关闭后使用容错模式，不等待反馈）"/>
+                </Grid>
+
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="阻挡气缸伸出超时" Style="{StaticResource LabelStyle}" Width="120"/>
                     <TextBox Grid.Column="1" 
                             Text="{Binding BlockingCylinderExtendTimeout, UpdateSourceTrigger=PropertyChanged}"

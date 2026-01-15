@@ -282,7 +282,8 @@ namespace ShunLiDuo.AutomationDetection.Data
                             { "BlockingCylinderExtendTimeout", "INTEGER DEFAULT 5000" },
                             { "SensorDetectTimeout", "INTEGER DEFAULT 15000" },
                             { "PassageDelayTime", "INTEGER DEFAULT 5000" },
-                            { "SensorConfirmDelayTime", "INTEGER DEFAULT 3000" }
+                            { "SensorConfirmDelayTime", "INTEGER DEFAULT 3000" },
+                            { "EnableBlockingCylinderRetractFeedback", "INTEGER DEFAULT 1" }
                         };
                         
                         bool needMigration = false;
@@ -410,6 +411,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 CREATE TABLE IF NOT EXISTS DetectionLogs (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     LogisticsBoxCode TEXT NOT NULL,
+                    WorkOrderNo TEXT,
                     RoomId INTEGER,
                     RoomName TEXT,
                     Status TEXT NOT NULL,
@@ -528,6 +530,25 @@ namespace ShunLiDuo.AutomationDetection.Data
                 {
                     // 如果字段已存在或其他错误，记录日志但继续执行
                     System.Diagnostics.Debug.WriteLine($"[数据库] 处理 AlarmLevel 字段时出错: {ex.Message}");
+                }
+                
+                // 检查并添加 WorkOrderNo 字段到 DetectionLogs 表（如果不存在）
+                try
+                {
+                    command.CommandText = "SELECT COUNT(*) FROM pragma_table_info('DetectionLogs') WHERE name='WorkOrderNo';";
+                    var fieldExists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                    
+                    if (!fieldExists)
+                    {
+                        command.CommandText = "ALTER TABLE DetectionLogs ADD COLUMN WorkOrderNo TEXT;";
+                        command.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine("[数据库] 已添加 WorkOrderNo 字段到 DetectionLogs 表");
+                    }
+                }
+                catch (SQLiteException ex)
+                {
+                    // 如果字段已存在或其他错误，记录日志但继续执行
+                    System.Diagnostics.Debug.WriteLine($"[数据库] 处理 WorkOrderNo 字段时出错: {ex.Message}");
                 }
             }
 

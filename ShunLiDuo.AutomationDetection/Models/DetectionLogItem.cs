@@ -6,6 +6,7 @@ namespace ShunLiDuo.AutomationDetection.Models
     {
         public int Id { get; set; }
         public string LogisticsBoxCode { get; set; } // 物流盒编码
+        public string WorkOrderNo { get; set; } // 报工单编号
         public int? RoomId { get; set; } // 检测室ID
         public string RoomName { get; set; } // 检测室名称
         public string Status { get; set; } // 状态：未检测、检测中、检测完成

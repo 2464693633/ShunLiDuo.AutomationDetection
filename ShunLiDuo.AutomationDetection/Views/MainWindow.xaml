@@ -103,60 +103,90 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
+            <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="100"/>
         </Grid.RowDefinitions>
 
-        <!-- Header - 明亮主题 -->
-        <Grid Grid.Row="0" 
-              Background="#90CAF9" 
-              Height="80"
-              MouseDown="Header_MouseDown">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            
-            <!-- 左侧标题 -->
-            <TextBlock Grid.Column="0"
-                       Text="顺多利自动化检测" 
-                       FontSize="24" 
-                       FontWeight="Bold"
-                       Foreground="#212121"
-                       VerticalAlignment="Center"
-                       Margin="30,0,0,0"/>
+        <!-- Header - Web端风格 -->
+        <Border Grid.Row="0" 
+                Background="White" 
+                BorderBrush="#E0E0E0"
+                BorderThickness="0,0,0,1"
+                MouseDown="Header_MouseDown">
+            <Border.Effect>
+                <DropShadowEffect Color="#40000000" Direction="270" ShadowDepth="2" BlurRadius="4" Opacity="0.1"/>
+            </Border.Effect>
+            <Grid Height="64">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                
+                <!-- 左侧标题 -->
+                <StackPanel Grid.Column="0" 
+                           Orientation="Horizontal" 
+                           VerticalAlignment="Center"
+                           Margin="24,0,0,0">
+                    <TextBlock Text="顺多利自动化检测" 
+                              FontSize="20" 
+                              FontWeight="SemiBold"
+                              Foreground="#1A1A1A"
+                              VerticalAlignment="Center"/>
+                </StackPanel>
             
             <!-- 中间空白区域 -->
             <Grid Grid.Column="1"/>
             
-            <!-- 右侧用户信息和时间 -->
-            <StackPanel Grid.Column="2" 
-                       Orientation="Horizontal" 
-                       HorizontalAlignment="Right"
-                       VerticalAlignment="Center"
-                       Margin="0,0,30,0">
-                <TextBlock FontSize="14" Foreground="#757575" VerticalAlignment="Center">
-                    <Run Text="姓名: "/>
-                    <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="SemiBold" Foreground="#212121"/>
-                    <Run Text=" | "/>
-                    <Run Text="工号: "/>
-                    <Run Text="{Binding CurrentUserEmployeeNo, Mode=OneWay}" FontWeight="SemiBold" Foreground="#212121"/>
-                    <Run Text=" | "/>
-                    <Run Text="账号: "/>
-                    <Run Text="{Binding CurrentUserLoginAccount, Mode=OneWay}" FontWeight="SemiBold" Foreground="#212121"/>
-                    <Run Text=" "/>
-                    <Run x:Name="CurrentTimeText" Foreground="#757575"/>
-                </TextBlock>
-            </StackPanel>
+                <!-- 右侧用户信息和时间 -->
+                <StackPanel Grid.Column="2" 
+                           Orientation="Horizontal" 
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Margin="0,0,24,0">
+                    <Border Background="#F5F7FA" 
+                           CornerRadius="16" 
+                           Padding="12,6"
+                           Margin="0,0,12,0">
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="32" Height="32" Fill="#2196F3" Margin="0,0,8,0">
+                                <Ellipse.OpacityMask>
+                                    <VisualBrush>
+                                        <VisualBrush.Visual>
+                                            <TextBlock Text="管" FontSize="16" Foreground="White" FontWeight="Bold" 
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </VisualBrush.Visual>
+                                    </VisualBrush>
+                                </Ellipse.OpacityMask>
+                            </Ellipse>
+                            <StackPanel>
+                                <TextBlock Text="{Binding CurrentUserName, Mode=OneWay}" 
+                                          FontSize="13" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#1A1A1A"
+                                          VerticalAlignment="Center"/>
+                                <TextBlock FontSize="11" Foreground="#8E8E93" VerticalAlignment="Center">
+                                    <Run Text="{Binding CurrentUserEmployeeNo, Mode=OneWay}"/>
+                                    <Run Text=" | "/>
+                                    <Run Text="{Binding CurrentUserLoginAccount, Mode=OneWay}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <TextBlock x:Name="CurrentTimeText" 
+                              FontSize="13" 
+                              Foreground="#8E8E93"
+                              VerticalAlignment="Center"
+                              Margin="12,0,0,0"/>
+                </StackPanel>
             
-            <!-- 窗口控制按钮容器 -->
-            <StackPanel Grid.Column="3" 
-                       Orientation="Horizontal" 
-                       VerticalAlignment="Center"
-                       HorizontalAlignment="Right"
-                       Margin="0,0,30,0">
+                <!-- 窗口控制按钮容器 -->
+                <StackPanel Grid.Column="3" 
+                           Orientation="Horizontal" 
+                           VerticalAlignment="Center"
+                           HorizontalAlignment="Right"
+                           Margin="0,0,8,0">
                 <!-- Window Control Buttons -->
 
                 <StackPanel Orientation="Horizontal" 
@@ -224,175 +254,580 @@
                     </Button>
                 </StackPanel>
             </StackPanel>
-        </Grid>
+        </Border>
+        
+        <!-- 标签页栏 - Web端风格 -->
+        <Border Grid.Row="1" 
+               Background="#FAFAFA" 
+               BorderBrush="#E0E0E0" 
+               BorderThickness="0,0,0,1">
+            <TabControl x:Name="TabControl" 
+                       ItemsSource="{Binding OpenTabs}"
+                       SelectedItem="{Binding SelectedTab}"
+                       Background="Transparent"
+                       BorderThickness="0"
+                       Padding="0">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="0">
+                            <StackPanel Orientation="Horizontal" Margin="0">
+                                <TextBlock Text="{Binding Title}" 
+                                          FontSize="13" 
+                                          FontWeight="Medium"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,6,0"/>
+                                <Button Content="✕" 
+                                       FontSize="11"
+                                       Width="18"
+                                       Height="18"
+                                       Padding="0"
+                                       Background="Transparent"
+                                       BorderThickness="0"
+                                       Cursor="Hand"
+                                       Click="CloseTabButton_Click"
+                                       Tag="{Binding}"
+                                       ToolTip="关闭"
+                                       VerticalAlignment="Center">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Foreground" Value="#8E8E93"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#E5E5E5"/>
+                                                    <Setter Property="Foreground" Value="#1A1A1A"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
+                    <DataTemplate>
+                        <Grid/>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+                <TabControl.Style>
+                    <Style TargetType="TabControl">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TabControl">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+                                        <TabPanel x:Name="HeaderPanel"
+                                                 Grid.Row="0"
+                                                 IsItemsHost="True"
+                                                 Margin="10,0,0,0"
+                                                 KeyboardNavigation.TabIndex="1"
+                                                 Background="Transparent"/>
+                                        <ContentPresenter x:Name="PART_SelectedContentHost"
+                                                        Grid.Row="1"
+                                                        Margin="0"
+                                                        ContentSource="SelectedContent"/>
+                                    </Grid>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="ItemContainerStyle">
+                            <Setter.Value>
+                                <Style TargetType="TabItem">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TabItem">
+                                                <Border Name="Border"
+                                                       Background="Transparent"
+                                                       BorderThickness="0"
+                                                       Margin="2,0,0,0"
+                                                       Padding="12,10">
+                                                    <ContentPresenter ContentSource="Header"
+                                                                     HorizontalAlignment="Center"
+                                                                     VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="Border" Property="Background" Value="White"/>
+                                                        <Setter TargetName="Border" Property="BorderBrush" Value="#E0E0E0"/>
+                                                        <Setter TargetName="Border" Property="BorderThickness" Value="1,1,1,0"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Border" Property="Background" Value="#F5F5F5"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </TabControl.Style>
+            </TabControl>
+        </Border>
 
-        <!-- Main Content Area - 明亮背景 -->
-        <Grid Grid.Row="1" Background="#F5F7FA">
+        <!-- Main Content Area - Web端风格 -->
+        <Grid Grid.Row="2" Background="#F5F7FA">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition>
-                    <ColumnDefinition.Style>
-                        <Style TargetType="ColumnDefinition">
-                            <Setter Property="Width" Value="240"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsLeftNavVisible}" Value="False">
-                                    <Setter Property="Width" Value="0"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ColumnDefinition.Style>
-                </ColumnDefinition>
+                <ColumnDefinition Width="260"/>
+                <ColumnDefinition Width="1"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Left Navigation - 调度规则菜单 -->
-            <materialDesign:Card Grid.Column="0" 
-                                 Padding="0" 
-                                 Margin="0"
-                                 materialDesign:ElevationAssist.Elevation="Dp2"
-                                 Visibility="{Binding IsLeftNavVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <!-- Left Navigation - 侧栏菜单 Web端风格 -->
+            <Border Grid.Column="0" 
+                   Background="White"
+                   BorderBrush="#E0E0E0"
+                   BorderThickness="0,0,1,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#20000000" Direction="90" ShadowDepth="0" BlurRadius="8" Opacity="0.05"/>
+                </Border.Effect>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Margin="15,20">
-                        <!-- 调度规则菜单 -->
-                        <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=RuleManagementView}">
-                            <Button Tag="LogisticsBox" 
-                                    Command="{Binding NavigateToLogisticsBoxCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
+                    <StackPanel Margin="0,16">
+                        <!-- 任务管理 -->
+                        <Button Tag="TaskManagement" 
+                                Command="{Binding NavigateToTaskCommand}" 
+                                Margin="8,2"
+                                Padding="16,12"
+                                HorizontalContentAlignment="Left"
+                                MinHeight="44"
+                                Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="#4A4A4A"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Name="Border"
+                                                       Background="{TemplateBinding Background}"
+                                                       CornerRadius="8"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                    </Trigger>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                        <Setter Property="Foreground" Value="#1976D2"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📋" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="任务管理" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 调度规则 - 可展开菜单 -->
+                        <StackPanel>
+                            <Button Command="{Binding ToggleRuleManagementExpandedCommand}" 
+                                    Margin="8,2"
+                                    Padding="16,12"
                                     HorizontalContentAlignment="Left"
-                                    MinHeight="56">
+                                    MinHeight="44"
+                                    Cursor="Hand">
                                 <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                    <Style TargetType="Button">
                                         <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                        <Setter Property="Foreground" Value="#4A4A4A"/>
                                         <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Name="Border"
+                                                           Background="{TemplateBinding Background}"
+                                                           CornerRadius="8"
+                                                           Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                        </Trigger>
+                                                        <DataTrigger Binding="{Binding CurrentBottomNav}" Value="RuleManagement">
+                                                            <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                            <Setter Property="Foreground" Value="#1976D2"/>
+                                                        </DataTrigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                   
-                                    <TextBlock Text="物流盒管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
+                                    <TextBlock Text="⚙️" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="调度规则" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                                    <TextBlock FontSize="10" 
+                                              Margin="8,0,0,0"
+                                              VerticalAlignment="Center"
+                                              Foreground="#8E8E93">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="▼"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsRuleManagementExpanded}" Value="False">
+                                                        <Setter Property="Text" Value="▶"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </StackPanel>
                             </Button>
-                            <Button Tag="DetectionRoom" 
-                                    Command="{Binding NavigateToDetectionRoomCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
-                                    HorizontalContentAlignment="Left"
-                                    MinHeight="56">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                  
-                                    <TextBlock Text="检测室管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Tag="RuleManagement" 
-                                    Command="{Binding NavigateToRuleManagementCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
-                                    HorizontalContentAlignment="Left"
-                                    MinHeight="56">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                  
-                                    <TextBlock Text="规则管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Tag="CommunicationSettings" 
-                                    Command="{Binding NavigateToCommunicationSettingsCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
-                                    HorizontalContentAlignment="Left"
-                                    MinHeight="56">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                   
-                                    <TextBlock Text="通讯设置" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
+                            <!-- 调度规则子菜单 -->
+                            <StackPanel Margin="24,4,0,0" 
+                                       Visibility="{Binding IsRuleManagementExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Button Tag="LogisticsBox" 
+                                        Command="{Binding NavigateToLogisticsBoxCommand}" 
+                                        Margin="8,2"
+                                        Padding="16,10"
+                                        HorizontalContentAlignment="Left"
+                                        MinHeight="40"
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="#6B6B6B"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Name="Border"
+                                                               Background="{TemplateBinding Background}"
+                                                               CornerRadius="6"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                            </Trigger>
+                                                            <DataTrigger Value="True">
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                                <Setter Property="Foreground" Value="#1976D2"/>
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="物流盒管理" FontSize="13" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button Tag="DetectionRoom" 
+                                        Command="{Binding NavigateToDetectionRoomCommand}" 
+                                        Margin="8,2"
+                                        Padding="16,10"
+                                        HorizontalContentAlignment="Left"
+                                        MinHeight="40"
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="#6B6B6B"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Name="Border"
+                                                               Background="{TemplateBinding Background}"
+                                                               CornerRadius="6"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                            </Trigger>
+                                                            <DataTrigger Value="True">
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                                <Setter Property="Foreground" Value="#1976D2"/>
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="检测室管理" FontSize="13" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button Tag="RuleManagement" 
+                                        Command="{Binding NavigateToRuleManagementCommand}" 
+                                        Margin="8,2"
+                                        Padding="16,10"
+                                        HorizontalContentAlignment="Left"
+                                        MinHeight="40"
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="#6B6B6B"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Name="Border"
+                                                               Background="{TemplateBinding Background}"
+                                                               CornerRadius="6"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                            </Trigger>
+                                                            <DataTrigger Value="True">
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                                <Setter Property="Foreground" Value="#1976D2"/>
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="规则管理" FontSize="13" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button Tag="CommunicationSettings" 
+                                        Command="{Binding NavigateToCommunicationSettingsCommand}" 
+                                        Margin="8,2"
+                                        Padding="16,10"
+                                        HorizontalContentAlignment="Left"
+                                        MinHeight="40"
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="#6B6B6B"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Name="Border"
+                                                               Background="{TemplateBinding Background}"
+                                                               CornerRadius="6"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                            </Trigger>
+                                                            <DataTrigger Value="True">
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                                <Setter Property="Foreground" Value="#1976D2"/>
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="通讯设置" FontSize="13" VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
                         </StackPanel>
                         
-                        <!-- 检测历史菜单 -->
-                        <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=DetectionLogView}">
-                            <Button Tag="DetectionLog" 
-                                    Command="{Binding NavigateToDetectionLogCommand}" 
-                                    Margin="0,12"
+                        <!-- 检测历史 -->
+                        <Button Tag="DetectionLog" 
+                                Command="{Binding NavigateToDetectionLogCommand}" 
+                                Margin="8,2"
+                                Padding="16,12"
+                                HorizontalContentAlignment="Left"
+                                MinHeight="44"
+                                Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="Transparent"/>
+                                    <Setter Property="Foreground" Value="#4A4A4A"/>
+                                    <Setter Property="BorderThickness" Value="0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Name="Border"
+                                                       Background="{TemplateBinding Background}"
+                                                       CornerRadius="8"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                    </Trigger>
+                                                    <DataTrigger Value="True">
+                                                        <DataTrigger.Binding>
+                                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                                <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                            </MultiBinding>
+                                                        </DataTrigger.Binding>
+                                                        <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                        <Setter Property="Foreground" Value="#1976D2"/>
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📊" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="检测历史" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <!-- 报警与异常 - 可展开菜单 -->
+                        <StackPanel>
+                            <Button Command="{Binding ToggleAlarmExpandedCommand}" 
+                                    Margin="8,2"
+                                    Padding="16,12"
+                                    HorizontalContentAlignment="Left"
+                                    MinHeight="44"
+                                    Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Foreground" Value="#4A4A4A"/>
+                                        <Setter Property="BorderThickness" Value="0"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Name="Border"
+                                                           Background="{TemplateBinding Background}"
+                                                           CornerRadius="8"
+                                                           Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                        </Trigger>
+                                                        <DataTrigger Binding="{Binding CurrentBottomNav}" Value="Alarm">
+                                                            <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                            <Setter Property="Foreground" Value="#1976D2"/>
+                                                        </DataTrigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </Button.Style>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="🔔" FontSize="16" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                    <TextBlock Text="报警与异常" FontSize="14" FontWeight="Medium" VerticalAlignment="Center"/>
+                                    <TextBlock FontSize="10" 
+                                              Margin="8,0,0,0"
+                                              VerticalAlignment="Center"
+                                              Foreground="#8E8E93">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="▼"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsAlarmExpanded}" Value="False">
+                                                        <Setter Property="Text" Value="▶"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Button>
+                            <!-- 报警与异常子菜单 -->
+                            <StackPanel Margin="24,4,0,0" 
+                                       Visibility="{Binding IsAlarmExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Button Tag="DeviceAlarm" 
+                                        Command="{Binding NavigateToDeviceAlarmCommand}" 
+                                        Margin="8,2"
+                                        Padding="16,10"
+                                        HorizontalContentAlignment="Left"
+                                        MinHeight="40"
+                                        Cursor="Hand">
+                                    <Button.Style>
+                                        <Style TargetType="Button">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="#6B6B6B"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Setter Property="Template">
+                                                <Setter.Value>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Name="Border"
+                                                               Background="{TemplateBinding Background}"
+                                                               CornerRadius="6"
+                                                               Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="Border" Property="Background" Value="#F5F7FA"/>
+                                                            </Trigger>
+                                                            <DataTrigger Value="True">
+                                                                <DataTrigger.Binding>
+                                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                                    </MultiBinding>
+                                                                </DataTrigger.Binding>
+                                                                <Setter TargetName="Border" Property="Background" Value="#E3F2FD"/>
+                                                                <Setter Property="Foreground" Value="#1976D2"/>
+                                                            </DataTrigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="设备报警" FontSize="13" VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <!-- 系统设置 - 可展开菜单 -->
+                        <StackPanel>
+                            <Button Command="{Binding ToggleSystemSettingsExpandedCommand}" 
+                                    Margin="0,6"
                                     Padding="20,16"
                                     HorizontalContentAlignment="Left"
                                     MinHeight="56">
@@ -405,13 +840,7 @@
                                             <Trigger Property="IsMouseOver" Value="True">
                                                 <Setter Property="Background" Value="#F5F5F5"/>
                                             </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
+                                            <DataTrigger Binding="{Binding CurrentBottomNav}" Value="SystemSettings">
                                                 <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
                                                 <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
                                             </DataTrigger>
@@ -419,119 +848,89 @@
                                     </Style>
                                 </Button.Style>
                                 <StackPanel Orientation="Horizontal">
-                                   
-                                    <TextBlock Text="检测历史记录" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
+                                    <TextBlock Text="系统设置" FontSize="18" FontWeight="Medium" VerticalAlignment="Center"/>
+                                    <TextBlock FontSize="14" 
+                                              Margin="10,0,0,0"
+                                              VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Text" Value="▼"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsSystemSettingsExpanded}" Value="False">
+                                                        <Setter Property="Text" Value="▶"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
                                 </StackPanel>
                             </Button>
-                        </StackPanel>
-                        
-                        <!-- 报警与异常菜单 -->
-                        <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=AlarmView}">
-                            <Button Tag="DeviceAlarm" 
-                                    Command="{Binding NavigateToDeviceAlarmCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
-                                    HorizontalContentAlignment="Left"
-                                    MinHeight="56">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                   
-                                    <TextBlock Text="设备报警" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                        
-                        <!-- 系统设置菜单 -->
-                        <StackPanel Visibility="{Binding CurrentMainView, Converter={StaticResource StringToVisibilityConverter}, ConverterParameter=SystemSettingsView}">
-                            <Button Tag="AccountManagement" 
-                                    Command="{Binding NavigateToAccountManagementCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
-                                    HorizontalContentAlignment="Left"
-                                    MinHeight="56"
-                                    Visibility="{Binding CanAccessAccountManagement, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                  
-                                    <TextBlock Text="账户管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                            <Button Tag="RoleManagement" 
-                                    Command="{Binding NavigateToRoleManagementCommand}" 
-                                    Margin="0,12"
-                                    Padding="20,16"
-                                    HorizontalContentAlignment="Left"
-                                    MinHeight="56"
-                                    Visibility="{Binding CanAccessRoleManagement, Converter={StaticResource BooleanToVisibilityConverter}}">
-                                <Button.Style>
-                                    <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
-                                        <Setter Property="Background" Value="Transparent"/>
-                                        <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
-                                        <Setter Property="BorderThickness" Value="0"/>
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="#F5F5F5"/>
-                                            </Trigger>
-                                            <DataTrigger Value="True">
-                                                <DataTrigger.Binding>
-                                                    <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                        <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                                        <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                                    </MultiBinding>
-                                                </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
-                                                <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Button.Style>
-                                <StackPanel Orientation="Horizontal">
-                                   
-                                    <TextBlock Text="角色管理" FontSize="20" FontWeight="Medium" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
+                            <!-- 系统设置子菜单 -->
+                            <StackPanel Margin="20,0,0,0" 
+                                       Visibility="{Binding IsSystemSettingsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Button Tag="AccountManagement" 
+                                        Command="{Binding NavigateToAccountManagementCommand}" 
+                                        Margin="0,12"
+                                        Padding="20,16"
+                                        HorizontalContentAlignment="Left"
+                                        MinHeight="56"
+                                        Visibility="{Binding CanAccessAccountManagement, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                                </Trigger>
+                                                <DataTrigger Value="True">
+                                                    <DataTrigger.Binding>
+                                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                            <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                        </MultiBinding>
+                                                    </DataTrigger.Binding>
+                                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="账户管理" FontSize="16" FontWeight="Medium" VerticalAlignment="Center"/>
+                                </Button>
+                                <Button Tag="RoleManagement" 
+                                        Command="{Binding NavigateToRoleManagementCommand}" 
+                                        Margin="0,12"
+                                        Padding="20,16"
+                                        HorizontalContentAlignment="Left"
+                                        MinHeight="56"
+                                        Visibility="{Binding CanAccessRoleManagement, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource MaterialDesignFlatButton}">
+                                            <Setter Property="Background" Value="Transparent"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource MaterialDesignBody}"/>
+                                            <Setter Property="BorderThickness" Value="0"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="Background" Value="#F5F5F5"/>
+                                                </Trigger>
+                                                <DataTrigger Value="True">
+                                                    <DataTrigger.Binding>
+                                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
+                                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                                                            <Binding Path="DataContext.CurrentLeftNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
+                                                        </MultiBinding>
+                                                    </DataTrigger.Binding>
+                                                    <Setter Property="Background" Value="{DynamicResource PrimaryHueLightBrush}"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryHueMidForegroundBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                    <TextBlock Text="角色管理" FontSize="16" FontWeight="Medium" VerticalAlignment="Center"/>
+                                </Button>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </ScrollViewer>
@@ -554,278 +953,5 @@
                 </ContentControl.Style>
             </ContentControl>
         </Grid>
-
-        <!-- Footer Navigation - 明亮主题 -->
-        <Border Grid.Row="2" 
-               Background="#B3E5FC" 
-               BorderBrush="#E0E0E0" 
-               BorderThickness="0,2,0,0"
-               Height="100">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                <Button Tag="TaskManagement" 
-                        Command="{Binding NavigateToTaskCommand}" 
-                        Padding="30,20"
-                        Margin="30,0"
-                        MinHeight="70"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Foreground" Value="#757575"/>
-                            <Setter Property="FontSize" Value="18"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#F5F5F5"/>
-                                </Trigger>
-                                <DataTrigger Value="True">
-                                    <DataTrigger.Binding>
-                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                            <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                        </MultiBinding>
-                                    </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="#2196F3"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <TextBlock Text="任务管理" 
-                              FontSize="20" 
-                              FontWeight="SemiBold" 
-                              VerticalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#757575"/>
-                                <Style.Triggers>
-                                    <DataTrigger Value="True">
-                                        <DataTrigger.Binding>
-                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
-                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                            </MultiBinding>
-                                        </DataTrigger.Binding>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Button>
-                <Button Tag="RuleManagement" 
-                        Command="{Binding NavigateToRuleCommand}" 
-                        Padding="30,20"
-                        Margin="30,0"
-                        MinHeight="70"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Foreground" Value="#757575"/>
-                            <Setter Property="FontSize" Value="18"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#F5F5F5"/>
-                                </Trigger>
-                                <DataTrigger Value="True">
-                                    <DataTrigger.Binding>
-                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                            <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                        </MultiBinding>
-                                    </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="#2196F3"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <TextBlock Text="调度规则" 
-                              FontSize="20" 
-                              FontWeight="SemiBold" 
-                              VerticalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#757575"/>
-                                <Style.Triggers>
-                                    <DataTrigger Value="True">
-                                        <DataTrigger.Binding>
-                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
-                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                            </MultiBinding>
-                                        </DataTrigger.Binding>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Button>
-
-                <Button Tag="DetectionLog" 
-                        Command="{Binding NavigateToDetectionLogCommand}" 
-                        Padding="30,20"
-                        Margin="30,0"
-                        MinHeight="70"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Foreground" Value="#757575"/>
-                            <Setter Property="FontSize" Value="18"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#F5F5F5"/>
-                                </Trigger>
-                                <DataTrigger Value="True">
-                                    <DataTrigger.Binding>
-                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                            <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                        </MultiBinding>
-                                    </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="#2196F3"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <TextBlock Text="检测历史" 
-                              FontSize="20" 
-                              FontWeight="SemiBold" 
-                              VerticalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#757575"/>
-                                <Style.Triggers>
-                                    <DataTrigger Value="True">
-                                        <DataTrigger.Binding>
-                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
-                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                            </MultiBinding>
-                                        </DataTrigger.Binding>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Button>
-
-                <Button Tag="Alarm" 
-                        Command="{Binding NavigateToAlarmCommand}" 
-                        Padding="30,20"
-                        Margin="30,0"
-                        MinHeight="70"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Foreground" Value="#757575"/>
-                            <Setter Property="FontSize" Value="18"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#F5F5F5"/>
-                                </Trigger>
-                                <DataTrigger Value="True">
-                                    <DataTrigger.Binding>
-                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                            <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                        </MultiBinding>
-                                    </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="#2196F3"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <TextBlock Text="报警与异常" 
-                              FontSize="20" 
-                              FontWeight="SemiBold" 
-                              VerticalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#757575"/>
-                                <Style.Triggers>
-                                    <DataTrigger Value="True">
-                                        <DataTrigger.Binding>
-                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
-                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                            </MultiBinding>
-                                        </DataTrigger.Binding>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Button>
-
-                <Button Tag="SystemSettings" 
-                        Command="{Binding NavigateToSystemSettingsCommand}" 
-                        Padding="30,20"
-                        Margin="30,0"
-                        MinHeight="70"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Foreground" Value="#757575"/>
-                            <Setter Property="FontSize" Value="18"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#F5F5F5"/>
-                                </Trigger>
-                                <DataTrigger Value="True">
-                                    <DataTrigger.Binding>
-                                        <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
-                                            <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                        </MultiBinding>
-                                    </DataTrigger.Binding>
-                                    <Setter Property="Background" Value="#2196F3"/>
-                                    <Setter Property="Foreground" Value="White"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <TextBlock Text="系统设置" 
-                              FontSize="20" 
-                              FontWeight="SemiBold" 
-                              VerticalAlignment="Center">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="#757575"/>
-                                <Style.Triggers>
-                                    <DataTrigger Value="True">
-                                        <DataTrigger.Binding>
-                                            <MultiBinding Converter="{StaticResource TagEqualsConverter}">
-                                                <Binding Path="Tag" RelativeSource="{RelativeSource AncestorType=Button}"/>
-                                                <Binding Path="DataContext.CurrentBottomNav" RelativeSource="{RelativeSource AncestorType=Window}"/>
-                                            </MultiBinding>
-                                        </DataTrigger.Binding>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                </Button>
-            </StackPanel>
-        </Border>
     </Grid>
 </Window>

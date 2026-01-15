@@ -20,7 +20,7 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 var logs = new List<DetectionLogItem>();
-                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark 
+                string sql = @"SELECT Id, LogisticsBoxCode, WorkOrderNo, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark 
                               FROM DetectionLogs 
                               ORDER BY CreateTime DESC";
 
@@ -33,13 +33,14 @@ namespace ShunLiDuo.AutomationDetection.Data
                         {
                             Id = reader.GetInt32(0),
                             LogisticsBoxCode = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                            RoomId = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2),
-                            RoomName = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
-                            Status = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                            StartTime = reader.IsDBNull(5) ? (DateTime?)null : reader.GetDateTime(5),
-                            EndTime = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6),
-                            CreateTime = reader.IsDBNull(7) ? DateTime.Now : reader.GetDateTime(7),
-                            Remark = reader.IsDBNull(8) ? string.Empty : reader.GetString(8)
+                            WorkOrderNo = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                            RoomId = reader.IsDBNull(3) ? (int?)null : reader.GetInt32(3),
+                            RoomName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                            Status = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
+                            StartTime = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6),
+                            EndTime = reader.IsDBNull(7) ? (DateTime?)null : reader.GetDateTime(7),
+                            CreateTime = reader.IsDBNull(8) ? DateTime.Now : reader.GetDateTime(8),
+                            Remark = reader.IsDBNull(9) ? string.Empty : reader.GetString(9)
                         });
                     }
                 }
@@ -54,7 +55,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 var logs = new List<DetectionLogItem>();
                 string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark 
                               FROM DetectionLogs 
-                              WHERE LogisticsBoxCode LIKE @keyword OR RoomName LIKE @keyword
+                              WHERE LogisticsBoxCode LIKE @keyword OR WorkOrderNo LIKE @keyword OR RoomName LIKE @keyword
                               ORDER BY CreateTime DESC";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -174,13 +175,14 @@ namespace ShunLiDuo.AutomationDetection.Data
                             {
                                 Id = reader.GetInt32(0),
                                 LogisticsBoxCode = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                                RoomId = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2),
-                                RoomName = reader.IsDBNull(3) ? string.Empty : reader.GetString(3),
-                                Status = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
-                                StartTime = reader.IsDBNull(5) ? (DateTime?)null : reader.GetDateTime(5),
-                                EndTime = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6),
-                                CreateTime = reader.IsDBNull(7) ? DateTime.Now : reader.GetDateTime(7),
-                                Remark = reader.IsDBNull(8) ? string.Empty : reader.GetString(8)
+                                WorkOrderNo = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                                RoomId = reader.IsDBNull(3) ? (int?)null : reader.GetInt32(3),
+                                RoomName = reader.IsDBNull(4) ? string.Empty : reader.GetString(4),
+                                Status = reader.IsDBNull(5) ? string.Empty : reader.GetString(5),
+                                StartTime = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6),
+                                EndTime = reader.IsDBNull(7) ? (DateTime?)null : reader.GetDateTime(7),
+                                CreateTime = reader.IsDBNull(8) ? DateTime.Now : reader.GetDateTime(8),
+                                Remark = reader.IsDBNull(9) ? string.Empty : reader.GetString(9)
                             };
                         }
                     }
@@ -198,13 +200,14 @@ namespace ShunLiDuo.AutomationDetection.Data
 
             return await Task.Run(() =>
             {
-                string sql = @"INSERT INTO DetectionLogs (LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark)
-                              VALUES (@LogisticsBoxCode, @RoomId, @RoomName, @Status, @StartTime, @EndTime, @CreateTime, @Remark);
+                string sql = @"INSERT INTO DetectionLogs (LogisticsBoxCode, WorkOrderNo, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark)
+                              VALUES (@LogisticsBoxCode, @WorkOrderNo, @RoomId, @RoomName, @Status, @StartTime, @EndTime, @CreateTime, @Remark);
                               SELECT last_insert_rowid();";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
                 {
                     command.Parameters.AddWithValue("@LogisticsBoxCode", log.LogisticsBoxCode ?? string.Empty);
+                    command.Parameters.AddWithValue("@WorkOrderNo", log.WorkOrderNo ?? string.Empty);
                     command.Parameters.AddWithValue("@RoomId", (object)log.RoomId ?? DBNull.Value);
                     command.Parameters.AddWithValue("@RoomName", log.RoomName ?? string.Empty);
                     command.Parameters.AddWithValue("@Status", log.Status ?? string.Empty);
@@ -230,6 +233,7 @@ namespace ShunLiDuo.AutomationDetection.Data
             {
                 string sql = @"UPDATE DetectionLogs 
                               SET LogisticsBoxCode = @LogisticsBoxCode, 
+                                  WorkOrderNo = @WorkOrderNo,
                                   RoomId = @RoomId, 
                                   RoomName = @RoomName, 
                                   Status = @Status, 
@@ -242,6 +246,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                 {
                     command.Parameters.AddWithValue("@Id", log.Id);
                     command.Parameters.AddWithValue("@LogisticsBoxCode", log.LogisticsBoxCode ?? string.Empty);
+                    command.Parameters.AddWithValue("@WorkOrderNo", log.WorkOrderNo ?? string.Empty);
                     command.Parameters.AddWithValue("@RoomId", (object)log.RoomId ?? DBNull.Value);
                     command.Parameters.AddWithValue("@RoomName", log.RoomName ?? string.Empty);
                     command.Parameters.AddWithValue("@Status", log.Status ?? string.Empty);

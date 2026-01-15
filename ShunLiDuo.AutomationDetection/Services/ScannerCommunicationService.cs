@@ -14,7 +14,9 @@ namespace ShunLiDuo.AutomationDetection.Services
         private readonly Dictionary<int, SerialPort> _serialPorts = new Dictionary<int, SerialPort>();
         private readonly Dictionary<int, DetectionRoomItem> _roomConfigs = new Dictionary<int, DetectionRoomItem>();
         private readonly Dictionary<int, StringBuilder> _readBuffers = new Dictionary<int, StringBuilder>(); // 数据接收缓冲区
+        private readonly Dictionary<int, System.Timers.Timer> _timeoutTimers = new Dictionary<int, System.Timers.Timer>(); // 超时定时器
         private readonly object _lockObject = new object();
+        private const int DATA_TIMEOUT_MS = 100; // 数据接收超时时间（毫秒），如果100ms内没有新数据，则认为数据接收完成
 
         public event EventHandler<ScannerDataReceivedEventArgs> DataReceived;
         public event EventHandler<ScannerConnectionStatusChangedEventArgs> ConnectionStatusChanged;
@@ -196,6 +198,14 @@ namespace ShunLiDuo.AutomationDetection.Services
                     _roomConfigs.Remove(roomId);
                     _readBuffers.Remove(roomId); // 清理缓冲区
                     
+                    // 清理超时定时器
+                    if (_timeoutTimers.TryGetValue(roomId, out var timer))
+                    {
+                        timer.Stop();
+                        timer.Dispose();
+                        _timeoutTimers.Remove(roomId);
+                    }
+                    
                     // 触发连接状态变化事件
                     if (wasOpen)
                     {
@@ -346,49 +356,16 @@ namespace ShunLiDuo.AutomationDetection.Services
                             
                             if (lineEndIndex >= 0)
                             {
-                                // 提取完整的行数据
-                                string rawData = bufferContent.Substring(0, lineEndIndex).Trim();
-                                
-                                // 尝试将十六进制字符串转换为实际的ASCII字符
-                                string data = ConvertHexStringToAscii(rawData);
-                                
-                                // 移除已处理的数据
-                                if (lineEndIndex + 1 < bufferContent.Length)
-                                {
-                                    _readBuffers[roomId].Remove(0, lineEndIndex + 1);
-                                    
-                                    // 如果还有换行符，也要移除
-                                    if (_readBuffers[roomId].Length > 0 && _readBuffers[roomId][0] == '\n')
-                                    {
-                                        _readBuffers[roomId].Remove(0, 1);
-                                    }
-                                }
-                                else
-                                {
-                                    _readBuffers[roomId].Clear();
-                                }
-                                
-                                if (!string.IsNullOrWhiteSpace(data))
-                                {
-                                    System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 检测室名称:{roomName}, 原始数据:'{rawData}', 转换后数据:{data}");
-                                    
-                                    DataReceived?.Invoke(this, new ScannerDataReceivedEventArgs
-                                    {
-                                        RoomId = roomId,
-                                        RoomName = roomName,
-                                        ScanData = data,
-                                        ReceiveTime = DateTime.Now
-                                    });
-                                }
-                                else
-                                {
-                                    System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 数据为空或仅包含空白字符");
-                                }
+                                // 有结束符，立即处理并停止超时定时器
+                                StopTimeoutTimer(roomId);
+                                ProcessBufferData(roomId, roomName, lineEndIndex);
                             }
                             else
                             {
-                                // 数据不完整，等待更多数据
-                                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 数据不完整，缓冲区内容: '{bufferContent}', 等待更多数据...");
+                                // 没有结束符，启动或重置超时定时器
+                                // 如果100ms内没有新数据到达，则认为数据接收完成，自动处理
+                                StartOrResetTimeoutTimer(roomId, roomName);
+                                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 数据不完整，缓冲区内容: '{bufferContent}', 等待更多数据或超时处理...");
                             }
                         }
                     }
@@ -487,6 +464,119 @@ namespace ShunLiDuo.AutomationDetection.Services
             {
                 System.Diagnostics.Debug.WriteLine($"[串口接收] 转换十六进制字符串失败: {ex.Message}");
                 return hexString.Trim();
+            }
+        }
+
+        /// <summary>
+        /// 处理缓冲区中的数据
+        /// </summary>
+        private void ProcessBufferData(int roomId, string roomName, int lineEndIndex)
+        {
+            if (!_readBuffers.ContainsKey(roomId) || _readBuffers[roomId].Length == 0)
+            {
+                return;
+            }
+
+            string bufferContent = _readBuffers[roomId].ToString();
+            
+            // 提取完整的行数据
+            string rawData = lineEndIndex > 0 && lineEndIndex <= bufferContent.Length
+                ? bufferContent.Substring(0, lineEndIndex).Trim()
+                : bufferContent.Trim();
+            
+            // 尝试将十六进制字符串转换为实际的ASCII字符
+            string data = ConvertHexStringToAscii(rawData);
+            
+            // 移除已处理的数据
+            if (lineEndIndex > 0 && lineEndIndex < bufferContent.Length)
+            {
+                _readBuffers[roomId].Remove(0, lineEndIndex + 1);
+                
+                // 如果还有换行符，也要移除
+                if (_readBuffers[roomId].Length > 0 && _readBuffers[roomId][0] == '\n')
+                {
+                    _readBuffers[roomId].Remove(0, 1);
+                }
+            }
+            else
+            {
+                _readBuffers[roomId].Clear();
+            }
+            
+            if (!string.IsNullOrWhiteSpace(data))
+            {
+                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 检测室名称:{roomName}, 原始数据:'{rawData}', 转换后数据:{data}");
+                
+                DataReceived?.Invoke(this, new ScannerDataReceivedEventArgs
+                {
+                    RoomId = roomId,
+                    RoomName = roomName,
+                    ScanData = data,
+                    ReceiveTime = DateTime.Now
+                });
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 数据为空或仅包含空白字符");
+            }
+        }
+
+        /// <summary>
+        /// 启动或重置超时定时器
+        /// </summary>
+        private void StartOrResetTimeoutTimer(int roomId, string roomName)
+        {
+            lock (_lockObject)
+            {
+                // 如果定时器已存在，先停止
+                if (_timeoutTimers.TryGetValue(roomId, out var existingTimer))
+                {
+                    existingTimer.Stop();
+                    existingTimer.Dispose();
+                }
+                
+                // 创建新的定时器
+                var timer = new System.Timers.Timer(DATA_TIMEOUT_MS);
+                timer.Elapsed += (sender, e) =>
+                {
+                    timer.Stop();
+                    lock (_lockObject)
+                    {
+                        if (_readBuffers.ContainsKey(roomId) && _readBuffers[roomId].Length > 0)
+                        {
+                            // 超时后处理整个缓冲区（没有结束符的情况）
+                            int bufferLength = _readBuffers[roomId].Length;
+                            System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 超时处理，缓冲区长度:{bufferLength}");
+                            ProcessBufferData(roomId, roomName, bufferLength);
+                        }
+                        
+                        // 清理定时器
+                        if (_timeoutTimers.TryGetValue(roomId, out var timerToRemove) && timerToRemove == timer)
+                        {
+                            timerToRemove.Dispose();
+                            _timeoutTimers.Remove(roomId);
+                        }
+                    }
+                };
+                timer.AutoReset = false;
+                timer.Start();
+                _timeoutTimers[roomId] = timer;
+            }
+        }
+
+        /// <summary>
+        /// 停止超时定时器
+        /// </summary>
+        private void StopTimeoutTimer(int roomId)
+        {
+            lock (_lockObject)
+            {
+                if (_timeoutTimers.TryGetValue(roomId, out var timer))
+                {
+                    timer.Stop();
+                    timer.Dispose();
+                    _timeoutTimers.Remove(roomId);
+                }
             }
         }
 

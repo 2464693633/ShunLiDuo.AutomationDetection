@@ -113,6 +113,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 {
                     filteredLogs = filteredLogs.Where(log => 
                         (log.LogisticsBoxCode != null && log.LogisticsBoxCode.Contains(SearchKeyword)) ||
+                        (log.WorkOrderNo != null && log.WorkOrderNo.Contains(SearchKeyword)) ||
                         (log.RoomName != null && log.RoomName.Contains(SearchKeyword)));
                 }
                 
@@ -209,22 +210,24 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 // 设置列标题
                 worksheet.Cell(1, 1).Value = "序号";
                 worksheet.Cell(1, 2).Value = "物流盒编码";
-                worksheet.Cell(1, 3).Value = "检测室";
-                worksheet.Cell(1, 4).Value = "状态";
-                worksheet.Cell(1, 5).Value = "检测开始时间";
-                worksheet.Cell(1, 6).Value = "检测完成时间";
-                worksheet.Cell(1, 7).Value = "创建时间";
-                worksheet.Cell(1, 8).Value = "备注";
+                worksheet.Cell(1, 3).Value = "报工单编号";
+                worksheet.Cell(1, 4).Value = "检测室";
+                worksheet.Cell(1, 5).Value = "状态";
+                worksheet.Cell(1, 6).Value = "检测开始时间";
+                worksheet.Cell(1, 7).Value = "检测完成时间";
+                worksheet.Cell(1, 8).Value = "创建时间";
+                worksheet.Cell(1, 9).Value = "备注";
 
                 // 设置列宽
                 worksheet.Column(1).Width = 10;  // 序号
                 worksheet.Column(2).Width = 25; // 物流盒编码
-                worksheet.Column(3).Width = 15;  // 检测室
-                worksheet.Column(4).Width = 15; // 状态
-                worksheet.Column(5).Width = 20; // 检测开始时间
-                worksheet.Column(6).Width = 20; // 检测完成时间
-                worksheet.Column(7).Width = 20; // 创建时间
-                worksheet.Column(8).Width = 30; // 备注
+                worksheet.Column(3).Width = 20; // 报工单编号
+                worksheet.Column(4).Width = 15;  // 检测室
+                worksheet.Column(5).Width = 15; // 状态
+                worksheet.Column(6).Width = 20; // 检测开始时间
+                worksheet.Column(7).Width = 20; // 检测完成时间
+                worksheet.Column(8).Width = 20; // 创建时间
+                worksheet.Column(9).Width = 30; // 备注
 
                 // 填充数据
                 for (int i = 0; i < logs.Count; i++)
@@ -234,12 +237,13 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
 
                     worksheet.Cell(row, 1).Value = log.Id;
                     worksheet.Cell(row, 2).Value = log.LogisticsBoxCode ?? "";
-                    worksheet.Cell(row, 3).Value = log.RoomName ?? "";
-                    worksheet.Cell(row, 4).Value = log.Status ?? "";
-                    worksheet.Cell(row, 5).Value = log.StartTime.HasValue ? log.StartTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "";
-                    worksheet.Cell(row, 6).Value = log.EndTime.HasValue ? log.EndTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "";
-                    worksheet.Cell(row, 7).Value = log.CreateTime.ToString("yyyy-MM-dd HH:mm:ss");
-                    worksheet.Cell(row, 8).Value = log.Remark ?? "";
+                    worksheet.Cell(row, 3).Value = log.WorkOrderNo ?? "";
+                    worksheet.Cell(row, 4).Value = log.RoomName ?? "";
+                    worksheet.Cell(row, 5).Value = log.Status ?? "";
+                    worksheet.Cell(row, 6).Value = log.StartTime.HasValue ? log.StartTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "";
+                    worksheet.Cell(row, 7).Value = log.EndTime.HasValue ? log.EndTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "";
+                    worksheet.Cell(row, 8).Value = log.CreateTime.ToString("yyyy-MM-dd HH:mm:ss");
+                    worksheet.Cell(row, 9).Value = log.Remark ?? "";
 
                     // 设置数据行样式
                     var dataRow = worksheet.Row(row);

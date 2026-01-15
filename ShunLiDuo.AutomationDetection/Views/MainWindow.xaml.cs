@@ -5,6 +5,7 @@ using System.Windows.Threading;
 using System.Windows.Media;
 using Prism.Regions;
 using ShunLiDuo.AutomationDetection.Services;
+using System.Windows.Controls;
 
 namespace ShunLiDuo.AutomationDetection.Views
 {
@@ -46,6 +47,16 @@ namespace ShunLiDuo.AutomationDetection.Views
             if (CurrentTimeText != null)
             {
                 CurrentTimeText.Text = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            }
+        }
+        
+        private void CloseTabButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button?.Tag is ViewModels.OpenTabItem tab)
+            {
+                var viewModel = DataContext as ViewModels.MainWindowViewModel;
+                viewModel?.CloseTab(tab);
             }
         }
 
