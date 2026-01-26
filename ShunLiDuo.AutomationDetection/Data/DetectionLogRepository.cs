@@ -20,7 +20,7 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 var logs = new List<DetectionLogItem>();
-                string sql = @"SELECT Id, LogisticsBoxCode, WorkOrderNo, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark 
+                string sql = @"SELECT Id, LogisticsBoxCode, WorkOrderNo, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark, InspectorName 
                               FROM DetectionLogs 
                               ORDER BY CreateTime DESC";
 
@@ -40,7 +40,8 @@ namespace ShunLiDuo.AutomationDetection.Data
                             StartTime = reader.IsDBNull(6) ? (DateTime?)null : reader.GetDateTime(6),
                             EndTime = reader.IsDBNull(7) ? (DateTime?)null : reader.GetDateTime(7),
                             CreateTime = reader.IsDBNull(8) ? DateTime.Now : reader.GetDateTime(8),
-                            Remark = reader.IsDBNull(9) ? string.Empty : reader.GetString(9)
+                            Remark = reader.IsDBNull(9) ? string.Empty : reader.GetString(9),
+                            InspectorName = reader.FieldCount > 10 && !reader.IsDBNull(10) ? reader.GetString(10) : string.Empty
                         });
                     }
                 }
@@ -53,7 +54,7 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 var logs = new List<DetectionLogItem>();
-                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark 
+                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark, InspectorName 
                               FROM DetectionLogs 
                               WHERE LogisticsBoxCode LIKE @keyword OR WorkOrderNo LIKE @keyword OR RoomName LIKE @keyword
                               ORDER BY CreateTime DESC";
@@ -89,7 +90,7 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 var logs = new List<DetectionLogItem>();
-                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark 
+                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark, InspectorName 
                               FROM DetectionLogs 
                               WHERE RoomId = @roomId
                               ORDER BY CreateTime DESC";
@@ -125,7 +126,7 @@ namespace ShunLiDuo.AutomationDetection.Data
             return await Task.Run(() =>
             {
                 var logs = new List<DetectionLogItem>();
-                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark 
+                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark, InspectorName 
                               FROM DetectionLogs 
                               WHERE LogisticsBoxCode = @boxCode
                               ORDER BY CreateTime DESC";
@@ -160,7 +161,7 @@ namespace ShunLiDuo.AutomationDetection.Data
         {
             return await Task.Run(() =>
             {
-                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark 
+                string sql = @"SELECT Id, LogisticsBoxCode, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark, InspectorName 
                               FROM DetectionLogs 
                               WHERE Id = @id";
 
@@ -200,8 +201,8 @@ namespace ShunLiDuo.AutomationDetection.Data
 
             return await Task.Run(() =>
             {
-                string sql = @"INSERT INTO DetectionLogs (LogisticsBoxCode, WorkOrderNo, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark)
-                              VALUES (@LogisticsBoxCode, @WorkOrderNo, @RoomId, @RoomName, @Status, @StartTime, @EndTime, @CreateTime, @Remark);
+                string sql = @"INSERT INTO DetectionLogs (LogisticsBoxCode, WorkOrderNo, RoomId, RoomName, Status, StartTime, EndTime, CreateTime, Remark, InspectorName)
+                              VALUES (@LogisticsBoxCode, @WorkOrderNo, @RoomId, @RoomName, @Status, @StartTime, @EndTime, @CreateTime, @Remark, @InspectorName);
                               SELECT last_insert_rowid();";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -215,6 +216,7 @@ namespace ShunLiDuo.AutomationDetection.Data
                     command.Parameters.AddWithValue("@EndTime", (object)log.EndTime ?? DBNull.Value);
                     command.Parameters.AddWithValue("@CreateTime", log.CreateTime);
                     command.Parameters.AddWithValue("@Remark", log.Remark ?? string.Empty);
+                    command.Parameters.AddWithValue("@InspectorName", log.InspectorName ?? string.Empty);
 
                     var result = command.ExecuteScalar();
                     return Convert.ToInt32(result);
@@ -239,7 +241,8 @@ namespace ShunLiDuo.AutomationDetection.Data
                                   Status = @Status, 
                                   StartTime = @StartTime, 
                                   EndTime = @EndTime, 
-                                  Remark = @Remark
+                                  Remark = @Remark,
+                                  InspectorName = @InspectorName
                               WHERE Id = @Id";
 
                 using (var command = new SQLiteCommand(sql, _context.Connection))
@@ -252,10 +255,66 @@ namespace ShunLiDuo.AutomationDetection.Data
                     command.Parameters.AddWithValue("@Status", log.Status ?? string.Empty);
                     command.Parameters.AddWithValue("@StartTime", (object)log.StartTime ?? DBNull.Value);
                     command.Parameters.AddWithValue("@EndTime", (object)log.EndTime ?? DBNull.Value);
+                    // command.Parameters.AddWithValue("@EndTime", (object)log.EndTime ?? DBNull.Value); // Removed duplicate parameter
                     command.Parameters.AddWithValue("@Remark", log.Remark ?? string.Empty);
+                    command.Parameters.AddWithValue("@InspectorName", log.InspectorName ?? string.Empty);
 
                     int rowsAffected = command.ExecuteNonQuery();
                     return rowsAffected > 0;
+                }
+            });
+        }
+
+        public async Task<bool> UpdateRoomInfoAsync(int id, int roomId, string roomName, string status)
+        {
+            if (id <= 0) return false;
+
+            return await Task.Run(() =>
+            {
+                string sql = @"UPDATE DetectionLogs 
+                              SET RoomId = @RoomId, 
+                                  RoomName = @RoomName, 
+                                  Status = @Status
+                              WHERE Id = @Id";
+                using (var command = new SQLiteCommand(sql, _context.Connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@RoomId", roomId);
+                    command.Parameters.AddWithValue("@RoomName", roomName ?? string.Empty);
+                    command.Parameters.AddWithValue("@Status", status ?? string.Empty);
+                    return command.ExecuteNonQuery() > 0;
+                }
+            });
+        }
+
+        public async Task<bool> UpdateWorkOrderNoAsync(int id, string workOrderNo)
+        {
+            if (id <= 0) return false;
+
+            return await Task.Run(() =>
+            {
+                string sql = "UPDATE DetectionLogs SET WorkOrderNo = @WorkOrderNo WHERE Id = @Id";
+                using (var command = new SQLiteCommand(sql, _context.Connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@WorkOrderNo", workOrderNo ?? string.Empty);
+                    return command.ExecuteNonQuery() > 0;
+                }
+            });
+        }
+
+        public async Task<bool> UpdateInspectorNameAsync(int id, string inspectorName)
+        {
+            if (id <= 0) return false;
+
+            return await Task.Run(() =>
+            {
+                string sql = "UPDATE DetectionLogs SET InspectorName = @InspectorName WHERE Id = @Id";
+                using (var command = new SQLiteCommand(sql, _context.Connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@InspectorName", inspectorName ?? string.Empty);
+                    return command.ExecuteNonQuery() > 0;
                 }
             });
         }

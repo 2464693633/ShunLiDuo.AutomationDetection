@@ -75,6 +75,24 @@ namespace ShunLiDuo.AutomationDetection.Services
             return await _repository.UpdateLogAsync(log);
         }
 
+        public async Task<bool> UpdateWorkOrderNoAsync(int id, string workOrderNo)
+        {
+            if (id <= 0) return false;
+            return await _repository.UpdateWorkOrderNoAsync(id, workOrderNo);
+        }
+
+        public async Task<bool> UpdateInspectorNameAsync(int id, string inspectorName)
+        {
+            if (id <= 0) return false;
+            return await _repository.UpdateInspectorNameAsync(id, inspectorName);
+        }
+
+        public async Task<bool> UpdateRoomInfoAsync(int id, int roomId, string roomName, string status)
+        {
+            if (id <= 0) return false;
+            return await _repository.UpdateRoomInfoAsync(id, roomId, roomName, status);
+        }
+
         public async Task<bool> DeleteLogAsync(int id)
         {
             if (id <= 0)

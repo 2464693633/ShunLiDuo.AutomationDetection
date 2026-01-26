@@ -27,7 +27,13 @@ namespace ShunLiDuo.AutomationDetection.Views
             {
                 if (viewModel.CurrentMainView == "TaskManagementView")
                 {
-                    regionManager.RequestNavigate("MainContentRegion", "TaskManagementView");
+                    regionManager.RequestNavigate("MainContentRegion", "TaskManagementView", result =>
+                    {
+                        if (result.Error != null)
+                        {
+                            MessageBox.Show($"导航到任务管理页面失败: {result.Error.Message}", "导航错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    });
                 }
                 UpdateMaximizeButtonContent();
             };
@@ -96,16 +102,16 @@ namespace ShunLiDuo.AutomationDetection.Views
         // 更新最大化按钮图标
         private void UpdateMaximizeButtonContent()
         {
-            if (MaximizeIcon != null)
+            if (MaximizeRestoreButton != null)
             {
                 if (WindowState == WindowState.Maximized)
                 {
-                    MaximizeIcon.Text = "❐";
+                    MaximizeRestoreButton.Content = "❐";
                     MaximizeRestoreButton.ToolTip = "还原";
                 }
                 else
                 {
-                    MaximizeIcon.Text = "□";
+                    MaximizeRestoreButton.Content = "□";
                     MaximizeRestoreButton.ToolTip = "最大化";
                 }
             }

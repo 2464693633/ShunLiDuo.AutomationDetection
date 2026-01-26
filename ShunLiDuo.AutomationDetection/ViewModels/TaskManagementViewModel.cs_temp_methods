@@ -1,0 +1,48 @@
+        /// <summary>
+        /// 执行统一扫码输入确认逻辑
+        /// </summary>
+        private void ExecuteUnifiedInputConfirm()
+        {
+            if (string.IsNullOrWhiteSpace(UnifiedInputText))
+                return;
+
+            string input = UnifiedInputText.Trim();
+            
+            try
+            {
+                // 1. 识别物流盒编码：以 H 开头 + 数字
+                if (input.StartsWith("H", StringComparison.OrdinalIgnoreCase) && input.Length > 1)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[统一扫码]以此为物流盒编码处理: {input}");
+                    AddLogisticsBoxCode(input);
+                }
+                // 2. 识别报工单编码：以 ZJ 开头
+                else if (input.StartsWith("ZJ", StringComparison.OrdinalIgnoreCase) && input.Length > 2)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[统一扫码]以此为报工单编码处理: {input}");
+                    UpdateWorkOrderNoForLatestTask(input);
+                }
+                // 3. 识别送检人（员工号）：纯数字
+                else if (long.TryParse(input, out _)) 
+                {
+                    System.Diagnostics.Debug.WriteLine($"[统一扫码]以此为员工号处理: {input}");
+                    UpdateInspectorForLatestTask(input);
+                }
+                else
+                {
+                    // 未知格式，或者可能是其他类型的条码
+                    System.Diagnostics.Debug.WriteLine($"[统一扫码] 未知格式: {input}");
+                    CustomMessageBox.ShowWarning($"无法识别的条码格式：{input}\n\n支持格式：\n1. H开头 (物流盒)\n2. ZJ开头 (报工单)\n3. 纯数字 (员工号)");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[统一扫码] 处理异常: {ex.Message}");
+                // ShowError($"处理扫码异常: {ex.Message}");
+            }
+            finally
+            {
+                // 清空输入框，方便下一次扫码
+                UnifiedInputText = string.Empty;
+            }
+        }

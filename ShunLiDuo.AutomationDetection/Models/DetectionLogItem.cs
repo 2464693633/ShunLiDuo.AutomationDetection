@@ -13,6 +13,7 @@ namespace ShunLiDuo.AutomationDetection.Models
         public DateTime? StartTime { get; set; } // 检测开始时间
         public DateTime? EndTime { get; set; } // 检测完成时间
         public DateTime CreateTime { get; set; } // 创建时间
+        public string InspectorName { get; set; } // 送检人
         public string Remark { get; set; } // 备注
     }
 }

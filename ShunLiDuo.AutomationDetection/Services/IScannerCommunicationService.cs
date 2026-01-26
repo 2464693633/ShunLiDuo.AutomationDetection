@@ -45,6 +45,11 @@ namespace ShunLiDuo.AutomationDetection.Services
         /// 自动连接所有已启用扫码器的检测室
         /// </summary>
         Task AutoConnectAllScannersAsync(System.Collections.Generic.List<DetectionRoomItem> rooms);
+
+        /// <summary>
+        /// 关闭所有串口连接
+        /// </summary>
+        Task CloseAllConnectionsAsync();
     }
 
     public class ScannerDataReceivedEventArgs : EventArgs
@@ -52,6 +57,7 @@ namespace ShunLiDuo.AutomationDetection.Services
         public int RoomId { get; set; }
         public string RoomName { get; set; }
         public string ScanData { get; set; }
+        public byte[] RawBytes { get; set; } // 新增原始字节数据
         public DateTime ReceiveTime { get; set; }
     }
 

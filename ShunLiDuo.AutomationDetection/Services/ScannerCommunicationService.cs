@@ -13,7 +13,7 @@ namespace ShunLiDuo.AutomationDetection.Services
     {
         private readonly Dictionary<int, SerialPort> _serialPorts = new Dictionary<int, SerialPort>();
         private readonly Dictionary<int, DetectionRoomItem> _roomConfigs = new Dictionary<int, DetectionRoomItem>();
-        private readonly Dictionary<int, StringBuilder> _readBuffers = new Dictionary<int, StringBuilder>(); // 数据接收缓冲区
+        private readonly Dictionary<int, List<byte>> _readBuffers = new Dictionary<int, List<byte>>(); // 数据接收缓冲区
         private readonly Dictionary<int, System.Timers.Timer> _timeoutTimers = new Dictionary<int, System.Timers.Timer>(); // 超时定时器
         private readonly object _lockObject = new object();
         private const int DATA_TIMEOUT_MS = 100; // 数据接收超时时间（毫秒），如果100ms内没有新数据，则认为数据接收完成
@@ -73,7 +73,7 @@ namespace ShunLiDuo.AutomationDetection.Services
                         {
                             testPort.ReadTimeout = 1000;
                             testPort.WriteTimeout = 1000;
-                            testPort.Encoding = Encoding.ASCII;  // 使用ASCII编码
+                            testPort.Encoding = Encoding.Default;  // 使用系统默认编码（支持中文和8位字符）
                             testPort.NewLine = "\r";  // 设置换行符为 \r
                             testPort.Open();
                             
@@ -119,12 +119,16 @@ namespace ShunLiDuo.AutomationDetection.Services
                     return false;
                 }
 
+                Models.DetectionRoomItem connectedRoom = null;
+                bool wasDisconnected = false;
+                int disconnectedRoomId = room.Id;
+
                 lock (_lockObject)
                 {
                     // 如果已经连接，先关闭
                     if (_serialPorts.ContainsKey(room.Id))
                     {
-                        CloseConnectionInternal(room.Id);
+                        wasDisconnected = CloseConnectionCore(room.Id);
                     }
 
                     try
@@ -138,8 +142,8 @@ namespace ShunLiDuo.AutomationDetection.Services
                         {
                             ReadTimeout = 1000,
                             WriteTimeout = 1000,
-                            Encoding = Encoding.ASCII,  // 使用ASCII编码接收数据
-                            NewLine = "\r"  // 设置换行符为 \r (0x0D)，匹配扫码器的回车符
+                            Encoding = Encoding.Default,
+                            NewLine = "\r"
                         };
 
                         serialPort.DataReceived += (sender, e) => OnDataReceived(room.Id, room.RoomName, sender as SerialPort);
@@ -149,25 +153,40 @@ namespace ShunLiDuo.AutomationDetection.Services
                         _roomConfigs[room.Id] = room;
 
                         System.Diagnostics.Debug.WriteLine($"[串口连接] 成功打开串口 - 检测室ID:{room.Id}, 检测室名称:{room.RoomName}, 串口:{room.ScannerPortName}, 波特率:{room.ScannerBaudRate}");
-                        
-                        // 触发连接状态变化事件（在后台线程触发，事件处理会切换到UI线程）
-                        var eventArgs = new ScannerConnectionStatusChangedEventArgs
-                        {
-                            RoomId = room.Id,
-                            IsConnected = true
-                        };
-                        System.Diagnostics.Debug.WriteLine($"[串口连接] 准备触发连接状态变化事件 - 检测室ID:{room.Id}, IsConnected:True");
-                        ConnectionStatusChanged?.Invoke(this, eventArgs);
-                        System.Diagnostics.Debug.WriteLine($"[串口连接] 已触发连接状态变化事件 - 检测室ID:{room.Id}, 事件订阅者数量:{(ConnectionStatusChanged?.GetInvocationList()?.Length ?? 0)}");
-                        
-                        return true;
+                        connectedRoom = room;
                     }
                     catch (Exception ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"[串口连接] 打开串口失败 - 检测室ID:{room?.Id}, 串口:{room?.ScannerPortName}, 错误:{ex.Message}, 堆栈:{ex.StackTrace}");
-                        return false;
                     }
                 }
+
+                // 锁释放后再触发事件，避免死锁
+                
+                // 如果刚才关闭了旧连接，触发断开事件
+                if (wasDisconnected)
+                {
+                     ConnectionStatusChanged?.Invoke(this, new ScannerConnectionStatusChangedEventArgs
+                     {
+                         RoomId = disconnectedRoomId,
+                         IsConnected = false
+                     });
+                }
+
+                // 如果成功连接，触发连接事件
+                if (connectedRoom != null)
+                {
+                    var eventArgs = new ScannerConnectionStatusChangedEventArgs
+                    {
+                        RoomId = connectedRoom.Id,
+                        IsConnected = true
+                    };
+                    System.Diagnostics.Debug.WriteLine($"[串口连接] 触发连接状态变化事件 (锁外) - 检测室ID:{connectedRoom.Id}, IsConnected:True");
+                    ConnectionStatusChanged?.Invoke(this, eventArgs);
+                    return true;
+                }
+                
+                return false;
             });
         }
 
@@ -175,14 +194,31 @@ namespace ShunLiDuo.AutomationDetection.Services
         {
             return await Task.Run(() =>
             {
+                bool wasDisconnected = false;
                 lock (_lockObject)
                 {
-                    return CloseConnectionInternal(roomId);
+                    wasDisconnected = CloseConnectionCore(roomId);
                 }
+                
+                if (wasDisconnected)
+                {
+                     ConnectionStatusChanged?.Invoke(this, new ScannerConnectionStatusChangedEventArgs
+                     {
+                         RoomId = roomId,
+                         IsConnected = false
+                     });
+                     return true;
+                }
+                return false;
             });
         }
 
-        private bool CloseConnectionInternal(int roomId)
+        /// <summary>
+        /// 关闭串口连接的核心逻辑（不包含锁，不触发事件）
+        /// 调用者必须持有锁
+        /// </summary>
+        /// <returns>如果是关闭了开启的连接返回true，否则false</returns>
+        private bool CloseConnectionCore(int roomId)
         {
             if (_serialPorts.TryGetValue(roomId, out var serialPort))
             {
@@ -196,9 +232,8 @@ namespace ShunLiDuo.AutomationDetection.Services
                     serialPort.Dispose();
                     _serialPorts.Remove(roomId);
                     _roomConfigs.Remove(roomId);
-                    _readBuffers.Remove(roomId); // 清理缓冲区
+                    _readBuffers.Remove(roomId);
                     
-                    // 清理超时定时器
                     if (_timeoutTimers.TryGetValue(roomId, out var timer))
                     {
                         timer.Stop();
@@ -206,17 +241,7 @@ namespace ShunLiDuo.AutomationDetection.Services
                         _timeoutTimers.Remove(roomId);
                     }
                     
-                    // 触发连接状态变化事件
-                    if (wasOpen)
-                    {
-                        ConnectionStatusChanged?.Invoke(this, new ScannerConnectionStatusChangedEventArgs
-                        {
-                            RoomId = roomId,
-                            IsConnected = false
-                        });
-                    }
-                    
-                    return true;
+                    return wasOpen;
                 }
                 catch (Exception ex)
                 {
@@ -286,27 +311,26 @@ namespace ShunLiDuo.AutomationDetection.Services
                         string hexString = string.Join(" ", buffer.Take(bytesRead).Select(b => b.ToString("X2")));
                         System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 原始字节数据(HEX): {hexString}, 字节数:{bytesRead}");
                         
-                        // 转换为ASCII字符串
-                        string receivedData = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                        System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 接收到的字符串: '{receivedData}' (长度:{receivedData.Length})");
-                        
                         // 获取或创建缓冲区
                         lock (_lockObject)
                         {
                             if (!_readBuffers.ContainsKey(roomId))
                             {
-                                _readBuffers[roomId] = new StringBuilder();
+                                _readBuffers[roomId] = new List<byte>();
                             }
                             
                             // 将接收到的数据添加到缓冲区
-                            _readBuffers[roomId].Append(receivedData);
+                            for (int i = 0; i < bytesRead; i++)
+                            {
+                                _readBuffers[roomId].Add(buffer[i]);
+                            }
                             
                             // 检查缓冲区中是否包含完整的行（以 \r 或 \n 结尾）
-                            string bufferContent = _readBuffers[roomId].ToString();
+                            List<byte> currentBuffer = _readBuffers[roomId];
                             
-                            // 检查是否包含回车符或换行符
-                            int crIndex = bufferContent.IndexOf('\r');
-                            int lfIndex = bufferContent.IndexOf('\n');
+                            // 检查是否包含回车符 (0x0D) 或换行符 (0x0A)
+                            int crIndex = currentBuffer.IndexOf(0x0D);
+                            int lfIndex = currentBuffer.IndexOf(0x0A);
                             int lineEndIndex = -1;
                             
                             if (crIndex >= 0)
@@ -318,54 +342,53 @@ namespace ShunLiDuo.AutomationDetection.Services
                                 lineEndIndex = lfIndex;
                             }
                             
-                            // 如果没有找到回车符，检查是否是十六进制字符串格式（如 "48 30 30 30 31 0D"）
-                            if (lineEndIndex < 0)
-                            {
-                                // 检查是否包含 "0D" 或 "0d"（回车符的十六进制表示）
-                                int hexCrIndex = -1;
-                                string upperContent = bufferContent.ToUpper();
-                                
-                                // 查找 "0D" 或 " 0D " 或 "0D " 或 " 0D"
-                                if (upperContent.Contains("0D"))
-                                {
-                                    hexCrIndex = upperContent.IndexOf("0D");
-                                    // 确保 "0D" 前后是空格或字符串边界
-                                    if (hexCrIndex >= 0)
-                                    {
-                                        bool isValid = false;
-                                        // 检查前面是否是空格或字符串开始
-                                        if (hexCrIndex == 0 || bufferContent[hexCrIndex - 1] == ' ')
-                                        {
-                                            // 检查后面是否是空格、回车符或字符串结束
-                                            if (hexCrIndex + 2 >= bufferContent.Length || 
-                                                bufferContent[hexCrIndex + 2] == ' ' || 
-                                                bufferContent[hexCrIndex + 2] == '\r' || 
-                                                bufferContent[hexCrIndex + 2] == '\n')
-                                            {
-                                                isValid = true;
-                                            }
-                                        }
-                                        
-                                        if (isValid)
-                                        {
-                                            lineEndIndex = hexCrIndex + 2; // 包含 "0D"
-                                        }
-                                    }
-                                }
-                            }
-                            
+                            // 如果找到了行结束符，立即处理
                             if (lineEndIndex >= 0)
                             {
-                                // 有结束符，立即处理并停止超时定时器
-                                StopTimeoutTimer(roomId);
+                                // 如果有定时器在运行，先停止
+                                if (_timeoutTimers.TryGetValue(roomId, out var timer))
+                                {
+                                    timer.Stop();
+                                    timer.Dispose();
+                                    _timeoutTimers.Remove(roomId);
+                                }
+                                
                                 ProcessBufferData(roomId, roomName, lineEndIndex);
                             }
                             else
                             {
-                                // 没有结束符，启动或重置超时定时器
-                                // 如果100ms内没有新数据到达，则认为数据接收完成，自动处理
+                                    // [针对无结束符的优化] 检查是否是以 'H' 开头的 7位 或 6位 数据
+                                    // 用户反馈格式通常是 Hxxxxxx (7位) 或 Hxxxxx (6位)，且数据是一次性完整发送的
+                                    // 所以只要达到 6位，我们就判断是完整数据进行处理
+                                    int hIndex = currentBuffer.IndexOf(0x48); // 'H'
+                                    if (hIndex >= 0)
+                                    {
+                                        int currentLength = currentBuffer.Count - hIndex;
+                                        
+                                        // 达到 6位 即触发（涵盖 6位 和 7位）
+                                        if (currentLength >= 6)
+                                        {
+                                            // 优先取 7位（如果缓冲区够长），否则取 6位
+                                            int packetLength = (currentLength >= 7) ? 7 : 6;
+                                            int endIndex = hIndex + packetLength - 1;
+                                            
+                                            // 停止定时器
+                                            if (_timeoutTimers.TryGetValue(roomId, out var timer))
+                                            {
+                                                timer.Stop();
+                                                timer.Dispose();
+                                                _timeoutTimers.Remove(roomId);
+                                            }
+                                            ProcessBufferData(roomId, roomName, endIndex);
+                                            // 继续处理后续数据
+                                            // continue; // 错误：这里不在循环内，不能使用 continue。ProcessBufferData 会移除数据，下一次事件会处理剩余（如果有）
+                                            return; // 使用 return 结束本次处理，避免触发超时定时器 
+                                        }
+                                    }
+
+                                // 没有结束符且未达到触发长度，启动或重置超时定时器
+                                // 等待一段时间看是否还有后续数据
                                 StartOrResetTimeoutTimer(roomId, roomName);
-                                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 数据不完整，缓冲区内容: '{bufferContent}', 等待更多数据或超时处理...");
                             }
                         }
                     }
@@ -450,10 +473,10 @@ namespace ShunLiDuo.AutomationDetection.Services
                         }
                     }
                     
-                    // 将字节转换为ASCII字符串
+                    // 将字节转换为字符串
                     if (bytes.Count > 0)
                     {
-                        return Encoding.ASCII.GetString(bytes.ToArray()).Trim();
+                        return Encoding.Default.GetString(bytes.ToArray()).Trim();
                     }
                 }
                 
@@ -470,54 +493,65 @@ namespace ShunLiDuo.AutomationDetection.Services
         /// <summary>
         /// 处理缓冲区中的数据
         /// </summary>
+        /// <summary>
+        /// 处理缓冲区中的数据
+        /// </summary>
         private void ProcessBufferData(int roomId, string roomName, int lineEndIndex)
         {
-            if (!_readBuffers.ContainsKey(roomId) || _readBuffers[roomId].Length == 0)
+            if (!_readBuffers.ContainsKey(roomId) || _readBuffers[roomId].Count == 0)
             {
                 return;
             }
 
-            string bufferContent = _readBuffers[roomId].ToString();
+            List<byte> currentBuffer = _readBuffers[roomId];
+            int lengthToProcess = lineEndIndex > 0 && lineEndIndex < currentBuffer.Count 
+                ? lineEndIndex + 1 
+                : currentBuffer.Count;
             
-            // 提取完整的行数据
-            string rawData = lineEndIndex > 0 && lineEndIndex <= bufferContent.Length
-                ? bufferContent.Substring(0, lineEndIndex).Trim()
-                : bufferContent.Trim();
+            // 提取原始字节数据
+            byte[] rawBytes = currentBuffer.Take(lengthToProcess).ToArray();
             
-            // 尝试将十六进制字符串转换为实际的ASCII字符
-            string data = ConvertHexStringToAscii(rawData);
+            // 转换为字符串（使用默认编码）
+            string rawString = Encoding.Default.GetString(rawBytes).Trim();
+            
+            // 记录调试信息
+            string hexString = string.Join(" ", rawBytes.Select(b => b.ToString("X2")));
+            
+            // 尝试将十六进制字符串转换为实际的ASCII字符（如果内容本身是十六进制字符串的话，兼容旧逻辑）
+            string data = ConvertHexStringToAscii(rawString);
             
             // 移除已处理的数据
-            if (lineEndIndex > 0 && lineEndIndex < bufferContent.Length)
+            if (lengthToProcess < currentBuffer.Count)
             {
-                _readBuffers[roomId].Remove(0, lineEndIndex + 1);
+                currentBuffer.RemoveRange(0, lengthToProcess);
                 
-                // 如果还有换行符，也要移除
-                if (_readBuffers[roomId].Length > 0 && _readBuffers[roomId][0] == '\n')
+                // 如果紧接着是换行符(0x0A)，也要移除（处理 \r\n 的情况）
+                if (currentBuffer.Count > 0 && currentBuffer[0] == 0x0A)
                 {
-                    _readBuffers[roomId].Remove(0, 1);
+                    currentBuffer.RemoveAt(0);
                 }
             }
             else
             {
-                _readBuffers[roomId].Clear();
+                currentBuffer.Clear();
             }
             
-            if (!string.IsNullOrWhiteSpace(data))
+            if (!string.IsNullOrWhiteSpace(data) || rawBytes.Length > 0)
             {
-                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 检测室名称:{roomName}, 原始数据:'{rawData}', 转换后数据:{data}");
+                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 检测室名称:{roomName}, 原始HEX:{hexString}, 转换后数据:{data}");
                 
                 DataReceived?.Invoke(this, new ScannerDataReceivedEventArgs
                 {
                     RoomId = roomId,
                     RoomName = roomName,
                     ScanData = data,
+                    RawBytes = rawBytes, // 传递原始字节
                     ReceiveTime = DateTime.Now
                 });
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 数据为空或仅包含空白字符");
+                System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 数据为空");
             }
         }
 
@@ -542,10 +576,10 @@ namespace ShunLiDuo.AutomationDetection.Services
                     timer.Stop();
                     lock (_lockObject)
                     {
-                        if (_readBuffers.ContainsKey(roomId) && _readBuffers[roomId].Length > 0)
+                        if (_readBuffers.ContainsKey(roomId) && _readBuffers[roomId].Count > 0)
                         {
                             // 超时后处理整个缓冲区（没有结束符的情况）
-                            int bufferLength = _readBuffers[roomId].Length;
+                            int bufferLength = _readBuffers[roomId].Count;
                             System.Diagnostics.Debug.WriteLine($"[串口接收] 检测室ID:{roomId}, 超时处理，缓冲区长度:{bufferLength}");
                             ProcessBufferData(roomId, roomName, bufferLength);
                         }
@@ -613,6 +647,28 @@ namespace ShunLiDuo.AutomationDetection.Services
                         
                         // 每个串口连接之间稍微延迟，避免同时打开多个串口导致问题
                         await Task.Delay(100);
+                    }
+                }
+            });
+        }
+        public async Task CloseAllConnectionsAsync()
+        {
+            await Task.Run(() =>
+            {
+                lock (_lockObject)
+                {
+                    try
+                    {
+                        var roomIds = _serialPorts.Keys.ToList();
+                        foreach (var roomId in roomIds)
+                        {
+                            CloseConnectionCore(roomId);
+                            System.Diagnostics.Debug.WriteLine($"[串口服务] 应用程序已正常关闭串口连接 - 检测室ID:{roomId}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[串口服务] 关闭所有连接时发生异常: {ex.Message}");
                     }
                 }
             });

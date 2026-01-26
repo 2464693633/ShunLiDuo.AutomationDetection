@@ -5,6 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:converters="clr-namespace:ShunLiDuo.AutomationDetection.Converters"
+             xmlns:componentModel="clr-namespace:System.ComponentModel;assembly=WindowsBase"
              prism:ViewModelLocator.AutoWireViewModel="True"
              mc:Ignorable="d"
              d:DesignHeight="1080" d:DesignWidth="1920">
@@ -14,241 +15,163 @@
                 <ResourceDictionary Source="pack://application:,,,/Resources/CommonStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converters:ScanStatusToColorConverter x:Key="ScanStatusToColorConverter"/>
-
-            <Style x:Key="SectionBorderStyle" TargetType="Border">
-                <Setter Property="Background" Value="#F8F8F8"/>
-                <Setter Property="BorderBrush" Value="#E0E0E0"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Padding" Value="15"/>
-                <Setter Property="Margin" Value="10"/>
-            </Style>
-            <Style x:Key="LabelStyle" TargetType="Label">
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-                <Setter Property="Margin" Value="0,5"/>
-            </Style>
-            <Style x:Key="TextBoxStyle" TargetType="TextBox">
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="Padding" Value="8"/>
-                <Setter Property="BorderBrush" Value="#CCCCCC"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Margin" Value="0,5"/>
-            </Style>
-            <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
-                <Setter Property="FontSize" Value="14"/>
-                <Setter Property="Padding" Value="8"/>
-                <Setter Property="BorderBrush" Value="#CCCCCC"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Margin" Value="0,5"/>
-            </Style>
-            <Style x:Key="ExecuteButtonStyle" TargetType="Button">
-                <Setter Property="Padding" Value="30,10"/>
-                <Setter Property="FontSize" Value="16"/>
-                <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Background" Value="#2196F3"/>
-                <Setter Property="Foreground" Value="White"/>
-                <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="Cursor" Value="Hand"/>
-                <Setter Property="HorizontalAlignment" Value="Right"/>
-                <Style.Triggers>
-                    <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#1976D2"/>
-                    </Trigger>
-                </Style.Triggers>
-            </Style>
-            <Style x:Key="RoomListBoxStyle" TargetType="ListBox">
-                <Setter Property="BorderBrush" Value="#CCCCCC"/>
-                <Setter Property="BorderThickness" Value="1"/>
-                <Setter Property="Background" Value="White"/>
-                <Setter Property="Margin" Value="5"/>
-                <Setter Property="MinWidth" Value="150"/>
-                <Setter Property="MinHeight" Value="200"/>
-            </Style>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <converters:BooleanToStatusBrushConverter x:Key="BooleanToStatusBrushConverter"/>
+            <converters:LogisticsBoxCodeConverter x:Key="LogisticsBoxCodeConverter"/>
+            <converters:AlternationIndexConverter x:Key="AlternationIndexConverter"/>
+            
+            <!-- 任务列表CollectionViewSource，默认按Id降序排序（最新的在上面） -->
+            <CollectionViewSource x:Key="TasksViewSource" Source="{Binding Tasks}">
+                <CollectionViewSource.SortDescriptions>
+                    <componentModel:SortDescription PropertyName="Id" Direction="Descending"/>
+                </CollectionViewSource.SortDescriptions>
+            </CollectionViewSource>
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- 明亮背景网格 -->
-    <Grid Margin="0,0,0,0" VerticalAlignment="Stretch">
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#F5F7FA" Offset="0"/>
-                <GradientStop Color="#FFFFFF" Offset="1"/>
-            </LinearGradientBrush>
-        </Grid.Background>
-        
+    <Grid Background="Transparent">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- 扫码录入和检测归属区域 - 明亮样式 -->
-        <Border Grid.Row="0" 
-                Background="White" 
-                BorderBrush="{StaticResource DarkBorderBrush}" 
-                BorderThickness="2" 
-                Padding="25" 
-                Margin="15,15,15,20" 
-                CornerRadius="10">
-            <Border.Effect>
-                <DropShadowEffect Color="#20000000" 
-                                 BlurRadius="15" 
-                                 ShadowDepth="3" 
-                                 Opacity="0.1"/>
-            </Border.Effect>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="450"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+        <!-- Top Section: Scanning & Room Status -->
+        <Grid Grid.Row="0" Margin="0,0,0,24">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
 
-                <!-- 扫码录入 - 蓝色边框面板 -->
-                <Border Grid.Column="0" 
-                       BorderBrush="#2196F3" 
-                       BorderThickness="2" 
-                       CornerRadius="8" 
-                       Padding="20"
-                       Background="#FAFBFC"
-                       Margin="0,0,60,0">
-                    <StackPanel>
-                        <TextBlock Text="扫码录入" 
-                                  FontSize="20" 
-                                  FontWeight="Bold" 
-                                  Foreground="{StaticResource DarkTextPrimaryBrush}"
-                                  Margin="0,0,0,20"/>
+            <!-- Scanning Card -->
+            <Border Grid.Column="0" Style="{StaticResource CardStyle}" Padding="24" Margin="0,0,24,0">
+                <StackPanel>
+                    <TextBlock Text="扫码录入" Style="{StaticResource H3Style}" Margin="0,0,0,24"/>
 
-                        <!-- 物流盒编码 -->
-                        <Grid Margin="0,0,0,15">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" 
-                                      Text="物流盒编码:" 
-                                      FontSize="14"
-                                      Foreground="{StaticResource DarkTextSecondaryBrush}"
-                                      VerticalAlignment="Center"
-                                      Margin="0,0,12,0"/>
-                            <TextBox Grid.Column="1"
-                                    Style="{StaticResource DarkTextBoxStyle}" 
-                                    Text="{Binding LogisticsBoxCode, UpdateSourceTrigger=PropertyChanged}"
-                                    KeyDown="LogisticsBoxCode_KeyDown"/>
-                        </Grid>
+                    <!-- [新增] 统一扫码输入框 -->
+                    <Border Background="#F0F8FF" BorderBrush="#1890FF" BorderThickness="2" CornerRadius="6" Padding="12" Margin="0,0,0,20">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                <Path Data="M4,4h6v6h-6z M14,4h6v6h-6z M4,14h6v6h-6z M17,17h3v3h-3z M14,14h3v3h-3z M14,17h3v3h-3z M17,14h3v3h-3z M1,1v22h22v-22h-22z M9,11h-4v-4h4v4z M19,11h-4v-4h4v4z M9,21h-4v-4h4v4z M11,13h1v8h-1z M13,11h8v1h-8z" 
+                                      Fill="#1890FF" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/>
+                                <TextBlock Text="快捷扫码（自动识别类型）" FontSize="14" FontWeight="SemiBold" Foreground="#333333"/>
+                            </StackPanel>
+                            <TextBox Style="{StaticResource StandardTextBoxStyle}" 
+                                    Text="{Binding UnifiedInputText, UpdateSourceTrigger=PropertyChanged}"
+                                    FontSize="16"
+                                    FontWeight="Medium"
+                                    Padding="10,8"
+                                    BorderBrush="#1890FF"
+                                    BorderThickness="1">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding UnifiedInputConfirmCommand}"/>
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <TextBlock Text="H(物流盒) / ZJ(报工单) / 纯数字(送检人)" 
+                                       FontSize="11" 
+                                       Foreground="#888888" 
+                                       Margin="0,6,0,0"/>
+                        </StackPanel>
+                    </Border>
 
-                        <!-- 报工单编号 -->
-                        <Grid Margin="0,0,0,15">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" 
-                                      Text="报工单编号:" 
-                                      FontSize="14"
-                                      Foreground="{StaticResource DarkTextSecondaryBrush}"
-                                      VerticalAlignment="Center"
-                                      Margin="0,0,12,0"/>
-                            <TextBox Grid.Column="1"
-                                    Style="{StaticResource DarkTextBoxStyle}" 
-                                    Text="{Binding WorkOrderNo, UpdateSourceTrigger=PropertyChanged}"
-                                    KeyDown="WorkOrderNo_KeyDown"/>
-                        </Grid>
+                    <!-- 分隔线 -->
+                    <TextBlock Text="或者单独输入 ▼" FontSize="12" Foreground="#AAAAAA" TextAlignment="Center" Margin="0,0,0,16"/>
 
-                        <!-- 物流盒录入信息 -->
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="140"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" 
-                                      Text="物流盒录入信息:" 
-                                      FontSize="14"
-                                      Foreground="{StaticResource DarkTextSecondaryBrush}"
-                                      VerticalAlignment="Top"
-                                      Margin="0,0,12,0"/>
-                            <Border Grid.Column="1"
-                                   BorderBrush="#2196F3"
-                                   BorderThickness="2"
-                                   Background="#FAFBFC"
-                                   CornerRadius="4">
-                                <ListBox ItemsSource="{Binding LogisticsBoxList}"
-                                        BorderThickness="0"
-                                        Background="Transparent"
-                                        ScrollViewer.VerticalScrollBarVisibility="Auto"
-                                        MinHeight="150"
-                                        MaxHeight="200">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border Padding="10,8" 
-                                                   Margin="0,2"
-                                                   Background="#F5F5F5"
-                                                   CornerRadius="4"
-                                                   BorderBrush="{StaticResource DarkTableBorderBrush}"
-                                                   BorderThickness="1">
-                                                <TextBlock Text="{Binding}" 
-                                                          FontSize="15"
-                                                          Foreground="{StaticResource DarkTextPrimaryBrush}"/>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
-                            </Border>
-                        </Grid>
+                    <!-- Logistics Box Code -->
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="物流盒编码" Style="{StaticResource StandardLabelStyle}" Margin="0,0,0,8"/>
+                        <TextBox Style="{StaticResource StandardTextBoxStyle}" 
+                                Text="{Binding LogisticsBoxCode, UpdateSourceTrigger=PropertyChanged}"
+                                KeyDown="LogisticsBoxCode_KeyDown"/>
                     </StackPanel>
-                </Border>
 
-                <!-- 检测归属 -->
-                <StackPanel Grid.Column="1" Margin="10,0,0,0">
-                    <Grid>
+                    <!-- Work Order No -->
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="报工单编号" Style="{StaticResource StandardLabelStyle}" Margin="0,0,0,8"/>
+                        <TextBox Style="{StaticResource StandardTextBoxStyle}" 
+                                Text="{Binding WorkOrderNo, UpdateSourceTrigger=PropertyChanged}"
+                                KeyDown="WorkOrderNo_KeyDown"/>
+                    </StackPanel>
+
+                    <!-- Inspector Name -->
+                    <StackPanel Margin="0,0,0,16">
+                        <TextBlock Text="送检人" Style="{StaticResource StandardLabelStyle}" Margin="0,0,0,8"/>
+                        <TextBox Style="{StaticResource StandardTextBoxStyle}" 
+                                Text="{Binding InspectorInputText, UpdateSourceTrigger=PropertyChanged}"
+                                KeyDown="InspectorName_KeyDown"/>
+                    </StackPanel>
+
+                     <!-- Scanned List -->
+
+                </StackPanel>
+            </Border>
+            
+            <!-- Room Status Area -->
+            <Border Grid.Column="1" Style="{StaticResource CardStyle}" Padding="24">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    
+                    <!-- DEBUG ELEMENT -->
+
+
+                    <!-- Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,20">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label Grid.Column="0" 
-                              Content="检测归属" 
-                              FontSize="20" 
-                              FontWeight="Bold" 
-                              Foreground="{StaticResource DarkTextPrimaryBrush}"
-                              Margin="0,0,0,25"/>
-                        <StackPanel Grid.Column="1" Orientation="Vertical" HorizontalAlignment="Right">
-                            
-                            <!-- PLC连接状态指示器 -->
-                            <Border BorderThickness="2"
-                                   CornerRadius="6"
-                                   Padding="12,8"
-                                   HorizontalAlignment="Right"
-                                   Margin="0,0,0,10">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Background" Value="#F44336"/>
-                                        <Setter Property="BorderBrush" Value="#F44336"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsPlcConnected}" Value="True">
-                                                <Setter Property="Background" Value="#4CAF50"/>
-                                                <Setter Property="BorderBrush" Value="#4CAF50"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <Border.Effect>
-                                    <DropShadowEffect x:Name="PlcStatusShadow" 
-                                                     Color="#FFF44336" 
-                                                     BlurRadius="10" 
-                                                     ShadowDepth="0" 
-                                                     Opacity="0.8"/>
-                                </Border.Effect>
+                        
+                        <TextBlock Grid.Column="0" Text="检测归属状态" Style="{StaticResource H3Style}" VerticalAlignment="Center"/>
+                        
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                             <!-- Initialize State Button -->
+                             <Button Command="{Binding InitializeStateCommand}" 
+                                     Content="初始状态设定"
+                                     Cursor="Hand"
+                                     Padding="12,6"
+                                     Margin="0,0,12,0"
+                                     Background="#1890FF"
+                                     Foreground="White"
+                                     BorderThickness="0"
+                                     FontSize="14">
+                                 <Button.Resources>
+                                     <Style TargetType="Button">
+                                         <Setter Property="Template">
+                                             <Setter.Value>
+                                                 <ControlTemplate TargetType="Button">
+                                                     <Border Background="{TemplateBinding Background}" CornerRadius="4">
+                                                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                     </Border>
+                                                 </ControlTemplate>
+                                             </Setter.Value>
+                                         </Setter>
+                                         <Style.Triggers>
+                                             <Trigger Property="IsMouseOver" Value="True">
+                                                 <Setter Property="Opacity" Value="0.9"/>
+                                             </Trigger>
+                                             <Trigger Property="IsPressed" Value="True">
+                                                 <Setter Property="Opacity" Value="0.8"/>
+                                             </Trigger>
+                                         </Style.Triggers>
+                                     </Style>
+                                 </Button.Resources>
+                             </Button>
+
+                             <!-- PLC Status -->
+                            <Border Background="{Binding IsPlcConnected, Converter={StaticResource BooleanToStatusBrushConverter}}"
+                                    CornerRadius="4" 
+                                    Padding="12,6">
                                 <StackPanel Orientation="Horizontal">
-                                    <Ellipse Width="16" Height="16" Margin="0,0,8,0" Fill="White"/>
-                                    <TextBlock FontSize="14"
-                                              FontWeight="SemiBold"
-                                              Foreground="White"
-                                              VerticalAlignment="Center">
+                                    <Ellipse Width="8" Height="8" Margin="0,0,8,0" Fill="White"/>
+                                    <TextBlock FontSize="12" FontWeight="Medium" Foreground="White">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Text" Value="PLC未连接"/>
-                                                <Setter Property="Foreground" Value="White"/>
+                                                <Setter Property="Text" Value="PLC 未连接"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsPlcConnected}" Value="True">
-                                                        <Setter Property="Text" Value="PLC已连接"/>
-                                                        <Setter Property="Foreground" Value="White"/>
+                                                        <Setter Property="Text" Value="PLC 已连接"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -259,234 +182,135 @@
                         </StackPanel>
                     </Grid>
 
-                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" >
-                        <ItemsControl ItemsSource="{Binding RoomBoxLists}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
+                    <!-- Room List -->
+                    <ItemsControl Grid.Row="1" ItemsSource="{Binding RoomBoxLists}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <!-- 检测室面板 - 明亮样式 -->
-                                    <Border Margin="8" 
-                                           Background="White"
-                                           BorderBrush="#2196F3"
-                                           BorderThickness="2"
-                                           CornerRadius="8"
-                                           Padding="15">
-                                        <Border.Effect>
-                                            <DropShadowEffect Color="#20000000" 
-                                                             BlurRadius="8" 
-                                                             ShadowDepth="2" 
-                                                             Opacity="0.1"/>
-                                        </Border.Effect>
-                                        <StackPanel>
-                                            <!-- 检测室名称和串口连接状态 -->
-                                            <StackPanel Orientation="Horizontal" 
-                                                       HorizontalAlignment="Center" 
-                                                       Margin="0,0,0,10">
-                                                <Label Content="{Binding Room.RoomName}" 
-                                                      FontSize="16" 
-                                                      FontWeight="SemiBold" 
-                                                      Foreground="{StaticResource DarkTextPrimaryBrush}"
-                                                      Padding="0"
-                                                      Margin="0,0,8,0"/>
-                                                <!-- 串口连接状态指示器 -->
-                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <Ellipse Width="10" Height="10" Margin="0,0,5,0">
-                                                        <Ellipse.Style>
-                                                            <Style TargetType="Ellipse">
-                                                                <Setter Property="Fill" Value="#F44336"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsScannerConnected, Mode=OneWay}" Value="True">
-                                                                        <Setter Property="Fill" Value="#4CAF50"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Ellipse.Style>
-                                                    </Ellipse>
-                                                    <TextBlock FontSize="12" VerticalAlignment="Center">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Setter Property="Text" Value="扫码器未连接"/>
-                                                                <Setter Property="Foreground" Value="#F44336"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding IsScannerConnected, Mode=OneWay}" Value="True">
-                                                                        <Setter Property="Text" Value="扫码器已连接"/>
-                                                                        <Setter Property="Foreground" Value="#4CAF50"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </StackPanel>
-                                            </StackPanel>
-                                            
-                                            <!-- 扫码状态显示 -->
-                                            <Border Background="#FAFBFC" 
-                                                   BorderBrush="{StaticResource DarkTableBorderBrush}" 
-                                                   BorderThickness="1" 
-                                                   CornerRadius="4" 
-                                                   Padding="12" 
-                                                   Margin="0,0,0,10">
-                                            <StackPanel>
-                                                <TextBlock Text="扫码编码:" 
-                                                          FontSize="13" 
-                                                          FontWeight="SemiBold" 
-                                                          Foreground="{StaticResource DarkTextSecondaryBrush}"
-                                                          Margin="0,0,0,5"/>
-                                                <TextBlock Text="{Binding LastScannedCode, FallbackValue='等待扫码'}" 
-                                                          FontSize="15" 
-                                                          FontWeight="Medium"
-                                                          Foreground="{Binding ScanStatus, Converter={StaticResource ScanStatusToColorConverter}}"
-                                                          Margin="0,0,0,5"/>
-                                                <TextBlock Text="{Binding ScanStatus, FallbackValue='等待扫码'}" 
-                                                          FontSize="12" 
-                                                          Foreground="{Binding ScanStatus, Converter={StaticResource ScanStatusToColorConverter}}"/>
-                                            </StackPanel>
-                                        </Border>
-                                        
-                                        <!-- 等待扫码按钮 -->
-                                        <Button Content="等待扫码"
-                                               Background="#2196F3"
-                                               Foreground="White"
-                                               BorderThickness="0"
-                                               Padding="15,10"
-                                               FontSize="14"
-                                               FontWeight="SemiBold"
-                                               Cursor="Hand"
-                                               Margin="0,0,0,10">
-                                            <Button.Style>
-                                                <Style TargetType="Button">
-                                                    <Setter Property="Template">
-                                                        <Setter.Value>
-                                                            <ControlTemplate TargetType="Button">
-                                                                <Border Background="{TemplateBinding Background}"
-                                                                        CornerRadius="4"
-                                                                        Padding="{TemplateBinding Padding}">
-                                                                    <ContentPresenter HorizontalAlignment="Center" 
-                                                                                      VerticalAlignment="Center"/>
-                                                                </Border>
-                                                            </ControlTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Style.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="Background" Value="#1976D2"/>
-                                                        </Trigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                        
-                                        <!-- 物流盒列表 -->
-                                        <Border BorderBrush="{StaticResource DarkTableBorderBrush}"
-                                               BorderThickness="1"
-                                               Background="#FAFBFC"
-                                               CornerRadius="4">
-                                            <ListBox ItemsSource="{Binding Boxes}" 
-                                                    BorderThickness="0"
-                                                    Background="Transparent"
-                                                    Width="200"
-                                                    MaxHeight="200"
-                                                    ScrollViewer.VerticalScrollBarVisibility="Auto">
-                                                <ListBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <Border Padding="8,6" 
-                                                               Margin="2"
-                                                               Background="#F5F5F5"
-                                                               CornerRadius="3"
-                                                               BorderBrush="{StaticResource DarkTableBorderBrush}"
-                                                               BorderThickness="1">
-                                                            <TextBlock Text="{Binding}" 
-                                                                      FontSize="14"
-                                                                      Foreground="{StaticResource DarkTextPrimaryBrush}"/>
-                                                        </Border>
-                                                    </DataTemplate>
-                                                </ListBox.ItemTemplate>
-                                            </ListBox>
-                                        </Border>
-                                    </StackPanel>
-                                    </Border>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </StackPanel>
-            </Grid>
-        </Border>
+                                    <Border Margin="0,0,16,0" 
+                                             Background="#FAFAFA" 
+                                             CornerRadius="4" 
+                                             BorderBrush="{DynamicResource DividerBrush}" 
+                                             BorderThickness="1"
+                                             Padding="16">
+                                         <StackPanel>
+                                             <!-- Room Header -->
+                                             <Grid Margin="0,0,0,12">
+                                                 <TextBlock Text="{Binding Room.RoomName}" FontWeight="Bold" FontSize="16" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                  <!-- Scanner Status -->
+                                                 <Ellipse Width="8" Height="8" HorizontalAlignment="Right">
+                                                     <Ellipse.Style>
+                                                         <Style TargetType="Ellipse">
+                                                             <Setter Property="Fill" Value="#FF4D4F"/>
+                                                             <Setter Property="ToolTip" Value="扫码器未连接"/>
+                                                             <Style.Triggers>
+                                                                 <DataTrigger Binding="{Binding IsScannerConnected}" Value="True">
+                                                                     <Setter Property="Fill" Value="#52C41A"/>
+                                                                     <Setter Property="ToolTip" Value="扫码器已连接"/>
+                                                                 </DataTrigger>
+                                                             </Style.Triggers>
+                                                         </Style>
+                                                     </Ellipse.Style>
+                                                 </Ellipse>
+                                             </Grid>
 
-        <!-- 任务列表 - 明亮样式 -->
-        <Border Grid.Row="1" 
-                Background="White" 
-                BorderBrush="#2196F3" 
-                BorderThickness="2" 
-                Padding="25" 
-                CornerRadius="10"
-                Margin="15,0,15,15">
-            <Border.Effect>
-                <DropShadowEffect Color="#20000000" 
-                                 BlurRadius="15" 
-                                 ShadowDepth="3" 
-                                 Opacity="0.1"/>
-            </Border.Effect>
+                                             <!-- Current Scan Code -->
+                                             <Border Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4" Padding="12" Margin="0,0,0,12">
+                                                 <StackPanel>
+                                                     <TextBlock Text="当前扫码" FontSize="12" Foreground="{DynamicResource TextTertiaryBrush}" Margin="0,0,0,4"/>
+                                                     <TextBlock Text="{Binding LastScannedCode, FallbackValue='—'}" FontSize="15" FontWeight="Medium" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                                     <TextBlock Text="{Binding ScanStatus}" FontSize="12" Margin="0,4,0,0" Foreground="{Binding ScanStatus, Converter={StaticResource ScanStatusToColorConverter}}"/>
+                                                 </StackPanel>
+                                             </Border>
+                                             
+                                              <!-- Manual Trigger Btn -->
+                                             <Button Content="等待扫码" 
+                                                     Style="{StaticResource PrimaryButtonStyle}"
+                                                     Margin="0,0,0,12"/>
+
+                                             <!-- Box Queue -->
+                                             <Border Background="White" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="4">
+                                                 <ListBox ItemsSource="{Binding Boxes}" BorderThickness="0" Height="120" Background="Transparent">
+                                                     <ListBox.ItemTemplate>
+                                                         <DataTemplate>
+                                                              <TextBlock Text="{Binding}" FontSize="13" Padding="4,2"/>
+                                                         </DataTemplate>
+                                                     </ListBox.ItemTemplate>
+                                                 </ListBox>
+                                             </Border>
+                                         </StackPanel>
+                                     </Border>
+                                 </DataTemplate>
+                             </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Bottom Section: Task List -->
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="0">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-
-                <Label Grid.Row="0" 
-                      Content="任务列表" 
-                      FontSize="20" 
-                      FontWeight="Bold" 
-                      Foreground="{StaticResource DarkTextPrimaryBrush}"
-                      Margin="0,0,0,20"/>
-
-                <Border Grid.Row="1"
-                       BorderBrush="{StaticResource DarkTableBorderBrush}"
-                       BorderThickness="1"
-                       Background="#FAFBFC"
-                       CornerRadius="4">
-                    <DataGrid ItemsSource="{Binding Tasks}"
-                             AutoGenerateColumns="False"
-                             CanUserAddRows="False"
-                             GridLinesVisibility="None"
-                             HeadersVisibility="Column"
-                             SelectionMode="Single"
-                             IsReadOnly="True"
-                             RowHeight="55"
-                             BorderThickness="0"
-                             Background="Transparent"
-                             Foreground="{StaticResource DarkTextPrimaryBrush}"
-                             CellStyle="{StaticResource DarkDataGridCellStyle}"
-                             ColumnHeaderStyle="{StaticResource DarkDataGridColumnHeaderStyle}">
-                        <DataGrid.RowStyle>
-                            <Style TargetType="DataGridRow" BasedOn="{StaticResource DarkDataGridRowStyle}">
-                                <Setter Property="Padding" Value="0,5"/>
-                                <Setter Property="Margin" Value="0,2"/>
-                                <Setter Property="MinHeight" Value="55"/>
-                                <Setter Property="VerticalContentAlignment" Value="Center"/>
-                            </Style>
-                        </DataGrid.RowStyle>
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="报工单编号" Binding="{Binding WorkOrderNo}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测人信息" Binding="{Binding InspectorName}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测开始时间" Binding="{Binding StartTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室1状态" Binding="{Binding Room1Status}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室2状态" Binding="{Binding Room2Status}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室3状态" Binding="{Binding Room3Status}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室4状态" Binding="{Binding Room4Status}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测室5状态" Binding="{Binding Room5Status}" Width="140" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                        <DataGridTextColumn Header="检测结束时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
-                    </DataGrid.Columns>
-                    </DataGrid>
+                
+                <Border Grid.Row="0" Padding="24,16" BorderBrush="{DynamicResource DividerBrush}" BorderThickness="0,0,0,1">
+                     <TextBlock Text="任务列表" Style="{StaticResource H3Style}"/>
                 </Border>
+
+                <DataGrid Grid.Row="1" 
+                          ItemsSource="{Binding Source={StaticResource TasksViewSource}}"
+                          Style="{StaticResource StandardDataGridStyle}"
+                          ColumnHeaderStyle="{StaticResource DataGridColumnHeaderStyle}"
+                          BorderThickness="0"
+                          AlternationCount="{Binding Tasks.Count}">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="序号" Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=AlternationIndex, Converter={StaticResource AlternationIndexConverter}}" Width="80" IsReadOnly="True" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode, Converter={StaticResource LogisticsBoxCodeConverter}}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="报工单编号" Binding="{Binding WorkOrderNo}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="送检人" Binding="{Binding InspectorName}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="开始时间" Binding="{Binding StartTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室1" Binding="{Binding Room1Status}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室2" Binding="{Binding Room2Status}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室3" Binding="{Binding Room3Status}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室4" Binding="{Binding Room4Status}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="检测室5" Binding="{Binding Room5Status}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTextColumn Header="结束时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                        <DataGridTemplateColumn Header="操作" Width="100">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="删除" 
+                                            Style="{StaticResource DangerButtonStyle}"
+                                            Height="24"
+                                            FontSize="12"
+                                            Padding="10,2"
+                                            Command="{Binding DataContext.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource DataGridRowStyle}">
+                            <Setter Property="Tag" Value="{Binding  DataContext, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                            <Setter Property="ContextMenu">
+                                <Setter.Value>
+                                     <ContextMenu>
+                                        <MenuItem Header="删除任务" 
+                                                  Command="{Binding Path=PlacementTarget.Tag.DeleteTaskCommand, RelativeSource={RelativeSource AncestorType=ContextMenu}}" 
+                                                  CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                    </ContextMenu>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </DataGrid.RowStyle>
+                </DataGrid>
             </Grid>
         </Border>
     </Grid>
 </UserControl>
-

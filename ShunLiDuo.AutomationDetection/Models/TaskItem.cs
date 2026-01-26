@@ -31,6 +31,14 @@ namespace ShunLiDuo.AutomationDetection.Models
             set => SetProperty(ref _id, value);
         }
 
+        // [New] Database Log ID to prevent race conditions during updates
+        private int _logId;
+        public int LogId
+        {
+            get => _logId;
+            set => SetProperty(ref _logId, value);
+        }
+
         public string LogisticsBoxCode
         {
             get => _logisticsBoxCode;

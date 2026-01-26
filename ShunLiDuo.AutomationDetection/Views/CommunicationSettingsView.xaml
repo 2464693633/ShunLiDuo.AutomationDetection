@@ -32,168 +32,527 @@
         </TabControl>
 
         <!-- Content Area -->
-        <Border Grid.Row="1" 
-                Background="#F8F8F8" 
-                BorderBrush="{StaticResource BorderBrush}" 
-                BorderThickness="1" 
-                Padding="40" 
-                CornerRadius="4">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="0,0,15,0">
+                
+                <!-- Card 1: PLC Configuration -->
+                <Border Background="#F8F8F8" 
+                        BorderBrush="{StaticResource BorderBrush}" 
+                        BorderThickness="1" 
+                        Padding="30" 
+                        CornerRadius="4"
+                        Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
 
-                <!-- Title -->
-                <TextBlock Grid.Row="0" 
-                          Text="S7通讯设置" 
-                          FontSize="24" 
-                          FontWeight="Bold"
-                          Foreground="{StaticResource TextPrimaryBrush}"
-                          Margin="0,0,0,30"/>
+                        <!-- Title -->
+                        <TextBlock Grid.Row="0" 
+                                  Text="PLC通讯设置" 
+                                  FontSize="20" 
+                                  FontWeight="Bold"
+                                  Foreground="{StaticResource TextPrimaryBrush}"
+                                  Margin="0,0,0,20"/>
 
-                <!-- IP地址 -->
-                <Grid Grid.Row="1" Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" 
-                              Text="IP地址:" 
-                              Style="{StaticResource StandardLabelStyle}" 
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Right"
-                              Margin="0,0,15,0"/>
-                    <TextBox Grid.Column="1"
-                            Style="{StaticResource StandardTextBoxStyle}" 
-                            Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}"
-                            IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
-                </Grid>
+                        <!-- 工作模式 -->
+                        <Grid Grid.Row="1" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                      Text="工作模式:" 
+                                      Style="{StaticResource StandardLabelStyle}" 
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,15,0"/>
+                            <ComboBox Grid.Column="1"
+                                    Style="{StaticResource StandardComboBoxStyle}" 
+                                    ItemsSource="{Binding WorkModes}"
+                                    DisplayMemberPath="DisplayName"
+                                    SelectedValuePath="Mode"
+                                    SelectedValue="{Binding SelectedWorkMode}"/>
+                            <TextBlock Grid.Column="2" 
+                                      Text="{Binding SelectedWorkModeDescription}" 
+                                      FontSize="12"
+                                      Foreground="#666666" 
+                                      VerticalAlignment="Center"
+                                      Margin="10,0,0,0"/>
+                        </Grid>
 
-                <!-- PLC型号 -->
-                <Grid Grid.Row="2" Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" 
-                              Text="PLC型号:" 
-                              Style="{StaticResource StandardLabelStyle}" 
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Right"
-                              Margin="0,0,15,0"/>
-                    <ComboBox Grid.Column="1"
-                            Style="{StaticResource StandardComboBoxStyle}" 
-                            ItemsSource="{Binding CpuTypes}"
-                            DisplayMemberPath="DisplayName"
-                            SelectedValuePath="CpuType"
-                            SelectedValue="{Binding SelectedCpuType}"
-                            IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
-                </Grid>
+                        <!-- IP地址 -->
+                        <Grid Grid.Row="2" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                      Text="IP地址:" 
+                                      Style="{StaticResource StandardLabelStyle}" 
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1"
+                                    Style="{StaticResource StandardTextBoxStyle}" 
+                                    Text="{Binding IpAddress, UpdateSourceTrigger=PropertyChanged}"
+                                    IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
+                        </Grid>
 
-                <!-- 机架号 -->
-                <Grid Grid.Row="3" Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" 
-                              Text="机架号:" 
-                              Style="{StaticResource StandardLabelStyle}" 
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Right"
-                              Margin="0,0,15,0"/>
-                    <TextBox Grid.Column="1"
-                            Style="{StaticResource StandardTextBoxStyle}" 
-                            Text="{Binding Rack, UpdateSourceTrigger=PropertyChanged}"
-                            IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
-                </Grid>
+                        <!-- PLC型号 -->
+                        <Grid Grid.Row="3" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                      Text="PLC型号:" 
+                                      Style="{StaticResource StandardLabelStyle}" 
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,15,0"/>
+                            <ComboBox Grid.Column="1"
+                                    Style="{StaticResource StandardComboBoxStyle}" 
+                                    ItemsSource="{Binding CpuTypes}"
+                                    DisplayMemberPath="DisplayName"
+                                    SelectedValuePath="CpuType"
+                                    SelectedValue="{Binding SelectedCpuType}"
+                                    IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
+                        </Grid>
 
-                <!-- 槽号 -->
-                <Grid Grid.Row="4" Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" 
-                              Text="槽号:" 
-                              Style="{StaticResource StandardLabelStyle}" 
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Right"
-                              Margin="0,0,15,0"/>
-                    <TextBox Grid.Column="1"
-                            Style="{StaticResource StandardTextBoxStyle}" 
-                            Text="{Binding Slot, UpdateSourceTrigger=PropertyChanged}"
-                            IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
-                </Grid>
+                        <!-- 机架号 -->
+                        <Grid Grid.Row="4" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                      Text="机架号:" 
+                                      Style="{StaticResource StandardLabelStyle}" 
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1"
+                                    Style="{StaticResource StandardTextBoxStyle}" 
+                                    Text="{Binding Rack, UpdateSourceTrigger=PropertyChanged}"
+                                    IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
+                        </Grid>
 
-                <!-- 连接状态 -->
-                <Grid Grid.Row="5" Margin="0,0,0,30">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" 
-                              Text="连接状态:" 
-                              Style="{StaticResource StandardLabelStyle}" 
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Right"
-                              Margin="0,0,15,0"/>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Ellipse Width="12" Height="12" 
-                                Margin="0,0,10,0" 
-                                VerticalAlignment="Center">
-                            <Ellipse.Fill>
-                                <SolidColorBrush Color="{Binding IsConnected, Converter={StaticResource BooleanToColorConverter}}"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-                        <TextBlock Text="{Binding ConnectionStatus}" 
-                                  FontSize="16"
-                                  VerticalAlignment="Center"
-                                  Foreground="{StaticResource TextPrimaryBrush}"/>
+                        <!-- 槽号 -->
+                        <Grid Grid.Row="5" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                      Text="槽号:" 
+                                      Style="{StaticResource StandardLabelStyle}" 
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1"
+                                    Style="{StaticResource StandardTextBoxStyle}" 
+                                    Text="{Binding Slot, UpdateSourceTrigger=PropertyChanged}"
+                                    IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
+                        </Grid>
+
+                        <!-- 连接状态 -->
+                        <Grid Grid.Row="6" Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                      Text="连接状态:" 
+                                      Style="{StaticResource StandardLabelStyle}" 
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,15,0"/>
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse Width="12" Height="12" 
+                                        Margin="0,0,10,0" 
+                                        VerticalAlignment="Center">
+                                    <Ellipse.Fill>
+                                        <SolidColorBrush Color="{Binding IsConnected, Converter={StaticResource BooleanToColorConverter}}"/>
+                                    </Ellipse.Fill>
+                                </Ellipse>
+                                <TextBlock Text="{Binding ConnectionStatus}" 
+                                          FontSize="16"
+                                          VerticalAlignment="Center"
+                                          Foreground="{StaticResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- 自动连接选项 -->
+                        <Grid Grid.Row="7" Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120"/>
+                                <ColumnDefinition Width="300"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" 
+                                      Text="自动连接:" 
+                                      Style="{StaticResource StandardLabelStyle}" 
+                                      VerticalAlignment="Center"
+                                      HorizontalAlignment="Right"
+                                      Margin="0,0,15,0"/>
+                            <CheckBox Grid.Column="1"
+                                    Content="启动时自动连接PLC"
+                                    IsChecked="{Binding AutoConnect, UpdateSourceTrigger=PropertyChanged}"
+                                    VerticalAlignment="Center"
+                                    IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
+                        </Grid>
+
+                        <!-- 连接按钮 -->
+                        <StackPanel Grid.Row="8" Orientation="Horizontal" HorizontalAlignment="Left" Margin="275,0,0,0">
+                            <Button Content="{Binding IsConnected, Converter={StaticResource BooleanToConnectButtonTextConverter}}"
+                                   Command="{Binding ConnectCommand}"
+                                   Style="{StaticResource PrimaryButtonStyle}"
+                                   MinWidth="150"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Card 2: Loading Scanner Configuration -->
+                <Border Background="#F8F8F8" 
+                        BorderBrush="{StaticResource BorderBrush}" 
+                        BorderThickness="1" 
+                        Padding="30" 
+                        CornerRadius="4"
+                        Margin="0,0,0,20">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="上料扫码枪配置" 
+                                      FontSize="20" 
+                                      FontWeight="Bold"
+                                      Foreground="{StaticResource TextPrimaryBrush}"
+                                      Margin="0,0,0,20"/>
+                            
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="启用:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <CheckBox Grid.Column="1" Content="启用上料扫码枪" IsChecked="{Binding LoadingScannerIsEnabled}" VerticalAlignment="Center"/>
+                                <Button Grid.Column="2" Content="连接测试" Command="{Binding TestLoadingScannerConnectionCommand}" Style="{StaticResource SmallButtonStyle}" HorizontalAlignment="Left" Margin="0,0,0,0"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding LoadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="串口号:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerPortNames}" SelectedValue="{Binding LoadingScannerPort}"/>
+                                <Button Grid.Column="2" Content="刷新串口" Command="{Binding RefreshPortsCommand}" Style="{StaticResource SmallButtonStyle}" Margin="10,0,0,0"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding LoadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="波特率:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerBaudRates}" SelectedValue="{Binding LoadingScannerBaudRate}"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding LoadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="数据位:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerDataBitsList}" SelectedValue="{Binding LoadingScannerDataBits}"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding LoadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="停止位:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerStopBitsList}" SelectedValue="{Binding LoadingScannerStopBits}"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding LoadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="校验位:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerParities}" SelectedValue="{Binding LoadingScannerParity}"/>
+                            </Grid>
+                            <Grid Margin="0,0,0,15" Visibility="{Binding LoadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="扫码预览:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding LoadingScannerPreview}" IsReadOnly="True" Background="#F0F0F0" Foreground="Blue" FontWeight="Bold"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Card 3: Unloading Scanner Configuration -->
+                <Border Background="#F8F8F8" 
+                        BorderBrush="{StaticResource BorderBrush}" 
+                        BorderThickness="1" 
+                        Padding="30" 
+                        CornerRadius="4"
+                        Margin="0,0,0,20">
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="下料扫码枪配置" 
+                                      FontSize="20" 
+                                      FontWeight="Bold"
+                                      Foreground="{StaticResource TextPrimaryBrush}"
+                                      Margin="0,0,0,20"/>
+                            
+                            <Grid Margin="0,0,0,15">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="启用:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <CheckBox Grid.Column="1" Content="启用下料扫码枪" IsChecked="{Binding UnloadingScannerIsEnabled}" VerticalAlignment="Center"/>
+                                <Button Grid.Column="2" Content="连接测试" Command="{Binding TestUnloadingScannerConnectionCommand}" Style="{StaticResource SmallButtonStyle}" HorizontalAlignment="Left" Margin="0,0,0,0"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding UnloadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="串口号:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerPortNames}" SelectedValue="{Binding UnloadingScannerPort}"/>
+                                <Button Grid.Column="2" Content="刷新串口" Command="{Binding RefreshPortsCommand}" Style="{StaticResource SmallButtonStyle}" Margin="10,0,0,0"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding UnloadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="波特率:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerBaudRates}" SelectedValue="{Binding UnloadingScannerBaudRate}"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding UnloadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="数据位:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerDataBitsList}" SelectedValue="{Binding UnloadingScannerDataBits}"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding UnloadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="停止位:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerStopBitsList}" SelectedValue="{Binding UnloadingScannerStopBits}"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding UnloadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="校验位:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <ComboBox Grid.Column="1" Style="{StaticResource StandardComboBoxStyle}" ItemsSource="{Binding ScannerParities}" SelectedValue="{Binding UnloadingScannerParity}"/>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,15" Visibility="{Binding UnloadingScannerIsEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="300"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="扫码预览:" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                                <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding UnloadingScannerPreview}" IsReadOnly="True" Background="#F0F0F0" Foreground="Blue" FontWeight="Bold"/>
+                            </Grid>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                
+                <!-- Card 4: 上料弯道气缸参数 -->
+                <Border Background="#F8F8F8" 
+                        BorderBrush="{StaticResource BorderBrush}" 
+                        BorderThickness="1" 
+                        Padding="30" 
+                        CornerRadius="4"
+                        Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="上料弯道气缸参数" 
+                                   FontSize="20" 
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   Margin="0,0,0,20"/>
+                        
+                        <!-- 伸出保持时间 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="伸出保持时间(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding LoadingCylinderExtendDelay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="推箱动作持续时间" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        
+                        <!-- 收缩保持时间 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="收缩保持时间(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding LoadingCylinderRetractDelay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="气缸收缩到位时间" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        
+                        <!-- 互锁缓冲延时 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="互锁缓冲延时(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding LoadingCylinderInterlockDelay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="双线圈切换间隔" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        
+                        <!-- 冷却时间 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="冷却时间(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding LoadingCylinderCooldown, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="防止连续触发间隔" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        
+                        <!-- 循环间隔 -->
+                        <Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="循环间隔(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding LoadingCylinderLoopInterval, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="传感器检测频率" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
                     </StackPanel>
-                </Grid>
+                </Border>
 
-                <!-- 自动连接选项 -->
-                <Grid Grid.Row="6" Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="150"/>
-                        <ColumnDefinition Width="300"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" 
-                              Text="自动连接:" 
-                              Style="{StaticResource StandardLabelStyle}" 
-                              VerticalAlignment="Center"
-                              HorizontalAlignment="Right"
-                              Margin="0,0,15,0"/>
-                    <CheckBox Grid.Column="1"
-                            Content="启动时自动连接PLC"
-                            IsChecked="{Binding AutoConnect, UpdateSourceTrigger=PropertyChanged}"
-                            VerticalAlignment="Center"
-                            IsEnabled="{Binding IsConnecting, Converter={StaticResource InvertBooleanConverter}}"/>
-                </Grid>
+                <!-- Card 5: 下料弯道气缸参数 -->
+                <Border Background="#F8F8F8" 
+                        BorderBrush="{StaticResource BorderBrush}" 
+                        BorderThickness="1" 
+                        Padding="30" 
+                        CornerRadius="4"
+                        Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="下料弯道气缸参数" 
+                                   FontSize="20" 
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   Margin="0,0,0,20"/>
+                        
+                        <!-- 伸出保持时间 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="伸出保持时间(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding UnloadingCylinderExtendDelay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="推箱动作持续时间" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        
+                        <!-- 收缩保持时间 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="收缩保持时间(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding UnloadingCylinderRetractDelay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="气缸收缩到位时间" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        
+                        <!-- 互锁缓冲延时 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="互锁缓冲延时(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding UnloadingCylinderInterlockDelay, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="双线圈切换间隔" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        
+                        <!-- 冷却时间 -->
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="冷却时间(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding UnloadingCylinderCooldown, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="防止连续触发间隔" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                        
+                        <!-- 循环间隔 -->
+                        <Grid Margin="0,0,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="循环间隔(ms):" Style="{StaticResource StandardLabelStyle}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,15,0"/>
+                            <TextBox Grid.Column="1" Style="{StaticResource StandardTextBoxStyle}" Text="{Binding UnloadingCylinderLoopInterval, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBlock Grid.Column="2" Text="传感器检测频率" FontSize="12" Foreground="#666666" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
 
-                <!-- 连接按钮 -->
-                <StackPanel Grid.Row="7" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Button Content="{Binding IsConnected, Converter={StaticResource BooleanToConnectButtonTextConverter}}"
-                           Command="{Binding ConnectCommand}"
-                           Style="{StaticResource PrimaryButtonStyle}"
-                           MinWidth="150"/>
-                </StackPanel>
-            </Grid>
-        </Border>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>
 

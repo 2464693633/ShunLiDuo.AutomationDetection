@@ -504,6 +504,57 @@ namespace ShunLiDuo.AutomationDetection.Data
                     System.Diagnostics.Debug.WriteLine($"[数据库] 处理 AlarmType 字段时出错: {ex.Message}");
                 }
                 
+                // 检查并添加通讯配置表的新字段（如果不存在）
+                try
+                {
+                    // 需要添加的扫描枪配置字段
+                    var commColumns = new Dictionary<string, string>
+                    {
+                        { "LoadingScannerPort", "TEXT" },
+                        { "LoadingScannerBaudRate", "INTEGER DEFAULT 9600" },
+                        { "LoadingScannerDataBits", "INTEGER DEFAULT 8" },
+                        { "LoadingScannerStopBits", "INTEGER DEFAULT 1" },
+                        { "LoadingScannerParity", "TEXT DEFAULT 'None'" },
+                        { "LoadingScannerIsEnabled", "INTEGER DEFAULT 0" },
+                        { "UnloadingScannerPort", "TEXT" },
+                        { "UnloadingScannerBaudRate", "INTEGER DEFAULT 9600" },
+                        { "UnloadingScannerDataBits", "INTEGER DEFAULT 8" },
+                        { "UnloadingScannerStopBits", "INTEGER DEFAULT 1" },
+                        { "UnloadingScannerParity", "TEXT DEFAULT 'None'" },
+                        { "UnloadingScannerIsEnabled", "INTEGER DEFAULT 0" }
+                    };
+
+                    using (var checkCommand = Connection.CreateCommand())
+                    {
+                        checkCommand.CommandText = "PRAGMA table_info(CommunicationConfig)";
+                        using (var reader = checkCommand.ExecuteReader())
+                        {
+                            var existingColumns = new List<string>();
+                            while (reader.Read())
+                            {
+                                existingColumns.Add(reader.GetString(1));
+                            }
+                            
+                            foreach (var column in commColumns)
+                            {
+                                if (!existingColumns.Contains(column.Key))
+                                {
+                                    using (var alterCommand = Connection.CreateCommand())
+                                    {
+                                        alterCommand.CommandText = $"ALTER TABLE CommunicationConfig ADD COLUMN {column.Key} {column.Value}";
+                                        alterCommand.ExecuteNonQuery();
+                                        System.Diagnostics.Debug.WriteLine($"[数据库] 已添加 {column.Key} 字段到 CommunicationConfig 表");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[数据库迁移] 迁移通讯配置字段时出错: {ex.Message}");
+                }
+                
                 // 检查并添加 AlarmLevel 字段（如果不存在）
                 try
                 {
@@ -549,6 +600,96 @@ namespace ShunLiDuo.AutomationDetection.Data
                 {
                     // 如果字段已存在或其他错误，记录日志但继续执行
                     System.Diagnostics.Debug.WriteLine($"[数据库] 处理 WorkOrderNo 字段时出错: {ex.Message}");
+                }
+
+                // 检查并添加 InspectorName 字段到 DetectionLogs 表（如果不存在）
+                try
+                {
+                    command.CommandText = "SELECT COUNT(*) FROM pragma_table_info('DetectionLogs') WHERE name='InspectorName';";
+                    var fieldExists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                    
+                    if (!fieldExists)
+                    {
+                        command.CommandText = "ALTER TABLE DetectionLogs ADD COLUMN InspectorName TEXT;";
+                        command.ExecuteNonQuery();
+                        System.Diagnostics.Debug.WriteLine("[数据库] 已添加 InspectorName 字段到 DetectionLogs 表");
+                    }
+                }
+                catch (SQLiteException ex)
+                {
+                    // 如果字段已存在或其他错误，记录日志但继续执行
+                    System.Diagnostics.Debug.WriteLine($"[数据库] 处理 InspectorName 字段时出错: {ex.Message}");
+                }
+                
+                // [新增] 检查并添加气缸参数字段到 CommunicationConfig 表
+                try
+                {
+                    // 需要添加的气缸参数字段
+                    var cylinderColumns = new System.Collections.Generic.Dictionary<string, string>
+                    {
+                        { "LoadingCylinderExtendDelay", "INTEGER DEFAULT 3000" },
+                        { "LoadingCylinderRetractDelay", "INTEGER DEFAULT 2000" },
+                        { "LoadingCylinderInterlockDelay", "INTEGER DEFAULT 50" },
+                        { "LoadingCylinderCooldown", "INTEGER DEFAULT 500" },
+                        { "LoadingCylinderLoopInterval", "INTEGER DEFAULT 50" },
+                        { "UnloadingCylinderExtendDelay", "INTEGER DEFAULT 3000" },
+                        { "UnloadingCylinderRetractDelay", "INTEGER DEFAULT 2000" },
+                        { "UnloadingCylinderInterlockDelay", "INTEGER DEFAULT 50" },
+                        { "UnloadingCylinderCooldown", "INTEGER DEFAULT 500" },
+                        { "UnloadingCylinderLoopInterval", "INTEGER DEFAULT 50" }
+                    };
+                    
+                    // 检查表是否存在
+                    command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='CommunicationConfig';";
+                    var tableExists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                    
+                    if (tableExists)
+                    {
+                        // 添加缺失的字段
+                        foreach (var column in cylinderColumns)
+                        {
+                            command.CommandText = $"SELECT COUNT(*) FROM pragma_table_info('CommunicationConfig') WHERE name='{column.Key}';";
+                            var fieldExists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                            
+                            if (!fieldExists)
+                            {
+                                command.CommandText = $"ALTER TABLE CommunicationConfig ADD COLUMN {column.Key} {column.Value};";
+                                command.ExecuteNonQuery();
+                                System.Diagnostics.Debug.WriteLine($"[数据库] 已添加 {column.Key} 字段到 CommunicationConfig 表");
+                            }
+                        }
+                    }
+                }
+                catch (SQLiteException ex)
+                {
+                    // 如果出错，记录日志但继续执行
+                    System.Diagnostics.Debug.WriteLine($"[数据库] 处理 CommunicationConfig 气缸参数字段时出错: {ex.Message}");
+                }
+                
+                // [新增] 检查并添加Mode字段到 CommunicationConfig 表
+                try
+                {
+                    // 检查表是否存在
+                    command.CommandText = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='CommunicationConfig';";
+                    var tableExists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                    
+                    if (tableExists)
+                    {
+                        command.CommandText = "SELECT COUNT(*) FROM pragma_table_info('CommunicationConfig') WHERE name='Mode';";
+                        var fieldExists = Convert.ToInt32(command.ExecuteScalar()) > 0;
+                        
+                        if (!fieldExists)
+                        {
+                            command.CommandText = "ALTER TABLE CommunicationConfig ADD COLUMN Mode INTEGER DEFAULT 0;";
+                            command.ExecuteNonQuery();
+                            System.Diagnostics.Debug.WriteLine("[数据库] 已添加 Mode 字段到 CommunicationConfig 表");
+                        }
+                    }
+                }
+                catch (SQLiteException ex)
+                {
+                    // 如果出错，记录日志但继续执行
+                    System.Diagnostics.Debug.WriteLine($"[数据库] 处理 CommunicationConfig Mode 字段时出错: {ex.Message}");
                 }
             }
 

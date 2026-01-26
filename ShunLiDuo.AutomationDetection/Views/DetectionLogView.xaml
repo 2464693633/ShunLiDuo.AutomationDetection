@@ -99,11 +99,13 @@
                 <DataGridTextColumn Header="序号" Binding="{Binding Id}" Width="70" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="物流盒编码" Binding="{Binding LogisticsBoxCode}" Width="200" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="报工单编号" Binding="{Binding WorkOrderNo}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                <DataGridTextColumn Header="送检人" Binding="{Binding InspectorName}" Width="100" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="检测室" Binding="{Binding RoomName}" Width="150" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="120" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="检测开始时间" Binding="{Binding StartTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="检测完成时间" Binding="{Binding EndTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
                 <DataGridTextColumn Header="创建时间" Binding="{Binding CreateTime, StringFormat=yyyy-MM-dd HH:mm:ss}" Width="180" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
+                
                 <DataGridTextColumn Header="备注" Binding="{Binding Remark}" Width="*" ElementStyle="{StaticResource DataGridTextColumnElementStyle}"/>
             </DataGrid.Columns>
             </DataGrid>

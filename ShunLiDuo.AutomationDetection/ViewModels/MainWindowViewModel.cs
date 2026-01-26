@@ -25,6 +25,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         private bool _isRuleManagementExpanded = false;
         private bool _isAlarmExpanded = false;
         private bool _isSystemSettingsExpanded = false;
+        private bool _isHistoryExpanded = false; // 历史数据菜单展开状态
         
         // 标签页管理
         private ObservableCollection<OpenTabItem> _openTabs = new ObservableCollection<OpenTabItem>();
@@ -269,6 +270,27 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
                 CurrentLeftNav = "DetectionLog";
                 OpenTab("DetectionLogView", "检测历史");
             });
+
+            NavigateToHistoryCommand = new DelegateCommand(() => 
+            {
+                CurrentMainView = "DetectionLogView";
+                IsLeftNavVisible = true;
+                // Check if there is a bottoms nav for this, probably reuse TaskManagement or none?
+                // Or maybe create a new group. For now let's keep CurrentBottomNav as is or set to a new one if needed.
+                // But wait, NavigateToDetectionLogCommand sets CurrentBottomNav = "DetectionLog".
+                CurrentBottomNav = "DetectionLog";
+                if (!IsHistoryExpanded)
+                {
+                    IsHistoryExpanded = true; // 展开历史数据菜单
+                }
+                CurrentLeftNav = "DetectionLog";
+                OpenTab("DetectionLogView", "检测历史");
+            });
+
+            ToggleHistoryExpandedCommand = new DelegateCommand(() => 
+            {
+                IsHistoryExpanded = !IsHistoryExpanded;
+            });
         }
 
         private void NavigateTo(string viewName)
@@ -368,6 +390,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         public DelegateCommand NavigateToRuleCommand { get; private set; }
         public DelegateCommand NavigateToAlarmCommand { get; private set; }
         public DelegateCommand NavigateToSystemSettingsCommand { get; private set; }
+        public DelegateCommand NavigateToHistoryCommand { get; private set; } // 历史数据菜单命令
 
         // 侧栏菜单命令
         public DelegateCommand NavigateToLogisticsBoxCommand { get; private set; }
@@ -440,6 +463,12 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
             get => _isSystemSettingsExpanded;
             set => SetProperty(ref _isSystemSettingsExpanded, value);
         }
+
+        public bool IsHistoryExpanded
+        {
+            get => _isHistoryExpanded;
+            set => SetProperty(ref _isHistoryExpanded, value);
+        }
         
         // 标签页管理
         public ObservableCollection<OpenTabItem> OpenTabs
@@ -464,6 +493,7 @@ namespace ShunLiDuo.AutomationDetection.ViewModels
         public DelegateCommand ToggleRuleManagementExpandedCommand { get; private set; }
         public DelegateCommand ToggleAlarmExpandedCommand { get; private set; }
         public DelegateCommand ToggleSystemSettingsExpandedCommand { get; private set; }
+        public DelegateCommand ToggleHistoryExpandedCommand { get; private set; }
     }
     
     // 打开的标签页项

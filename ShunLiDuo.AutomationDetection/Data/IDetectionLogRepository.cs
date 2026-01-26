@@ -13,6 +13,10 @@ namespace ShunLiDuo.AutomationDetection.Data
         Task<DetectionLogItem> GetLogByIdAsync(int id);
         Task<int> InsertLogAsync(DetectionLogItem log);
         Task<bool> UpdateLogAsync(DetectionLogItem log);
+        Task<bool> UpdateWorkOrderNoAsync(int id, string workOrderNo);
+
+        Task<bool> UpdateInspectorNameAsync(int id, string inspectorName);
+        Task<bool> UpdateRoomInfoAsync(int id, int roomId, string roomName, string status); // [新增]
         Task<bool> DeleteLogAsync(int id);
     }
 }

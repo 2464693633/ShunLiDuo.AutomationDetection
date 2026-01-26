@@ -19,7 +19,7 @@ namespace ShunLiDuo.AutomationDetection.Services
 
         public string ActualAddress => _actualAddress ?? _baseAddress;
 
-        public ApiHostService(IContainerProvider containerProvider, string baseAddress = "http://localhost:8080")
+        public ApiHostService(IContainerProvider containerProvider, string baseAddress = "http://localhost:8081")
         {
             _containerProvider = containerProvider;
             _baseAddress = baseAddress;
@@ -169,7 +169,7 @@ namespace ShunLiDuo.AutomationDetection.Services
             }
             catch
             {
-                return 8080; // 默认端口
+                return 8081; // 默认端口
             }
         }
 
@@ -187,7 +187,7 @@ namespace ShunLiDuo.AutomationDetection.Services
             catch
             {
                 // 如果解析失败，简单替换
-                return address.Replace(":8080", $":{newPort}");
+                return address.Replace(":8081", $":{newPort}");
             }
         }
 
@@ -256,8 +256,8 @@ namespace ShunLiDuo.AutomationDetection.Services
                 errorMsg += "解决方案（任选其一）：\n\n";
                 errorMsg += "方案1：以管理员身份运行应用程序\n\n";
                 errorMsg += "方案2：以管理员身份执行以下命令（推荐）：\n\n";
-                errorMsg += "    netsh http add urlacl url=http://+:8080/ user=Everyone\n\n";
-                errorMsg += "   如果需要使用其他端口，请替换8080为相应端口号\n\n";
+                errorMsg += "    netsh http add urlacl url=http://+:8081/ user=Everyone\n\n";
+                errorMsg += "   如果需要使用其他端口，请替换8081为相应端口号\n\n";
                 errorMsg += "   例如：netsh http add urlacl url=http://+:8081/ user=Everyone\n\n";
                 errorMsg += "执行命令后，重新启动应用程序。";
             }

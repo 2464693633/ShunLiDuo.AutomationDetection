@@ -108,7 +108,7 @@ namespace ShunLiDuo.AutomationDetection
                 {
                     // 从配置文件读取API地址，如果不存在则使用默认值
                     string apiBaseAddress = ConfigurationManager.AppSettings["ApiBaseAddress"] 
-                        ?? "http://localhost:8080";
+                        ?? "http://localhost:8081";
                     
                     _apiHostService = new ApiHostService(Container, apiBaseAddress);
                     _apiHostService.Start();
@@ -157,6 +157,7 @@ namespace ShunLiDuo.AutomationDetection
             containerRegistry.RegisterSingleton<ICurrentUserService, CurrentUserService>();
             containerRegistry.RegisterSingleton<IS7CommunicationService, S7CommunicationService>();
             containerRegistry.RegisterSingleton<IScannerCommunicationService, ScannerCommunicationService>();
+            containerRegistry.RegisterSingleton<IMesDatabaseService, MesDatabaseService>();
             containerRegistry.Register<ICommunicationConfigService, CommunicationConfigService>();
             containerRegistry.Register<IPlcMonitorConfigService, PlcMonitorConfigService>();
             containerRegistry.Register<IDetectionLogService, DetectionLogService>();
@@ -286,7 +287,23 @@ namespace ShunLiDuo.AutomationDetection
         {
             // 停止API服务器
             _apiHostService?.Stop();
+
+            // 关闭所有串口连接
+            try
+            {
+                var scannerService = Container.Resolve<IScannerCommunicationService>();
+                // 由于是退出程序，这里使用同步等待确保资源释放
+                scannerService.CloseAllConnectionsAsync().Wait(2000); 
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"退出程序时关闭串口失败: {ex.Message}");
+            }
+
             base.OnExit(e);
+
+            // 强制退出程序，确保所有后台线程都被终止
+            Environment.Exit(0);
         }
     }
 }

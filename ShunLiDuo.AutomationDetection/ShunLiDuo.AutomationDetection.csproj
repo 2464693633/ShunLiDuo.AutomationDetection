@@ -355,8 +355,6 @@
     <Compile Include="Data\DetectionLogRepository.cs" />
     <Compile Include="Data\IAlarmRecordRepository.cs" />
     <Compile Include="Data\AlarmRecordRepository.cs" />
-    <Compile Include="Data\IAlarmRecordRepository.cs" />
-    <Compile Include="Data\AlarmRecordRepository.cs" />
     <Compile Include="Services\IRuleService.cs" />
     <Compile Include="Services\RuleService.cs" />
     <Compile Include="Services\IDetectionRoomService.cs" />
@@ -376,6 +374,8 @@
     <Compile Include="Services\S7CommunicationService.cs" />
     <Compile Include="Services\IScannerCommunicationService.cs" />
     <Compile Include="Services\ScannerCommunicationService.cs" />
+    <Compile Include="Services\IMesDatabaseService.cs" />
+    <Compile Include="Services\MesDatabaseService.cs" />
     <Compile Include="Services\ICommunicationConfigService.cs" />
     <Compile Include="Services\CommunicationConfigService.cs" />
     <Compile Include="Services\IPlcMonitorConfigService.cs" />
@@ -399,7 +399,10 @@
     <Compile Include="Converters\ScanStatusToColorConverter.cs" />
     <Compile Include="Converters\BooleanToColorConverter.cs" />
     <Compile Include="Converters\BooleanToPlcStatusTextConverter.cs" />
+    <Compile Include="Converters\BooleanToStatusBrushConverter.cs" />
     <Compile Include="Converters\BooleanToConnectButtonTextConverter.cs" />
+    <Compile Include="Converters\LogisticsBoxCodeConverter.cs" />
+    <Compile Include="Converters\AlternationIndexConverter.cs" />
     <Compile Include="Models\TaskItem.cs" />
     <Compile Include="Models\LogisticsBoxItem.cs" />
     <Compile Include="Models\DetectionRoomItem.cs" />
